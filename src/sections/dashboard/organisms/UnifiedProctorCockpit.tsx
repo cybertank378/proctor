@@ -1,17 +1,19 @@
-// src/sections/dashboard/organisms/UnifiedProctorCockpit.tsx
+//Files:  src/sections/dashboard/organisms/UnifiedProctorCockpit.tsx
 "use client";
 
 import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {DoorOpen, Hash, MessageSquare, RefreshCw, Search, ShieldAlert, Users,} from "lucide-react";
+import {DoorOpen, Hash, MessageSquare, RefreshCw, Search, ShieldAlert, UserCheck, Users,} from "lucide-react";
 import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
 import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/presentations/hook/useExamMonitoringApi";
 import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
 import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
 import {MetricCard} from "@/sections/exam-monitoring/molecules/MetricCard";
 import {ProctorChatPanel} from "@/sections/proctor-chat/organisms/ProctorChatPanel";
+import {ProctorAssignmentModal} from "@/sections/proctor-management/organisms/ProctorAssignmentModal";
 import {EvidenceCard} from "@/sections/violations/molecules/EvidenceCard";
 import {ViolationEvidenceModal} from "@/sections/violations/organisms/ViolationEvidenceModal";
+import Badge from "@/shared-ui/component/Badge";
 import Button from "@/shared-ui/component/Button";
 import Pagination from "@/shared-ui/component/Pagination";
 import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table";
@@ -59,18 +61,24 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
                 {item.userId}
             </TableCell>
             <TableCell className="text-xs text-slate-600 py-2">
-                {item.roomNumber ?? "-"}
+                {item.roomNumber ? (
+                    <Badge size="sm" variant="soft" color="secondary">
+                        {item.roomNumber}
+                    </Badge>
+                ) : (
+                    <span className="text-slate-400">-</span>
+                )}
             </TableCell>
             <TableCell className="text-xs py-2">
-        <span
-            className={`font-semibold ${
-                item.violationCount >= item.maxAllowedViolations
-                    ? "text-red-600"
-                    : "text-slate-800"
-            }`}
-        >
-          {item.violationCount}/{item.maxAllowedViolations}
-        </span>
+                <span
+                    className={`font-semibold ${
+                        item.violationCount >= item.maxAllowedViolations
+                            ? "text-red-600"
+                            : "text-slate-800"
+                    }`}
+                >
+                    {item.violationCount}/{item.maxAllowedViolations}
+                </span>
             </TableCell>
             <TableCell className="py-2">
                 <StatusBadge status={item.status} isLocked={item.isLocked} />
@@ -120,6 +128,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
 
     const [selectedAttemptRecordId, setSelectedAttemptRecordId] = useState<string | null>(null);
     const [modalAttemptId, setModalAttemptId] = useState<string | null>(null);
+    const [isProctorModalOpen, setIsProctorModalOpen] = useState<boolean>(false);
 
     const activeQuizId = useMemo(() => {
         const val = Number(quizIdFilter);
@@ -187,9 +196,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
     }, [attempts, currentPage]);
 
     return (
-        // Menggunakan w-full h-full dengan scroll vertikal di mobile, kunci di desktop
         <div className="flex h-full w-full flex-col gap-4 overflow-y-auto lg:overflow-hidden pr-0.5 pb-8 lg:pb-0">
-
             {/* 1. KARTU METRIK: 1 kolom di HP (<640px), 3 kolom di tablet/desktop */}
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 shrink-0 w-full">
                 <MetricCard title="Siswa Aktif Mengerjakan" value={activeCount} variant="success" />
@@ -197,15 +204,15 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 <MetricCard title="Total Catatan Pelanggaran" value={violationTotal} variant="danger" />
             </div>
 
-            {/* 2. FILTER TOOLBAR: flex-col penuh di HP, sejajar di tablet/desktop */}
+            {/* 2. FILTER TOOLBAR: Mendukung Alokasi Pengawas & Filter Kuis */}
             <form
                 onSubmit={handleFilterSubmit}
                 className="flex shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs md:flex-row md:items-center md:justify-between w-full"
             >
                 <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3 w-full md:w-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
-            Scope Pengawasan:
-          </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+                        Scope Pengawasan:
+                    </span>
                     <div className="w-full sm:w-32">
                         <TextField
                             size="sm"
@@ -240,25 +247,37 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     </Button>
                 </div>
 
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    color="secondary"
-                    leftIcon={RefreshCw}
-                    loading={monitoringLoading}
-                    onClick={() => void loadMonitoringData()}
-                    className="h-9 px-3 text-xs w-full md:w-auto shrink-0"
-                >
-                    Sinkronkan
-                </Button>
+                <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        color="primary"
+                        leftIcon={UserCheck}
+                        onClick={() => setIsProctorModalOpen(true)}
+                        className="h-9 px-3 text-xs w-full sm:w-auto"
+                    >
+                        Kelola Pengawas
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        color="secondary"
+                        leftIcon={RefreshCw}
+                        loading={monitoringLoading}
+                        onClick={() => void loadMonitoringData()}
+                        className="h-9 px-3 text-xs w-full sm:w-auto"
+                    >
+                        Sinkronkan
+                    </Button>
+                </div>
             </form>
 
             {/* 3. GRID COCKPIT: Mobile = 1 Kolom Vertikal Stack | Desktop = 12 Kolom Sejajar */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-12 lg:overflow-hidden">
-
                 {/* PANEL 1: TABEL MONITORING SISWA */}
-                <section className="col-span-1 lg:col-span-6 flex flex-col h-[480px] lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                <section className="col-span-1 lg:col-span-6 flex flex-col h-120 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-2">
                             <Users className="size-4 text-indigo-600 shrink-0" />
@@ -267,8 +286,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
                             </h2>
                         </div>
                         <span className="text-[11px] font-semibold text-slate-400 shrink-0 ml-2">
-              Total {attempts.length} Sesi
-            </span>
+                            Total {attempts.length} Sesi
+                        </span>
                     </div>
 
                     <div className="flex-1 overflow-x-auto overflow-y-auto rounded-xl border border-slate-100">
@@ -317,7 +336,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 </section>
 
                 {/* PANEL 2: AUDIT BUKTI PELANGGARAN */}
-                <section className="col-span-1 lg:col-span-3 flex flex-col h-[380px] lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                <section className="col-span-1 lg:col-span-3 flex flex-col h-95 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-1.5">
                             <ShieldAlert className="size-4 text-amber-600 shrink-0" />
@@ -361,7 +380,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 </section>
 
                 {/* PANEL 3: SALURAN CHAT KOORDINASI */}
-                <section className="col-span-1 lg:col-span-3 flex flex-col h-[450px] lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                <section className="col-span-1 lg:col-span-3 flex flex-col h-112.5 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center gap-1.5 border-b border-slate-100 pb-2">
                         <MessageSquare className="size-4 text-emerald-600 shrink-0" />
                         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 truncate">
@@ -378,6 +397,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 </section>
             </div>
 
+            {/* Modal Detail Bukti Kejadian Pelanggaran */}
             {modalAttemptId && (
                 <ViolationEvidenceModal
                     isOpen={Boolean(modalAttemptId)}
@@ -385,6 +405,13 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     onClose={() => setModalAttemptId(null)}
                 />
             )}
+
+            {/* Modal Manajemen & Penugasan Pengawas Moodle */}
+            <ProctorAssignmentModal
+                isOpen={isProctorModalOpen}
+                defaultRoomNumber={roomFilter}
+                onClose={() => setIsProctorModalOpen(false)}
+            />
         </div>
     );
 };
