@@ -97,9 +97,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
     }, [attempts, currentPage]);
 
     return (
-        <div className="flex h-full w-full flex-col gap-3 overflow-hidden">
-            {/* 1. KARTU METRIK RINGKAS (HORISONTAL) */}
-            <div className="grid grid-cols-3 gap-3 shrink-0">
+        <div className="flex h-full w-full flex-col gap-3 overflow-y-auto lg:overflow-hidden pr-0.5">
+            {/* 1. KARTU METRIK RINGKAS (RESPONSIF MOBILE KE DESKTOP) */}
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 shrink-0">
                 <MetricCard title="Siswa Aktif Mengerjakan" value={activeCount} variant="success" />
                 <MetricCard title="Siswa Terkunci (Locked)" value={lockedCount} variant="warning" />
                 <MetricCard title="Total Catatan Pelanggaran" value={violationTotal} variant="danger" />
@@ -108,13 +108,13 @@ export const UnifiedProctorCockpit: React.FC = () => {
             {/* 2. FILTER TOOLBAR TERPADU */}
             <form
                 onSubmit={handleFilterSubmit}
-                className="flex shrink-0 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-xs"
+                className="flex shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xs sm:flex-row sm:items-center sm:justify-between"
             >
-                <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3 w-full sm:w-auto">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
             Scope Pengawasan:
           </span>
-                    <div className="w-32">
+                    <div className="w-full sm:w-32">
                         <TextField
                             size="sm"
                             variant="outlined"
@@ -125,7 +125,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                             onChange={(e) => setQuizIdFilter(e.target.value)}
                         />
                     </div>
-                    <div className="w-44">
+                    <div className="w-full sm:w-44">
                         <TextField
                             size="sm"
                             variant="outlined"
@@ -142,7 +142,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                         variant="filled"
                         leftIcon={Search}
                         disabled={monitoringLoading}
-                        className="h-9 px-3 text-xs font-semibold"
+                        className="h-9 px-4 text-xs font-semibold w-full sm:w-auto"
                     >
                         Terapkan
                     </Button>
@@ -156,16 +156,16 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     leftIcon={RefreshCw}
                     loading={monitoringLoading}
                     onClick={loadMonitoringData}
-                    className="h-9 px-3 text-xs"
+                    className="h-9 px-3 text-xs w-full sm:w-auto"
                 >
                     Sinkronkan
                 </Button>
             </form>
 
-            {/* 3. COCKPIT 3-KOLOM */}
-            <div className="grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden">
-                {/* KOLOM KIRI (6/12): TABEL MONITORING SISWA */}
-                <section className="col-span-6 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+            {/* 3. COCKPIT RESPONSIF (1 KOLOM DI MOBILE / 12 KOLOM DI DESKTOP) */}
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12 lg:overflow-hidden">
+                {/* KOLOM 1: TABEL MONITORING SISWA */}
+                <section className="col-span-1 lg:col-span-6 flex flex-col min-h-[420px] lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-2">
                             <Users className="size-4 text-indigo-600" />
@@ -178,7 +178,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             </span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto rounded-xl border border-slate-100">
+                    <div className="flex-1 overflow-x-auto overflow-y-auto rounded-xl border border-slate-100">
                         <Table responsive wrapperClassName="h-full">
                             <TableHead sticky>
                                 <TableRow>
@@ -282,8 +282,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     )}
                 </section>
 
-                {/* KOLOM TENGAH (3/12): AUDIT BUKTI */}
-                <section className="col-span-3 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                {/* KOLOM 2: AUDIT BUKTI (SNAPSHOT PELANGGARAN) */}
+                <section className="col-span-1 lg:col-span-3 flex flex-col min-h-[380px] lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-1.5">
                             <ShieldAlert className="size-4 text-amber-600" />
@@ -324,8 +324,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     </div>
                 </section>
 
-                {/* KOLOM KANAN (3/12): KOORDINASI PENGAWAS */}
-                <section className="col-span-3 flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                {/* KOLOM 3: CHAT KOORDINASI PENGAWAS */}
+                <section className="col-span-1 lg:col-span-3 flex flex-col min-h-[440px] lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center gap-1.5 border-b border-slate-100 pb-2">
                         <MessageSquare className="size-4 text-emerald-600" />
                         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
