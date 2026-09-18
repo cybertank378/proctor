@@ -10,18 +10,42 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "argon2": "^0.45.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.46.0",
     "next": "16.3.5",
+    "pg": "^8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-datepicker": "^9.1.0",
+    "react-dom": "19.2.8",
+    "react-toastify": "^11.1.0",
+    "tailwind-merge": "^3.7.0",
+    "thinking-orbs": "^0.3.1",
+    "tsx": "^4.23.13",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.2",
+    "@biomejs/biome": "^2.5.14",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/node": "^22.20.3",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^7",
+    "vitest": "^4.1.11"
+  },
+  "allowScripts": {
+    "@prisma/engines@7.10.0": true,
+    "esbuild@0.28.2": true,
+    "prisma@7.10.0": true,
+    "argon2@0.45.1": true
   }
 }

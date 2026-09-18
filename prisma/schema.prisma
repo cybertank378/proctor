@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+
+enum AttemptStatus {
+  IN_PROGRESS
+  LOCKED
+  DISQUALIFIED
+  COMPLETED
+}
+
+enum ViolationType {
+  TAB_SWITCH // Berpindah tab atau minimize browser
+  WINDOW_BLUR // Kehilangan fokus jendela (membuka aplikasi desktop lain/AI)
+  DEVTOOLS_OPEN // Membuka developer console / inspect element
+  RESTRICTED_KEY // Menekan shortcut terlarang (Alt+Tab, Ctrl+C, Ctrl+V, F12)
+  MULTI_MONITOR // Terdeteksi penggunaan layar tambahan
+}
+
+enum ProctorRole {
+  CHIEF_PROCTOR // Ketua pengawas (memantau seluruh ruangan sekaligus)
+  PROCTOR // Pengawas ruangan spesifik
+}
+
+// -----------------------------------------------------------------------------
+// MODELS
+// -----------------------------------------------------------------------------
+
+/// Akun kredensial pengawas ujian (khusus invigilator)
+model ProctorUser {
+  id           String      @id @default(uuid())
+  moodleUserId Int?        @unique // Pemetaan opsional ke ID user guru/admin di tabel mdl_user Moodle
+  username     String      @unique @db.VarChar(50)
+  passwordHash String      @db.VarChar(255)
+  fullName     String      @db.VarChar(100)
+  role         ProctorRole @default(PROCTOR)
+  roomNumber   String?     @db.VarChar(50) // Ruangan tugas (contoh: "Lab Komputer 1", "R.204"). Bernilai null jika CHIEF_PROCTOR
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  sessions         ProctorSession[]
+  unlockedAttempts ExamAttemptRecord[]        @relation("ProctorUnlockHistory")
+  sentChatMessages ProctorChatMessageRecord[] @relation("ProctorSentMessages")
+
+  @@index([roomNumber])
+  @@map("proctor_users")
+}
+
+/// Sesi login aktif pengawas ujian (Stateless Bearer Token)
+model ProctorSession {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.Text
+  proctorId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  proctor ProctorUser @relation(fields: [proctorId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([proctorId])
+  @@map("proctor_sessions")
+}
+
+/// Sesi pengerjaan kuis siswa (terintegrasi dengan kuis Moodle quizaccess_guard)
+model ExamAttemptRecord {
+  id                     String        @id @default(uuid())
+  quizId                 Int // Sesuai dengan id kuis pada tabel mdl_quiz
+  userId                 Int // Sesuai dengan id siswa pada tabel mdl_user
+  attemptId              Int           @unique // Sesuai dengan id attempt pengerjaan pada mdl_quiz_attempts
+  roomNumber             String?       @db.VarChar(50) // Ruangan tempat siswa mengerjakan kuis
+  status                 AttemptStatus @default(IN_PROGRESS)
+  violationCount         Int           @default(0)
+  maxAllowedViolations   Int           @default(3)
+  disqualificationReason String?       @db.VarChar(255)
+  isLockedByProctor      Boolean       @default(false)
+  unlockedByProctorId    String? // Foreign Key UUID pengawas yang mengeksekusi buka kunci
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  unlockedByProctor ProctorUser?      @relation("ProctorUnlockHistory", fields: [unlockedByProctorId], references: [id], onDelete: SetNull)
+  evidences         ViolationRecord[]
+
+  @@index([quizId, userId])
+  @@index([roomNumber])
+  @@index([status])
+  @@map("exam_attempt_records")
+}
+
+/// Bukti otentik kecurangan (Snapshot fisik lokal webcam/layar dan SHA-256 Anti-Tamper Checksum)
+model ViolationRecord {
+  id              String        @id @default(uuid())
+  attemptRecordId String
+  type            ViolationType
+  localFilePath   String // Path fisik file di server: public/uploads/evidences/...
+  fileUrl         String // URL publik lokal untuk diakses dashboard pengawas
+  sha256Hash      String        @db.VarChar(64) // Checksum SHA-256 bukti lokal untuk audit integritas
+  metadata        Json // Detail lingkungan (timestamp, window title, resolusi layar)
+  createdAt       DateTime      @default(now())
+
+  attempt ExamAttemptRecord @relation(fields: [attemptRecordId], references: [id], onDelete: Cascade)
+
+  @@index([attemptRecordId])
+  @@index([type])
+  @@map("violation_records")
+}
+
+/// Riwayat koordinasi chat internal sesama pengawas ujian
+model ProctorChatMessageRecord {
+  id         String      @id @default(uuid())
+  quizId     Int // ID Kuis Moodle yang sedang diawasi
+  roomNumber String?     @db.VarChar(50) // Target ruangan obrolan (null = broadcast seluruh ruangan)
+  senderId   String // Foreign Key UUID pengawas pengirim pesan
+  senderName String      @db.VarChar(100)
+  role       ProctorRole @default(PROCTOR)
+  content    String      @db.VarChar(500)
+  createdAt  DateTime    @default(now())
+
+  sender ProctorUser @relation("ProctorSentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([quizId, createdAt])
+  @@index([roomNumber])
+  @@map("proctor_chat_message_records")
+}
