@@ -4,6 +4,7 @@
 import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {DoorOpen, Hash, MessageSquare, RefreshCw, Search, ShieldAlert, Users,} from "lucide-react";
+import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
 import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/presentations/hook/useExamMonitoringApi";
 import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
 import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
@@ -17,6 +18,90 @@ import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from
 import TextField from "@/shared-ui/component/TextField";
 
 const ITEMS_PER_PAGE = 7;
+
+interface TableFeedbackRowProps {
+    readonly message: string;
+}
+
+const TableFeedbackRow: React.FC<TableFeedbackRowProps> = ({ message }) => (
+    <TableRow>
+        <TableCell colSpan={6} className="py-8 text-center text-xs text-slate-400">
+            {message}
+        </TableCell>
+    </TableRow>
+);
+
+interface AttemptRowItemProps {
+    readonly item: ExamAttemptSummaryDto;
+    readonly isSelected: boolean;
+    readonly isLoading: boolean;
+    readonly onSelect: (id: string) => void;
+    readonly onUnlock: (attemptId: number) => void;
+}
+
+const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
+                                                           item,
+                                                           isSelected,
+                                                           isLoading,
+                                                           onSelect,
+                                                           onUnlock,
+                                                       }) => {
+    const canUnlock =
+        item.isLocked && item.status !== "DISQUALIFIED" && item.status !== "COMPLETED";
+
+    return (
+        <TableRow
+            onClick={() => onSelect(item.id)}
+            className={`cursor-pointer transition-colors ${
+                isSelected ? "bg-indigo-50/80 ring-1 ring-inset ring-indigo-300" : ""
+            }`}
+        >
+            <TableCell className="font-mono text-xs font-bold text-slate-900 py-2">
+                #{item.attemptId}
+            </TableCell>
+            <TableCell className="text-xs font-medium text-slate-700 py-2">
+                {item.userId}
+            </TableCell>
+            <TableCell className="text-xs text-slate-600 py-2">
+                {item.roomNumber ?? "-"}
+            </TableCell>
+            <TableCell className="text-xs py-2">
+        <span
+            className={`font-semibold ${
+                item.violationCount >= item.maxAllowedViolations
+                    ? "text-red-600"
+                    : "text-slate-800"
+            }`}
+        >
+          {item.violationCount}/{item.maxAllowedViolations}
+        </span>
+            </TableCell>
+            <TableCell className="py-2">
+                <StatusBadge status={item.status} isLocked={item.isLocked} />
+            </TableCell>
+            <TableCell className="text-right py-2">
+                {canUnlock ? (
+                    <Button
+                        type="button"
+                        color="warning"
+                        size="sm"
+                        variant="filled"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onUnlock(item.attemptId);
+                        }}
+                        disabled={isLoading}
+                        className="h-6 text-[10px] px-2 font-semibold shadow-xs"
+                    >
+                        Buka 🔓
+                    </Button>
+                ) : (
+                    <span className="text-[11px] text-slate-400">-</span>
+                )}
+            </TableCell>
+        </TableRow>
+    );
+};
 
 export const UnifiedProctorCockpit: React.FC = () => {
     const {
@@ -45,51 +130,61 @@ export const UnifiedProctorCockpit: React.FC = () => {
         return Number.isInteger(val) && val > 0 ? val : undefined;
     }, [quizIdFilter]);
 
-    const loadMonitoringData = useCallback(() => {
-        fetchAttempts(activeQuizId, roomFilter.trim() || undefined);
+    const loadMonitoringData = useCallback(async () => {
+        await fetchAttempts(activeQuizId, roomFilter.trim() || undefined);
     }, [fetchAttempts, activeQuizId, roomFilter]);
 
     useEffect(() => {
-        loadMonitoringData();
+        void loadMonitoringData();
     }, [loadMonitoringData]);
 
     useEffect(() => {
-        if (selectedAttemptRecordId) {
-            fetchViolations(selectedAttemptRecordId);
-        } else if (attempts.length > 0) {
-            const firstLocked = attempts.find((a) => a.isLocked) ?? attempts[0];
-            if (firstLocked) {
-                setSelectedAttemptRecordId(firstLocked.id);
-                fetchViolations(firstLocked.id);
+        const syncViolations = async () => {
+            if (selectedAttemptRecordId) {
+                await fetchViolations(selectedAttemptRecordId);
+            } else if (attempts.length > 0) {
+                const firstLocked = attempts.find((a) => a.isLocked) ?? attempts[0];
+                if (firstLocked) {
+                    setSelectedAttemptRecordId(firstLocked.id);
+                    await fetchViolations(firstLocked.id);
+                }
             }
-        }
+        };
+
+        void syncViolations();
     }, [selectedAttemptRecordId, attempts, fetchViolations]);
 
-    const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFilterSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         setCurrentPage(1);
-        loadMonitoringData();
+        void loadMonitoringData();
     };
 
     const handleUnlockAttempt = async (attemptId: number) => {
         const isSuccess = await unlockStudent(attemptId);
         if (isSuccess) {
-            loadMonitoringData();
+            await loadMonitoringData();
         }
     };
 
-    const activeCount = useMemo(
-        () => attempts.filter((item) => item.status === "IN_PROGRESS").length,
-        [attempts]
-    );
-    const lockedCount = useMemo(
-        () => attempts.filter((item) => item.isLocked).length,
-        [attempts]
-    );
-    const violationTotal = useMemo(
-        () => attempts.reduce((acc, curr) => acc + curr.violationCount, 0),
-        [attempts]
-    );
+    // Kalkulasi metrik atomik single-pass (Bebas duplikasi)
+    const { activeCount, lockedCount, violationTotal } = useMemo(() => {
+        let active = 0;
+        let locked = 0;
+        let violationsSum = 0;
+
+        for (const item of attempts) {
+            if (item.status === "IN_PROGRESS") active += 1;
+            if (item.isLocked) locked += 1;
+            violationsSum += item.violationCount;
+        }
+
+        return {
+            activeCount: active,
+            lockedCount: locked,
+            violationTotal: violationsSum,
+        };
+    }, [attempts]);
 
     const paginatedAttempts = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -98,7 +193,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
 
     return (
         <div className="flex h-full w-full flex-col gap-3 overflow-y-auto lg:overflow-hidden pr-0.5">
-            {/* 1. KARTU METRIK RINGKAS (RESPONSIF MOBILE KE DESKTOP) */}
+            {/* 1. KARTU METRIK RINGKAS */}
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 shrink-0">
                 <MetricCard title="Siswa Aktif Mengerjakan" value={activeCount} variant="success" />
                 <MetricCard title="Siswa Terkunci (Locked)" value={lockedCount} variant="warning" />
@@ -155,17 +250,17 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     color="secondary"
                     leftIcon={RefreshCw}
                     loading={monitoringLoading}
-                    onClick={loadMonitoringData}
+                    onClick={() => void loadMonitoringData()}
                     className="h-9 px-3 text-xs w-full sm:w-auto"
                 >
                     Sinkronkan
                 </Button>
             </form>
 
-            {/* 3. COCKPIT RESPONSIF (1 KOLOM DI MOBILE / 12 KOLOM DI DESKTOP) */}
+            {/* 3. GRID COCKPIT RESPONSIF */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12 lg:overflow-hidden">
                 {/* KOLOM 1: TABEL MONITORING SISWA */}
-                <section className="col-span-1 lg:col-span-6 flex flex-col min-h-[420px] lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                <section className="col-span-1 lg:col-span-6 flex flex-col min-h-105 lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-2">
                             <Users className="size-4 text-indigo-600" />
@@ -192,79 +287,20 @@ export const UnifiedProctorCockpit: React.FC = () => {
                             </TableHead>
                             <TableBody>
                                 {monitoringLoading && attempts.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="py-8 text-center text-xs text-slate-400">
-                                            Memuat data sesi ujian...
-                                        </TableCell>
-                                    </TableRow>
+                                    <TableFeedbackRow message="Memuat data sesi ujian..." />
                                 ) : paginatedAttempts.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="py-8 text-center text-xs text-slate-400">
-                                            Tidak ada peserta pengerjaan kuis yang ditemukan.
-                                        </TableCell>
-                                    </TableRow>
+                                    <TableFeedbackRow message="Tidak ada peserta pengerjaan kuis yang ditemukan." />
                                 ) : (
-                                    paginatedAttempts.map((item) => {
-                                        const isSelected = selectedAttemptRecordId === item.id;
-                                        const canUnlock =
-                                            item.isLocked &&
-                                            item.status !== "DISQUALIFIED" &&
-                                            item.status !== "COMPLETED";
-
-                                        return (
-                                            <TableRow
-                                                key={item.id}
-                                                onClick={() => setSelectedAttemptRecordId(item.id)}
-                                                className={`cursor-pointer transition-colors ${
-                                                    isSelected ? "bg-indigo-50/80 ring-1 ring-inset ring-indigo-300" : ""
-                                                }`}
-                                            >
-                                                <TableCell className="font-mono text-xs font-bold text-slate-900 py-2">
-                                                    #{item.attemptId}
-                                                </TableCell>
-                                                <TableCell className="text-xs font-medium text-slate-700 py-2">
-                                                    {item.userId}
-                                                </TableCell>
-                                                <TableCell className="text-xs text-slate-600 py-2">
-                                                    {item.roomNumber ?? "-"}
-                                                </TableCell>
-                                                <TableCell className="text-xs py-2">
-                          <span
-                              className={`font-semibold ${
-                                  item.violationCount >= item.maxAllowedViolations
-                                      ? "text-red-600"
-                                      : "text-slate-800"
-                              }`}
-                          >
-                            {item.violationCount}/{item.maxAllowedViolations}
-                          </span>
-                                                </TableCell>
-                                                <TableCell className="py-2">
-                                                    <StatusBadge status={item.status} isLocked={item.isLocked} />
-                                                </TableCell>
-                                                <TableCell className="text-right py-2">
-                                                    {canUnlock ? (
-                                                        <Button
-                                                            type="button"
-                                                            color="warning"
-                                                            size="sm"
-                                                            variant="filled"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleUnlockAttempt(item.attemptId);
-                                                            }}
-                                                            disabled={monitoringLoading}
-                                                            className="h-6 text-[10px] px-2 font-semibold shadow-xs"
-                                                        >
-                                                            Buka 🔓
-                                                        </Button>
-                                                    ) : (
-                                                        <span className="text-[11px] text-slate-400">-</span>
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })
+                                    paginatedAttempts.map((item) => (
+                                        <AttemptRowItem
+                                            key={item.id}
+                                            item={item}
+                                            isSelected={selectedAttemptRecordId === item.id}
+                                            isLoading={monitoringLoading}
+                                            onSelect={(id) => setSelectedAttemptRecordId(id)}
+                                            onUnlock={(attId) => void handleUnlockAttempt(attId)}
+                                        />
+                                    ))
                                 )}
                             </TableBody>
                         </Table>
@@ -282,8 +318,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     )}
                 </section>
 
-                {/* KOLOM 2: AUDIT BUKTI (SNAPSHOT PELANGGARAN) */}
-                <section className="col-span-1 lg:col-span-3 flex flex-col min-h-[380px] lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                {/* KOLOM 2: AUDIT BUKTI PELANGGARAN */}
+                <section className="col-span-1 lg:col-span-3 flex flex-col min-h-95 lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-1.5">
                             <ShieldAlert className="size-4 text-amber-600" />
@@ -317,7 +353,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
                                 <EvidenceCard
                                     key={v.id}
                                     violation={v}
-                                    onVerifyHash={(id) => verifyIntegrity(id)}
+                                    onVerifyHash={(id) => {
+                                        void verifyIntegrity(id);
+                                    }}
                                 />
                             ))
                         )}
@@ -325,7 +363,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 </section>
 
                 {/* KOLOM 3: CHAT KOORDINASI PENGAWAS */}
-                <section className="col-span-1 lg:col-span-3 flex flex-col min-h-[440px] lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                <section className="col-span-1 lg:col-span-3 flex flex-col min-h-110 lg:min-h-0 h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center gap-1.5 border-b border-slate-100 pb-2">
                         <MessageSquare className="size-4 text-emerald-600" />
                         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
