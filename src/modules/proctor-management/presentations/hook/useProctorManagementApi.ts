@@ -22,57 +22,43 @@ export function useProctorManagementApi() {
         return ProctorManagementPresentationMapper.toSelectOptions(proctors);
     }, [proctors]);
 
-    /**
-     * Helper untuk mengambil token sesi pengawas aktif dan menyusun header HTTP
-     */
-    const getAuthHeaders = useCallback((): HeadersInit => {
-        const token =
-            typeof window !== "undefined"
-                ? localStorage.getItem("proctor_token") || localStorage.getItem("token")
-                : null;
-
-        return {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        };
-    }, []);
-
-    const fetchProctors = useCallback(
-        async (roomNumber?: string): Promise<void> => {
-            setLoading(true);
-            try {
-                const url = new URL("/api/proctors", window.location.origin);
-                if (roomNumber && roomNumber.trim().length > 0) {
-                    url.searchParams.set("roomNumber", roomNumber.trim());
-                }
-
-                const res = await fetch(url.toString(), {
-                    method: "GET",
-                    headers: getAuthHeaders(),
-                    cache: "no-store",
-                });
-
-                const json: ApiResponse<readonly ProctorSummaryResponseDto[]> = await res.json();
-                if (res.ok && json.success && json.data) {
-                    setProctors(json.data);
-                } else {
-                    showErrorToast(json.error || json.message || "Gagal memuat daftar pengawas ujian.");
-                }
-            } catch {
-                showErrorToast("Gagal memuat daftar pengawas ujian.");
-            } finally {
-                setLoading(false);
+    const fetchProctors = useCallback(async (roomNumber?: string): Promise<void> => {
+        setLoading(true);
+        try {
+            const token = sessionStorage.getItem("proctor_access_token");
+            const url = new URL("/api/proctors", window.location.origin);
+            if (roomNumber && roomNumber.trim().length > 0) {
+                url.searchParams.set("roomNumber", roomNumber.trim());
             }
-        },
-        [getAuthHeaders]
-    );
+
+            const res = await fetch(url.toString(), {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const json: ApiResponse<readonly ProctorSummaryResponseDto[]> = await res.json();
+
+            if (res.ok && json.success && json.data) {
+                setProctors(json.data);
+            } else {
+                showErrorToast(json.message || json.error || "Gagal memuat daftar pengawas ujian.");
+            }
+        } catch {
+            showErrorToast("Gagal memuat daftar pengawas ujian.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     const syncFromMoodle = useCallback(async (): Promise<boolean> => {
         setLoading(true);
         try {
+            const token = sessionStorage.getItem("proctor_access_token");
             const res = await fetch("/api/proctors/sync-moodle", {
                 method: "POST",
-                headers: getAuthHeaders(),
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             const json: ApiResponse<readonly ProctorSummaryResponseDto[]> = await res.json();
@@ -80,7 +66,6 @@ export function useProctorManagementApi() {
             if (res.ok && json.success && json.data) {
                 setProctors(json.data);
                 showSuccessToast(json.message || "Sinkronisasi guru Moodle berhasil.");
-                await fetchProctors();
                 return true;
             }
 
@@ -92,15 +77,19 @@ export function useProctorManagementApi() {
         } finally {
             setLoading(false);
         }
-    }, [fetchProctors, getAuthHeaders]);
+    }, []);
 
     const assignProctor = useCallback(
         async (payload: AssignProctorRoomRequestDto): Promise<boolean> => {
             setLoading(true);
             try {
+                const token = sessionStorage.getItem("proctor_access_token");
                 const res = await fetch("/api/proctors/assign", {
                     method: "POST",
-                    headers: getAuthHeaders(),
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
                     body: JSON.stringify(payload),
                 });
                 const json: ApiResponse<ProctorSummaryResponseDto> = await res.json();
@@ -120,16 +109,20 @@ export function useProctorManagementApi() {
                 setLoading(false);
             }
         },
-        [fetchProctors, getAuthHeaders]
+        [fetchProctors]
     );
 
     const createProctor = useCallback(
         async (payload: CreateProctorRequestDto): Promise<boolean> => {
             setLoading(true);
             try {
+                const token = sessionStorage.getItem("proctor_access_token");
                 const res = await fetch("/api/proctors", {
                     method: "POST",
-                    headers: getAuthHeaders(),
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
                     body: JSON.stringify(payload),
                 });
                 const json: ApiResponse<ProctorSummaryResponseDto> = await res.json();
@@ -149,7 +142,7 @@ export function useProctorManagementApi() {
                 setLoading(false);
             }
         },
-        [fetchProctors, getAuthHeaders]
+        [fetchProctors]
     );
 
     return {
