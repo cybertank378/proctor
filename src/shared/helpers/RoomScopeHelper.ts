@@ -1,6 +1,9 @@
 // Files: src/shared/helpers/RoomScopeHelper.ts
-export class RoomScopeHelper {
-  public static resolveFilterRoom(
+
+import type {ProctorRole} from "@/generated/prisma/enums";
+
+export const RoomScopeHelper = {
+  resolveFilterRoom(
     role: string,
     proctorRoom?: string | null,
     inputRoom?: string | null,
@@ -14,5 +17,27 @@ export class RoomScopeHelper {
     return proctorRoom && proctorRoom.trim().length > 0
       ? proctorRoom.trim()
       : null;
-  }
-}
+  },
+  canManageTargetRoom(
+    proctorRole: ProctorRole,
+    assignedRoom: string | null,
+    targetRoom: string | null,
+  ): boolean {
+    if (proctorRole === "CHIEF_PROCTOR") {
+      return true;
+    }
+
+    if (!assignedRoom || !targetRoom) {
+      return false;
+    }
+
+    const normalizedAssigned = assignedRoom.trim().toLowerCase();
+    const normalizedTarget = targetRoom.trim().toLowerCase();
+
+    if (!normalizedAssigned || !normalizedTarget) {
+      return false;
+    }
+
+    return normalizedAssigned === normalizedTarget;
+  },
+};
