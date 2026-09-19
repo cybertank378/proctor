@@ -2,7 +2,7 @@
 "use client";
 
 import type React from "react";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import type Webcam from "react-webcam";
 import type {ViolationType} from "@/generated/prisma/enums";
 
@@ -13,6 +13,7 @@ interface UseAntiCheatOptions {
   readonly isExamActive: boolean;
   readonly maxTolerance?: number;
   readonly webcamRef?: React.RefObject<Webcam | null>;
+  readonly screenStreamRef?: React.RefObject<MediaStream | null>;
 }
 
 export function useAntiCheatEngine({
@@ -22,13 +23,28 @@ export function useAntiCheatEngine({
   isExamActive,
   maxTolerance = 3,
   webcamRef,
+  screenStreamRef,
 }: UseAntiCheatOptions) {
   const [violationCount, setViolationCount] = useState<number>(0);
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [lastWarning, setLastWarning] = useState<string | null>(null);
 
-  // Fungsi penangkapan snapshot visual langsung dari react-webcam
-  const captureSnapshot = useCallback((): string => {
+  // Buffer video sementara untuk ekstraksi frame screen capture
+  const hiddenScreenVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Inisialisasi elemen video penampung stream layar
+  useEffect(() => {
+    if (typeof document !== "undefined" && !hiddenScreenVideoRef.current) {
+      const videoEl = document.createElement("video");
+      videoEl.autoplay = true;
+      videoEl.muted = true;
+      videoEl.playsInline = true;
+      hiddenScreenVideoRef.current = videoEl;
+    }
+  }, []);
+
+  // Tangkap snapshot webcam siswa
+  const captureWebcamSnapshot = useCallback((): string => {
     try {
       if (webcamRef?.current) {
         const imageSrc = webcamRef.current.getScreenshot({
@@ -41,10 +57,58 @@ export function useAntiCheatEngine({
         }
       }
     } catch (err) {
-      console.warn("[ANTI-CHEAT] Gagal mengambil snapshot dari webcam:", err);
+      console.warn("[ANTI-CHEAT] Gagal mengambil snapshot webcam:", err);
     }
 
-    // Fallback kanvas jika kamera ditutup atau belum siap
+    return "";
+  }, [webcamRef]);
+
+  // Tangkap snapshot tampilan layar/tab yang sedang dibuka (jika screen stream aktif)
+  const captureScreenSnapshot = useCallback((): string => {
+    try {
+      const stream = screenStreamRef?.current;
+      if (!stream) return "";
+
+      const videoTrack = stream.getVideoTracks()[0];
+      if (!videoTrack || videoTrack.readyState !== "live") return "";
+
+      const video = hiddenScreenVideoRef.current;
+      if (!video) return "";
+
+      if (video.srcObject !== stream) {
+        video.srcObject = stream;
+      }
+
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          return canvas.toDataURL("image/png");
+        }
+      }
+    } catch (err) {
+      console.warn(
+        "[ANTI-CHEAT] Gagal mengambil screenshot layar tujuan:",
+        err,
+      );
+    }
+
+    return "";
+  }, [screenStreamRef]);
+
+  // Ekstraksi snapshot gabungan atau gambar fallback berstempel waktu
+  const captureSnapshot = useCallback((): string => {
+    // Prioritaskan tangkapan layar jika ada (mengetahui tab tujuan), fallback ke webcam
+    const screenImg = captureScreenSnapshot();
+    if (screenImg) return screenImg;
+
+    const webcamImg = captureWebcamSnapshot();
+    if (webcamImg) return webcamImg;
+
+    // Fallback kanvas jika stream belum mengalir
     const canvas = document.createElement("canvas");
     canvas.width = 640;
     canvas.height = 480;
@@ -57,9 +121,9 @@ export function useAntiCheatEngine({
       ctx.arc(320, 220, 24, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 16px sans-serif";
+      ctx.font = "bold 15px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("KAMERA BELUM SIAP / DITUTUP", 320, 270);
+      ctx.fillText("FRAME KAMERA / LAYAR TIDAK AKTIF", 320, 270);
       ctx.font = "12px sans-serif";
       ctx.fillStyle = "#94a3b8";
       ctx.fillText(new Date().toLocaleString("id-ID"), 320, 295);
@@ -67,7 +131,7 @@ export function useAntiCheatEngine({
     }
 
     return "";
-  }, [webcamRef]);
+  }, [captureScreenSnapshot, captureWebcamSnapshot]);
 
   const triggerViolation = useCallback(
     async (type: ViolationType, reason: string) => {
@@ -84,6 +148,19 @@ export function useAntiCheatEngine({
         reason,
         timestamp: new Date().toISOString(),
         screenshotBase64: screenshot,
+        metadata: {
+          url: typeof window !== "undefined" ? window.location.href : "",
+          userAgent:
+            typeof navigator !== "undefined" ? navigator.userAgent : "",
+          screenWidth: typeof window !== "undefined" ? window.innerWidth : 0,
+          screenHeight: typeof window !== "undefined" ? window.innerHeight : 0,
+          visibilityState:
+            typeof document !== "undefined"
+              ? document.visibilityState
+              : "unknown",
+          hasFocus:
+            typeof document !== "undefined" ? document.hasFocus() : false,
+        },
       };
 
       try {
@@ -137,6 +214,7 @@ export function useAntiCheatEngine({
     const onWindowBlur = () => {
       if (blurTimeout) clearTimeout(blurTimeout);
       blurTimeout = setTimeout(() => {
+        // Abaikan jika fokus berpindah ke dalam iframe kuis Moodle
         if (
           document.activeElement instanceof HTMLIFrameElement ||
           document.activeElement?.tagName === "IFRAME"
