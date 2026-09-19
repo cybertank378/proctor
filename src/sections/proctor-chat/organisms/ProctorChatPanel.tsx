@@ -14,6 +14,7 @@ export interface ProctorChatPanelProps {
   readonly defaultRoomNumber?: string;
   readonly pollIntervalMs?: number;
   readonly className?: string;
+  readonly onNewMessage?: (totalMessages: number) => void;
 }
 
 interface CurrentUserSession {
@@ -27,6 +28,7 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
   defaultRoomNumber = "",
   pollIntervalMs = 5000,
   className,
+  onNewMessage,
 }) => {
   const { messages, sending, loading, fetchMessages, sendMessage } =
     useProctorChatApi();
@@ -38,6 +40,7 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
   const [messageText, setMessageText] = useState<string>("");
 
   const chatBottomRef = useRef<HTMLDivElement | null>(null);
+  const prevMessagesCountRef = useRef<number>(messages.length);
 
   // Sinkronkan state lokal saat props defaultQuizId berubah dinamis
   useEffect(() => {
@@ -88,13 +91,18 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
     return () => clearInterval(interval);
   }, [loadChat, pollIntervalMs, parsedQuizId]);
 
-  // Membaca pesan terakhir di dalam efek sehingga `messages` valid sebagai dependensi tanpa peringatan linter
+  // Scroll otomatis dan trigger callback notifikasi pesan baru saat jumlah pesan bertambah
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage) {
       chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+
+      if (messages.length > prevMessagesCountRef.current) {
+        onNewMessage?.(messages.length);
+      }
     }
-  }, [messages]);
+    prevMessagesCountRef.current = messages.length;
+  }, [messages, onNewMessage]);
 
   const handleSend = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();

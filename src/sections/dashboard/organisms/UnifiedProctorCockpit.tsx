@@ -1,7 +1,20 @@
 // src/sections/dashboard/organisms/UnifiedProctorCockpit.tsx
 "use client";
 
-import {DoorOpen, Hash, MessageSquare, RefreshCw, Search, ShieldAlert, Sparkles, UserCheck, Users,} from "lucide-react";
+import {
+  DoorOpen,
+  Hash,
+  Maximize2,
+  MessageSquare,
+  Minimize2,
+  RefreshCw,
+  Search,
+  ShieldAlert,
+  Sparkles,
+  UserCheck,
+  Users,
+  X,
+} from "lucide-react";
 import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
@@ -20,6 +33,8 @@ import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from
 import TextField from "@/shared-ui/component/TextField";
 
 const ITEMS_PER_PAGE = 7;
+
+type ChatPanelState = "normal" | "minimized" | "maximized";
 
 const TableFeedbackRow: React.FC<{ readonly message: string }> = ({
   message,
@@ -139,6 +154,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
   const [modalAttemptId, setModalAttemptId] = useState<string | null>(null);
   const [isProctorModalOpen, setIsProctorModalOpen] = useState<boolean>(false);
 
+  const [chatState, setChatState] = useState<ChatPanelState>("normal");
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
   const initActiveQuiz = useCallback(
     async (room?: string) => {
       setIsDetectingQuiz(true);
@@ -186,7 +204,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
     void syncViolations();
   }, [selectedAttemptRecordId, attempts, fetchViolations]);
 
-  const handleFilterSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setCurrentPage(1);
     void loadMonitoringData();
@@ -197,6 +215,17 @@ export const UnifiedProctorCockpit: React.FC = () => {
     if (isSuccess) {
       await loadMonitoringData();
     }
+  };
+
+  const handleIncomingMessage = useCallback(() => {
+    if (chatState === "minimized") {
+      setUnreadCount((prev) => prev + 1);
+    }
+  }, [chatState]);
+
+  const restoreChatPanel = () => {
+    setChatState("normal");
+    setUnreadCount(0);
   };
 
   const { activeCount, lockedCount, violationTotal } = useMemo(() => {
@@ -234,7 +263,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
   }, [isDetectingQuiz, activeQuizInfo]);
 
   return (
-    <div className="flex h-full w-full flex-col gap-4 overflow-y-auto lg:overflow-hidden pr-0.5 pb-8 lg:pb-0">
+    <div className="relative flex h-full w-full flex-col gap-4 overflow-y-auto lg:overflow-hidden pr-0.5 pb-8 lg:pb-0">
       {/* Metrik Statistik */}
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 shrink-0 w-full">
         <MetricCard
@@ -254,16 +283,18 @@ export const UnifiedProctorCockpit: React.FC = () => {
         />
       </div>
 
-      {/* Filter Scope */}
+      {/* Toolbar Filter: Sisi Kiri dan Sisi Kanan sejajar tanpa expanding */}
       <form
         onSubmit={handleFilterSubmit}
-        className="flex shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs md:flex-row md:items-center md:justify-between w-full"
+        className="grid grid-cols-1 gap-3.5 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs xl:grid-cols-[auto_auto] xl:items-center xl:justify-between w-full"
       >
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3 w-full md:w-auto">
+        {/* Kiri: Scope Pengawasan */}
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[auto_11rem_12rem_auto] sm:items-center">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
             Scope Pengawasan:
           </span>
-          <div className="w-full sm:w-44">
+
+          <div className="w-full">
             <TextField
               size="sm"
               variant="outlined"
@@ -276,7 +307,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
               success={Boolean(activeQuizInfo)}
             />
           </div>
-          <div className="w-full sm:w-48">
+
+          <div className="w-full">
             <TextField
               size="sm"
               variant="outlined"
@@ -286,6 +318,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
               onChange={(e) => setRoomFilter(e.target.value)}
             />
           </div>
+
           <Button
             type="submit"
             color="primary"
@@ -299,7 +332,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-2 w-full md:w-auto shrink-0">
+        {/* Kanan: Aksi Proctor & Sinkronisasi */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full xl:w-auto items-center">
           <Button
             type="button"
             size="sm"
@@ -307,7 +341,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             color="primary"
             leftIcon={UserCheck}
             onClick={() => setIsProctorModalOpen(true)}
-            className="h-9 px-3 text-xs w-full"
+            className="h-9 px-3 text-xs w-full sm:w-auto"
           >
             Kelola Pengawas
           </Button>
@@ -319,7 +353,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             leftIcon={RefreshCw}
             loading={monitoringLoading}
             onClick={() => void loadMonitoringData()}
-            className="h-9 px-3 text-xs w-full"
+            className="h-9 px-3 text-xs w-full sm:w-auto"
           >
             Sinkronkan
           </Button>
@@ -329,7 +363,13 @@ export const UnifiedProctorCockpit: React.FC = () => {
       {/* Grid Cockpit */}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-12 lg:overflow-hidden">
         {/* Panel Tabel Monitoring */}
-        <section className="col-span-1 lg:col-span-6 flex flex-col h-120 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+        <section
+          className={`flex flex-col h-120 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs transition-all duration-200 ${
+            chatState === "minimized"
+              ? "col-span-1 lg:col-span-8"
+              : "col-span-1 lg:col-span-6"
+          }`}
+        >
           <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
             <div className="flex items-center gap-2">
               <Users className="size-4 text-indigo-600 shrink-0" />
@@ -400,7 +440,13 @@ export const UnifiedProctorCockpit: React.FC = () => {
         </section>
 
         {/* Panel Audit Bukti Pelanggaran */}
-        <section className="col-span-1 lg:col-span-3 flex flex-col h-95 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+        <section
+          className={`flex flex-col h-95 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs transition-all duration-200 ${
+            chatState === "minimized"
+              ? "col-span-1 lg:col-span-4"
+              : "col-span-1 lg:col-span-3"
+          }`}
+        >
           <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
             <div className="flex items-center gap-1.5">
               <ShieldAlert className="size-4 text-amber-600 shrink-0" />
@@ -450,32 +496,131 @@ export const UnifiedProctorCockpit: React.FC = () => {
           </div>
         </section>
 
-        {/* Panel Saluran Chat */}
-        <section className="col-span-1 lg:col-span-3 flex flex-col h-112.5 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <div className="mb-2 flex shrink-0 items-center gap-1.5 border-b border-slate-100 pb-2">
-            <MessageSquare className="size-4 text-emerald-600 shrink-0" />
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 truncate">
-              Koordinasi
-            </h2>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            {activeQuizId ? (
+        {/* Panel Saluran Chat (Mode Normal) */}
+        {chatState === "normal" && (
+          <section className="col-span-1 lg:col-span-3 flex flex-col h-112.5 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+            <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-1.5">
+                <MessageSquare className="size-4 text-emerald-600 shrink-0" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 truncate">
+                  Koordinasi
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-1 items-center">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  color="secondary"
+                  iconOnly
+                  leftIcon={Minimize2}
+                  title="Perkecil Panel (Minimize)"
+                  onClick={() => setChatState("minimized")}
+                  className="h-7 w-7 text-slate-400 hover:text-slate-600"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  color="secondary"
+                  iconOnly
+                  leftIcon={Maximize2}
+                  title="Perbesar Penuh (Maximize)"
+                  onClick={() => setChatState("maximized")}
+                  className="h-7 w-7 text-slate-400 hover:text-slate-600"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {activeQuizId ? (
+                <ProctorChatPanel
+                  defaultQuizId={activeQuizId}
+                  defaultRoomNumber={roomFilter}
+                  onNewMessage={handleIncomingMessage}
+                  className="h-full border-0 shadow-none"
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center p-4 text-center text-xs text-slate-400">
+                  <MessageSquare className="size-6 text-slate-300 mb-2" />
+                  {isDetectingQuiz
+                    ? "Menghubungkan ke saluran kuis aktif..."
+                    : "Pilih atau masukkan Quiz ID untuk membuka obrolan."}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+      </div>
+
+      {/* Bilah Chat Mengambang saat Minimized */}
+      {chatState === "minimized" && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <Button
+            type="button"
+            size="md"
+            variant="filled"
+            color="secondary"
+            shape="circle"
+            leftIcon={MessageSquare}
+            onClick={restoreChatPanel}
+            className="relative px-4 py-2.5 text-xs font-semibold shadow-xl active:scale-95 !rounded-full !aspect-auto bg-slate-900 hover:bg-slate-800 text-white"
+          >
+            <span>Saluran Koordinasi</span>
+            {unreadCount > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[10px] font-bold text-white ring-2 ring-white animate-pulse ml-1">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </Button>
+        </div>
+      )}
+
+      {/* Modal Layar Penuh saat Maximized */}
+      {chatState === "maximized" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+          <div className="flex h-[88vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 bg-slate-50">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="size-5 text-emerald-600" />
+                <span className="font-bold text-sm text-slate-900">
+                  Saluran Koordinasi Pengawas (Layar Penuh)
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1 items-center">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  color="secondary"
+                  iconOnly
+                  leftIcon={Minimize2}
+                  title="Kembalikan ke Ukuran Normal"
+                  onClick={() => setChatState("normal")}
+                  className="h-8 w-8 text-slate-500 hover:bg-slate-200"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  color="secondary"
+                  iconOnly
+                  leftIcon={X}
+                  title="Tutup Modal"
+                  onClick={() => setChatState("normal")}
+                  className="h-8 w-8 text-slate-500 hover:bg-slate-200"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden p-2">
               <ProctorChatPanel
                 defaultQuizId={activeQuizId}
                 defaultRoomNumber={roomFilter}
                 className="h-full border-0 shadow-none"
               />
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center p-4 text-center text-xs text-slate-400">
-                <MessageSquare className="size-6 text-slate-300 mb-2" />
-                {isDetectingQuiz
-                  ? "Menghubungkan ke saluran kuis aktif..."
-                  : "Pilih atau masukkan Quiz ID untuk membuka obrolan."}
-              </div>
-            )}
+            </div>
           </div>
-        </section>
-      </div>
+        </div>
+      )}
 
       {/* Modal Bukti Pelanggaran */}
       {modalAttemptId && (

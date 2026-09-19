@@ -2,6 +2,7 @@
 import {type NextRequest, NextResponse} from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/violations/record"];
+const isProduction = process.env.NODE_ENV === "production";
 
 export default async function proxy(
   request: NextRequest,
@@ -20,10 +21,16 @@ export default async function proxy(
   // 2. Generate Nonce Kriptografis Unik untuk setiap request
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
-  // 3. Susun Strict CSP: Bebas dari 'unsafe-inline' dan 'unsafe-eval'
+  // 3. Susun script-src:
+  // - Development: Memerlukan 'unsafe-eval' demi Fast Refresh, React DevTools, dan Source Maps
+  // - Production: Tetap Strict CSP tanpa 'unsafe-eval'
+  const scriptDirectives = isProduction
+    ? `'self' 'nonce-${nonce}' 'strict-dynamic'`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`;
+
   const cspHeader = `
         default-src 'self';
-        script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+        script-src ${scriptDirectives};
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: blob: https:;
         font-src 'self' data:;
