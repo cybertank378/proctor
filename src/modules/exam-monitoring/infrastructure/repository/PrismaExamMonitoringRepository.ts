@@ -1,8 +1,10 @@
 // Files: src/modules/exam-monitoring/infrastructure/repository/PrismaExamMonitoringRepository.ts
 
+import type {ExamAttemptRecord, Prisma} from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
+import type {MoodleActiveAttemptItem} from "@/shared/contract/MoodleRpcClientContract";
 import type {ExamMonitoringRepositoryContract} from "../../domain/contract/ExamMonitoringRepositoryContract";
-import {ExamAttemptEntity} from "../../domain/entity/ExamAttemptEntity";
+import {type AttemptStatus, ExamAttemptEntity,} from "../../domain/entity/ExamAttemptEntity";
 import {ExamMonitoringQueryBuilder} from "../builder/ExamMonitoringQueryBuilder";
 
 export class PrismaExamMonitoringRepository
@@ -17,7 +19,7 @@ export class PrismaExamMonitoringRepository
       });
       if (!record) return null;
       return this.toEntity(record);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("[ERROR findByAttemptId]:", error);
       return null;
     }
@@ -53,7 +55,7 @@ export class PrismaExamMonitoringRepository
         items: records.map((r) => this.toEntity(r)),
         total,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("[ERROR findActiveAttempts]:", error);
       return { items: [], total: 0 };
     }
@@ -106,29 +108,64 @@ export class PrismaExamMonitoringRepository
     }
   }
 
-  /**
-   * Helper internal untuk memetakan record Prisma ke domain entity ExamAttemptEntity
-   */
-  private toEntity(record: any): ExamAttemptEntity {
+  public async syncMoodleAttempts(
+    moodleAttempts: readonly MoodleActiveAttemptItem[],
+  ): Promise<void> {
+    if (!moodleAttempts || moodleAttempts.length === 0) return;
+
+    try {
+      await prisma.$transaction(
+        moodleAttempts.map((item) => {
+          const attemptData: Prisma.ExamAttemptRecordUncheckedCreateInput = {
+            quizId: item.quizId,
+            userId: item.userId,
+            attemptId: item.attemptId,
+            roomNumber: item.roomNumber ?? "Umum",
+            status: (item.status === "finished"
+              ? "COMPLETED"
+              : "IN_PROGRESS") as AttemptStatus,
+            violationCount: 0,
+            maxAllowedViolations: 3,
+            isLockedByProctor: Boolean(item.islocked),
+            createdAt: new Date(
+              item.timestart > 0 ? item.timestart * 1000 : Date.now(),
+            ),
+            updatedAt: new Date(),
+          };
+
+          return prisma.examAttemptRecord.upsert({
+            where: { attemptId: item.attemptId },
+            update: {
+              status: (item.status === "finished" ? "COMPLETED" : undefined) as
+                | AttemptStatus
+                | undefined,
+              updatedAt: new Date(),
+            },
+            create: attemptData,
+          });
+        }),
+      );
+    } catch (error: unknown) {
+      console.error("[ERROR syncMoodleAttempts]:", error);
+    }
+  }
+
+  private toEntity(record: ExamAttemptRecord): ExamAttemptEntity {
+    const raw = record as unknown as Record<string, unknown>;
+
+    const studentName =
+      typeof raw.studentName === "string" ? raw.studentName : null;
+    const className = typeof raw.className === "string" ? raw.className : null;
+
     return new ExamAttemptEntity({
       id: record.id,
       quizId: record.quizId,
       userId: record.userId,
       attemptId: record.attemptId,
-      // Ambil nama siswa dari record atau fallback ke relasi user
-      studentName:
-        record.studentName ??
-        record.user?.fullname ??
-        record.user?.name ??
-        null,
-      // Ambil kelas dari record atau fallback ke relasi user
-      className:
-        record.className ??
-        record.user?.className ??
-        record.user?.department ??
-        null,
+      studentName,
+      className,
       roomNumber: record.roomNumber,
-      status: record.status,
+      status: record.status as AttemptStatus,
       violationCount: record.violationCount,
       maxAllowedViolations: record.maxAllowedViolations,
       disqualificationReason: record.disqualificationReason,

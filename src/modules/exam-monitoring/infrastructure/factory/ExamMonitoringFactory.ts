@@ -1,4 +1,5 @@
-// src/modules/exam-monitoring/infrastructure/factory/ExamMonitoringFactory.ts
+// Files: src/modules/exam-monitoring/infrastructure/factory/ExamMonitoringFactory.ts
+
 import {AuthFactory} from "@/modules/auth/infrastructure/factory/AuthFactory";
 import {ExamMonitoringService} from "../../application/service/ExamMonitoringService";
 import {GetActiveAttemptsUseCase} from "../../application/usecase/GetActiveAttemptsUseCase";
@@ -22,6 +23,7 @@ export const ExamMonitoringFactory = {
   createGetActiveAttemptsUseCase(): GetActiveAttemptsUseCase {
     return new GetActiveAttemptsUseCase(
       ExamMonitoringFactory.createRepository(),
+      ExamMonitoringFactory.createRpcClient(),
     );
   },
 
