@@ -1,4 +1,4 @@
-//Files: src/sections/exam-session/atoms/CameraFeed.tsx
+// Files: src/sections/exam/atoms/CameraFeed.tsx
 "use client";
 
 import {Camera} from "lucide-react";
@@ -19,6 +19,9 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
       autoPlay
       playsInline
       muted
+      onLoadedMetadata={(e) => {
+        void (e.target as HTMLVideoElement).play();
+      }}
       className={`h-full w-full object-cover ${!isReady ? "hidden" : "block"}`}
       style={{ transform: "scaleX(-1)" }}
     />

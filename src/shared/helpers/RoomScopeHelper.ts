@@ -1,38 +1,18 @@
-//Files: src/shared/helpers/RoomScopeHelper.ts
-import type {ProctorRole} from "@/modules/auth/domain/entity/ProctorUserEntity";
-
+// Files: src/shared/helpers/RoomScopeHelper.ts
 export class RoomScopeHelper {
-    public static canManageTargetRoom(
-        proctorRole: ProctorRole,
-        assignedRoom: string | null,
-        targetRoom: string | null
-    ): boolean {
-        if (proctorRole === "CHIEF_PROCTOR") {
-            return true;
-        }
-
-        if (!assignedRoom || !targetRoom) {
-            return false;
-        }
-
-        const normalizedAssigned = assignedRoom.trim().toLowerCase();
-        const normalizedTarget = targetRoom.trim().toLowerCase();
-
-        if (!normalizedAssigned || !normalizedTarget) {
-            return false;
-        }
-
-        return normalizedAssigned === normalizedTarget;
+  public static resolveFilterRoom(
+    role: string,
+    proctorRoom?: string | null,
+    inputRoom?: string | null,
+  ): string | null {
+    // 1. Jika Ketua Pengawas dan ada input ruangan spesifik, gunakan input tersebut
+    if (role === "CHIEF_PROCTOR") {
+      return inputRoom && inputRoom.trim().length > 0 ? inputRoom.trim() : null;
     }
 
-    public static resolveFilterRoom(
-        proctorRole: ProctorRole,
-        assignedRoom: string | null,
-        requestedRoom?: string | null
-    ): string | null {
-        if (proctorRole === "CHIEF_PROCTOR") {
-            return requestedRoom && requestedRoom.trim() ? requestedRoom.trim() : null;
-        }
-        return assignedRoom && assignedRoom.trim() ? assignedRoom.trim() : null;
-    }
+    // 2. Jika pengawas reguler, wajib terkunci pada ruangannya sendiri
+    return proctorRoom && proctorRoom.trim().length > 0
+      ? proctorRoom.trim()
+      : null;
+  }
 }

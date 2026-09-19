@@ -4,7 +4,7 @@
 import {DoorOpen, Hash, Search} from "lucide-react";
 import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/presentations/hook/useExamMonitoringApi";
+import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
 import Button from "@/shared-ui/component/Button";
 import Pagination from "@/shared-ui/component/Pagination";
 import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table";

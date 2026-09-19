@@ -18,7 +18,7 @@ import {
 import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
-import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/presentations/hook/useExamMonitoringApi";
+import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
 import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
 import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
 import {MetricCard} from "@/sections/exam-monitoring/molecules/MetricCard";
@@ -179,7 +179,17 @@ export const UnifiedProctorCockpit: React.FC = () => {
   }, [quizIdFilter]);
 
   const loadMonitoringData = useCallback(async () => {
-    await fetchAttempts(activeQuizId, roomFilter.trim() || undefined);
+    const resolvedQuizId = activeQuizId ? Number(activeQuizId) : undefined;
+    const resolvedRoom =
+      roomFilter.trim().length > 0 ? roomFilter.trim() : undefined;
+
+    console.log(
+      "[COCKPIT REFETCH] Fetching attempts for Quiz:",
+      resolvedQuizId,
+      "Room:",
+      resolvedRoom,
+    );
+    await fetchAttempts(resolvedQuizId, resolvedRoom);
   }, [fetchAttempts, activeQuizId, roomFilter]);
 
   useEffect(() => {
@@ -563,7 +573,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             shape="circle"
             leftIcon={MessageSquare}
             onClick={restoreChatPanel}
-            className="relative px-4 py-2.5 text-xs font-semibold shadow-xl active:scale-95 !rounded-full !aspect-auto bg-slate-900 hover:bg-slate-800 text-white"
+            className="relative px-4 py-2.5 text-xs font-semibold shadow-xl active:scale-95 rounded-full! aspect-auto! bg-slate-900 hover:bg-slate-800 text-white"
           >
             <span>Saluran Koordinasi</span>
             {unreadCount > 0 && (

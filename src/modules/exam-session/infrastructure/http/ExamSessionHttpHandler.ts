@@ -1,5 +1,4 @@
 // Files: src/modules/exam-session/infrastructure/http/ExamSessionHttpHandler.ts
-
 import {BaseHttpHandler} from "@/core/infrastructure/http/BaseHttpHandler";
 import type {HttpRequest} from "@/core/infrastructure/http/HttpRequest";
 import {HttpResponse} from "@/core/infrastructure/http/HttpResponse";
@@ -15,45 +14,49 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
     const url = new URL(req.url);
 
     // 1. Catat Insiden Pelanggaran (POST /api/violations/record)
-    if (req.method === "POST" && url.pathname.includes("/record")) {
+    if (
+      req.method === "POST" &&
+      (url.pathname.endsWith("/record") ||
+        url.pathname.includes("/violations/record"))
+    ) {
       const body = req.body as RecordViolationRequestDto;
       const result = await this.sessionService.recordViolation(body);
 
       if (result.isFailure) {
         return HttpResponse.success(
-          { error: result.error },
+          { error: result.error, success: false },
           result.error,
-          result.statusCode,
+          result.statusCode ?? 400,
         );
       }
 
       return HttpResponse.success(result.data, result.message, 201);
     }
 
-    // 2. Kunci Sesi Ujian Siswa (PATCH/POST /lock)
+    // 2. Kunci Sesi Ujian (POST /api/exam/session/lock)
     if (req.method === "POST" && url.pathname.includes("/lock")) {
       const body = req.body as { attemptId: number; reason?: string };
       const result = await this.sessionService.lockSession(body);
 
       if (result.isFailure) {
         return HttpResponse.success(
-          { error: result.error },
+          { error: result.error, success: false },
           result.error,
-          result.statusCode,
+          result.statusCode ?? 400,
         );
       }
 
       return HttpResponse.success(result.data, result.message, 200);
     }
 
-    // 3. Verifikasi Status Sesi Siswa (GET /api/exam/session?quizId=...)
+    // 3. Verifikasi Status Sesi Siswa (GET /api/exam/session)
     if (req.method === "GET") {
       const quizIdParam = url.searchParams.get("quizId");
       const attemptIdParam = url.searchParams.get("attemptId");
 
       if (!quizIdParam) {
         return HttpResponse.success(
-          { error: "Parameter 'quizId' wajib disertakan." },
+          { error: "Parameter 'quizId' wajib disertakan.", success: false },
           undefined,
           400,
         );
@@ -61,14 +64,17 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
 
       const result = await this.sessionService.verifySession({
         quizId: Number(quizIdParam),
-        attemptId: attemptIdParam ? Number(attemptIdParam) : undefined,
+        attemptId:
+          attemptIdParam && !Number.isNaN(Number(attemptIdParam))
+            ? Number(attemptIdParam)
+            : undefined,
       });
 
       if (result.isFailure) {
         return HttpResponse.success(
-          { error: result.error },
+          { error: result.error, success: false },
           result.error,
-          result.statusCode,
+          result.statusCode ?? 500,
         );
       }
 
@@ -76,7 +82,7 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
     }
 
     return HttpResponse.success(
-      { error: "Metode HTTP tidak diizinkan." },
+      { error: "Metode tidak diizinkan." },
       undefined,
       405,
     );

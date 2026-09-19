@@ -1,5 +1,4 @@
 // Files: src/modules/exam-session/application/usecase/VerifyAttemptSessionUseCase.ts
-
 import {BaseUseCase} from "@/core/application/base/BaseUseCase";
 import type {AppResult} from "@/core/application/result/AppResult";
 import {AppResultFactory} from "@/core/application/result/AppResultFactory";
@@ -8,7 +7,6 @@ import type {MoodleQuizAdapterContract} from "../../domain/contract/MoodleQuizAd
 import type {VerifyAttemptRequestDto} from "../../domain/dto/ExamSessionRequestDto";
 import type {ExamSessionStatusDto} from "../../domain/dto/ExamSessionResponseDto";
 import {ExamSessionValidator} from "../../domain/validation/ExamSessionValidator";
-import {ExamSessionPresentationMapper} from "../../presentations/mapper/ExamSessionPresentationMapper";
 
 export class VerifyAttemptSessionUseCase extends BaseUseCase<
   VerifyAttemptRequestDto,
@@ -26,7 +24,14 @@ export class VerifyAttemptSessionUseCase extends BaseUseCase<
   ): Promise<AppResult<ExamSessionStatusDto>> {
     try {
       const safeQuizId = ExamSessionValidator.validateQuizId(input.quizId);
-      const embedUrl = this.moodleAdapter.getQuizEmbedUrl(safeQuizId);
+
+      let embedUrl = `https://ujian.smpn29jkt.sch.id/mod/quiz/view.php?id=${safeQuizId}`;
+      try {
+        const generatedUrl = this.moodleAdapter.getQuizEmbedUrl(safeQuizId);
+        if (generatedUrl) embedUrl = generatedUrl;
+      } catch {
+        // Fallback jika adapter Moodle offline
+      }
 
       const session = await this.repository.findSessionByAttempt(
         safeQuizId,
@@ -46,9 +51,18 @@ export class VerifyAttemptSessionUseCase extends BaseUseCase<
         });
       }
 
-      return AppResultFactory.success(
-        ExamSessionPresentationMapper.toDto(session, embedUrl),
-      );
+      const isLocked = session.isLocked ?? session.status === "LOCKED";
+
+      return AppResultFactory.success({
+        attemptId: session.attemptId,
+        quizId: session.quizId,
+        studentIdentifier: session.studentIdentifier ?? "Siswa",
+        isLocked,
+        violationCount: session.violationCount ?? 0,
+        maxAllowedViolations: session.maxAllowedViolations ?? 3,
+        canResume: !isLocked,
+        moodleEmbedUrl: embedUrl,
+      });
     } catch (err: unknown) {
       const msg =
         err instanceof Error

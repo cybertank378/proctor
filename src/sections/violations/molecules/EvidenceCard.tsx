@@ -1,10 +1,10 @@
-// src/sections/violations/molecules/EvidenceCard.tsx
+// Files: src/sections/violations/molecules/EvidenceCard.tsx
 "use client";
 
 import {ImageOff, ShieldCheck} from "lucide-react";
 import Image from "next/image";
 import type React from "react";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import type {ViolationSummaryDto} from "@/modules/violations/domain/dto/ViolationResponseDto";
 import Button from "@/shared-ui/component/Button";
 import {ViolationTypeBadge} from "../atoms/ViolationTypeBadge";
@@ -22,6 +22,39 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({
 }) => {
   const [hasError, setHasError] = useState<boolean>(false);
 
+  // Normalisasi URL gambar bukti insiden
+  const resolvedImageUrl = useMemo(() => {
+    if (!violation.fileUrl || violation.fileUrl.trim().length === 0) {
+      return null;
+    }
+
+    const raw = violation.fileUrl.trim();
+
+    // 1. Jika sudah Data URI atau URL eksternal
+    if (
+      raw.startsWith("data:") ||
+      raw.startsWith("blob:") ||
+      raw.startsWith("http")
+    ) {
+      return raw;
+    }
+
+    // 2. Jika sudah memiliki prefix path assets
+    if (raw.startsWith("/assets/images/evidences/")) {
+      return raw;
+    }
+    if (raw.startsWith("assets/images/evidences/")) {
+      return `/${raw}`;
+    }
+
+    // 3. Fallback jika hanya tersimpan nama filenya saja (cth: "uuid.png")
+    const cleanFileName = raw.replace(
+      /^(\/?uploads\/evidences\/|\/?assets\/images\/evidences\/)/,
+      "",
+    );
+    return `/assets/images/evidences/${cleanFileName}`;
+  }, [violation.fileUrl]);
+
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -38,21 +71,21 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({
 
       {/* Snapshot Preview menggunakan Next.js Image */}
       <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-gray-100 bg-gray-900 flex items-center justify-center">
-        {!violation.fileUrl || hasError ? (
+        {!resolvedImageUrl || hasError ? (
           <div className="flex flex-col items-center gap-1.5 text-gray-400">
             <ImageOff className="size-6 text-gray-500" />
             <span className="text-[11px]">Snapshot bukti tidak tersedia</span>
           </div>
         ) : (
           <Image
-            src={violation.fileUrl}
+            src={resolvedImageUrl}
             alt={`Bukti insiden ${violation.type}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
             unoptimized={
-              violation.fileUrl.startsWith("data:") ||
-              violation.fileUrl.startsWith("blob:")
+              resolvedImageUrl.startsWith("data:") ||
+              resolvedImageUrl.startsWith("blob:")
             }
             onError={() => setHasError(true)}
           />
