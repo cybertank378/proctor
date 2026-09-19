@@ -1,29 +1,39 @@
-// Files: src/sections/exam/atoms/CameraFeed.tsx
+// Files: src/sections/exam-session/atoms/CameraFeed.tsx
 "use client";
 
 import {Camera} from "lucide-react";
 import type React from "react";
+import Webcam from "react-webcam";
 
 interface CameraFeedProps {
-  readonly videoRef: React.RefObject<HTMLVideoElement | null>;
+  readonly webcamRef: React.RefObject<Webcam | null>;
   readonly isReady: boolean;
+  readonly onUserMedia?: () => void;
+  readonly onUserMediaError?: (error: string | DOMException) => void;
 }
 
+const videoConstraints: MediaTrackConstraints = {
+  width: 640,
+  height: 480,
+  facingMode: "user",
+};
+
 export const CameraFeed: React.FC<CameraFeedProps> = ({
-  videoRef,
+  webcamRef,
   isReady,
+  onUserMedia,
+  onUserMediaError,
 }) => (
   <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-900 border border-slate-200">
-    <video
-      ref={videoRef}
-      autoPlay
-      playsInline
-      muted
-      onLoadedMetadata={(e) => {
-        void (e.target as HTMLVideoElement).play();
-      }}
+    <Webcam
+      ref={webcamRef}
+      audio={false}
+      screenshotFormat="image/png"
+      videoConstraints={videoConstraints}
+      mirrored={true}
+      onUserMedia={onUserMedia}
+      onUserMediaError={onUserMediaError}
       className={`h-full w-full object-cover ${!isReady ? "hidden" : "block"}`}
-      style={{ transform: "scaleX(-1)" }}
     />
     {!isReady && (
       <div className="flex h-full w-full flex-col items-center justify-center p-2 text-center text-[11px] text-slate-400">
@@ -31,7 +41,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
         Menghubungkan kamera...
       </div>
     )}
-    <div className="absolute bottom-1.5 left-2 flex items-center gap-1">
+    <div className="absolute bottom-1.5 left-2 flex items-center gap-1 z-10">
       <span className="size-2 rounded-full bg-red-500 animate-ping" />
       <span className="text-[10px] font-semibold text-white/90 drop-shadow">
         REC

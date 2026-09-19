@@ -1,11 +1,12 @@
-//Files: src/sections/exam-session/organisms/ExamView.tsx
+// Files: src/sections/exam-session/organisms/ExamView.tsx
 "use client";
 
 import type React from "react";
-import {ExamIntegrityMonitor} from "@/sections/exam-session/molecules/ExamIntegrityMonitor";
-import {ExamLockedOverlay} from "@/sections/exam-session/molecules/ExamLockedOverlay";
+import type Webcam from "react-webcam";
+import {CameraFeed} from "../atoms/CameraFeed";
+import {ExamLockedOverlay} from "../molecules/ExamLockedOverlay";
 
-interface ExamViewProps {
+export interface ExamViewProps {
   readonly embedUrl: string;
   readonly isLocked: boolean;
   readonly attemptId?: number;
@@ -14,57 +15,58 @@ interface ExamViewProps {
   readonly lastWarning: string | null;
   readonly isCameraReady: boolean;
   readonly isCheckingStatus: boolean;
-  readonly videoRef: React.RefObject<HTMLVideoElement | null>;
-  readonly canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  readonly webcamRef: React.RefObject<Webcam | null>;
   readonly onRefreshStatus: () => void;
+  readonly onCameraReady?: () => void;
 }
 
 export const ExamView: React.FC<ExamViewProps> = ({
   embedUrl,
   isLocked,
-  attemptId,
   violationCount,
   maxViolations,
   lastWarning,
   isCameraReady,
   isCheckingStatus,
-  videoRef,
-  canvasRef,
+  webcamRef,
   onRefreshStatus,
+  onCameraReady,
 }) => {
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-slate-900">
-      {/* Mini HUD Monitor */}
-      <ExamIntegrityMonitor
-        videoRef={videoRef}
-        canvasRef={canvasRef}
-        violationCount={violationCount}
-        maxViolations={maxViolations}
-        lastWarning={lastWarning}
-        isCameraReady={isCameraReady}
-      />
-
-      {/* Frame Moodle */}
-      <div className="relative h-screen w-screen overflow-hidden bg-slate-100">
+    <main className="relative flex h-screen w-screen overflow-hidden bg-slate-950 select-none">
+      {/* Container Iframe Lembar Ujian Moodle */}
+      <div className="relative h-full w-full flex-1">
         <iframe
           src={embedUrl}
           title="Lembar Ujian Moodle"
-          className={`h-full w-full border-none transition-all duration-300 ${
-            isLocked ? "pointer-events-none blur-sm select-none" : ""
-          }`}
+          className="h-full w-full border-0 bg-white"
           allow="camera; microphone; display-capture; fullscreen"
-          sandbox="allow-forms allow-modals allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
         />
       </div>
 
-      {/* Modal Kunci Otomatis */}
-      <ExamLockedOverlay
-        isOpen={isLocked}
-        attemptId={attemptId}
-        violationCount={violationCount}
-        onCheckStatus={onRefreshStatus}
-        isChecking={isCheckingStatus}
-      />
+      {/* Floating Picture-in-Picture Kamera Siswa */}
+      <aside className="fixed bottom-4 right-4 z-40 w-48 shadow-2xl transition-all sm:w-56">
+        <CameraFeed
+          webcamRef={webcamRef}
+          isReady={isCameraReady}
+          onUserMedia={onCameraReady}
+        />
+        {lastWarning && (
+          <div className="mt-1 rounded-md bg-amber-500/90 px-2 py-1 text-center text-[10px] font-semibold text-white shadow-xs backdrop-blur-xs">
+            {lastWarning}
+          </div>
+        )}
+      </aside>
+
+      {/* Overlay Layar Kunci saat Melanggar */}
+      {isLocked && (
+        <ExamLockedOverlay
+          violationCount={violationCount}
+          maxAllowedViolations={maxViolations}
+          isChecking={isCheckingStatus}
+          onCheckUnlock={onRefreshStatus}
+        />
+      )}
     </main>
   );
 };

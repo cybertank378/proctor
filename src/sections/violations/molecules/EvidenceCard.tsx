@@ -22,15 +22,11 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({
 }) => {
   const [hasError, setHasError] = useState<boolean>(false);
 
-  // Normalisasi URL gambar bukti insiden
   const resolvedImageUrl = useMemo(() => {
-    if (!violation.fileUrl || violation.fileUrl.trim().length === 0) {
+    if (!violation.fileUrl || violation.fileUrl.trim().length === 0)
       return null;
-    }
-
     const raw = violation.fileUrl.trim();
 
-    // 1. Jika sudah Data URI atau URL eksternal
     if (
       raw.startsWith("data:") ||
       raw.startsWith("blob:") ||
@@ -38,16 +34,9 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({
     ) {
       return raw;
     }
+    if (raw.startsWith("/assets/images/evidences/")) return raw;
+    if (raw.startsWith("assets/images/evidences/")) return `/${raw}`;
 
-    // 2. Jika sudah memiliki prefix path assets
-    if (raw.startsWith("/assets/images/evidences/")) {
-      return raw;
-    }
-    if (raw.startsWith("assets/images/evidences/")) {
-      return `/${raw}`;
-    }
-
-    // 3. Fallback jika hanya tersimpan nama filenya saja (cth: "uuid.png")
     const cleanFileName = raw.replace(
       /^(\/?uploads\/evidences\/|\/?assets\/images\/evidences\/)/,
       "",
@@ -83,10 +72,7 @@ export const EvidenceCard: React.FC<EvidenceCardProps> = ({
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
-            unoptimized={
-              resolvedImageUrl.startsWith("data:") ||
-              resolvedImageUrl.startsWith("blob:")
-            }
+            unoptimized
             onError={() => setHasError(true)}
           />
         )}

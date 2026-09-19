@@ -1,8 +1,9 @@
-//Files: src/sections/exam-session/pages/ExamSection.tsx
+// Files: src/sections/exam-session/pages/ExamSection.tsx
 "use client";
 
 import type React from "react";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import type Webcam from "react-webcam";
 import {useAntiCheatEngine} from "@/modules/exam-session/presentations/hook/useAntiCheatEngine";
 import {useExamSessionApi} from "@/modules/exam-session/presentations/hook/useExamSessionApi";
 import {ExamGateView} from "@/sections/exam-session/molecules/ExamGateView";
@@ -16,6 +17,9 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const [isExamStarted, setIsExamStarted] = useState<boolean>(false);
 
+  // Instansiasi tunggal react-webcam ref
+  const webcamRef = useRef<Webcam | null>(null);
+
   const {
     sessionData,
     loading: isCheckingStatus,
@@ -23,8 +27,6 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
   } = useExamSessionApi();
 
   const {
-    videoRef,
-    canvasRef,
     violationCount,
     isLocked: engineLocked,
     lastWarning,
@@ -33,6 +35,7 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
     attemptId: sessionData?.attemptId,
     isExamActive: isExamStarted,
     maxTolerance: sessionData?.maxAllowedViolations ?? 3,
+    webcamRef,
   });
 
   const isCurrentlyLocked = engineLocked || Boolean(sessionData?.isLocked);
@@ -43,22 +46,6 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
     }
   }, [quizId, fetchSessionStatus]);
 
-  const handleRequestCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: "user" },
-        audio: false,
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setHasPermission(true);
-    } catch {
-      setHasPermission(false);
-    }
-  };
-
   const handleRefreshStatus = () => {
     void fetchSessionStatus(quizId, sessionData?.attemptId);
   };
@@ -68,7 +55,7 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
       <ExamGateView
         quizId={quizId}
         hasPermission={hasPermission}
-        onRequestCamera={() => void handleRequestCamera()}
+        onRequestCamera={() => setHasPermission(true)}
         onStartExam={() => setIsExamStarted(true)}
       />
     );
@@ -87,9 +74,9 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
       lastWarning={lastWarning}
       isCameraReady={hasPermission}
       isCheckingStatus={isCheckingStatus}
-      videoRef={videoRef}
-      canvasRef={canvasRef}
+      webcamRef={webcamRef}
       onRefreshStatus={handleRefreshStatus}
+      onCameraReady={() => setHasPermission(true)}
     />
   );
 };

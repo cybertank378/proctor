@@ -1,30 +1,28 @@
-//Files: src/sections/exam-session/molecules/ExamLockedOverlay.tsx
+// Files: src/sections/exam-session/molecules/ExamLockedOverlay.tsx
 "use client";
 
 import {Lock, RefreshCw, ShieldOff} from "lucide-react";
 import type React from "react";
 import Button from "@/shared-ui/component/Button";
 
-interface ExamLockedOverlayProps {
-  readonly isOpen: boolean;
-  readonly attemptId?: number;
+export interface ExamLockedOverlayProps {
   readonly violationCount: number;
-  readonly onCheckStatus: () => void;
+  readonly maxAllowedViolations: number;
   readonly isChecking: boolean;
+  readonly onCheckUnlock: () => void;
+  readonly attemptId?: number;
 }
 
 export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
-  isOpen,
-  attemptId,
   violationCount,
-  onCheckStatus,
+  maxAllowedViolations,
   isChecking,
+  onCheckUnlock,
+  attemptId,
 }) => {
-  if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md">
-      <div className="grid w-full max-w-md grid-cols-1 gap-5 rounded-2xl border border-red-200 bg-white p-6 shadow-2xl text-center">
+      <div className="grid w-full max-w-md grid-cols-1 gap-5 rounded-2xl border border-red-200 bg-white p-6 text-center shadow-2xl">
         <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-red-100 ring-8 ring-red-50">
           <Lock className="size-7 text-red-600" />
         </div>
@@ -35,13 +33,13 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
           <p className="text-xs text-slate-600">
             Terdeteksi{" "}
             <span className="font-bold text-red-600">
-              {violationCount} pelanggaran
+              {violationCount} dari maksimal {maxAllowedViolations} pelanggaran
             </span>
             . Silakan hubungi pengawas ruangan untuk membuka akses.
           </p>
         </div>
         {attemptId && (
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs text-slate-500 font-mono">
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 font-mono text-xs text-slate-500">
             Attempt ID:{" "}
             <span className="font-bold text-slate-800">#{attemptId}</span>
           </div>
@@ -53,8 +51,8 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
             variant="filled"
             leftIcon={RefreshCw}
             loading={isChecking}
-            onClick={onCheckStatus}
-            className="w-full h-10 text-xs font-semibold"
+            onClick={onCheckUnlock}
+            className="h-10 w-full text-xs font-semibold"
           >
             Cek Status Buka Kunci
           </Button>
