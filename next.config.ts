@@ -35,8 +35,8 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "http",
-        hostname: "103.171.154.43",
+        protocol: "https",
+        hostname: "proktor.smpn20jkt.sch.id",
         pathname: "/**",
       },
     ],
