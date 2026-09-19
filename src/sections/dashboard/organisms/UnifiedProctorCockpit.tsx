@@ -299,7 +299,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-2 w-full md:w-auto shrink-0">
           <Button
             type="button"
             size="sm"
@@ -307,7 +307,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             color="primary"
             leftIcon={UserCheck}
             onClick={() => setIsProctorModalOpen(true)}
-            className="h-9 px-3 text-xs w-full sm:w-auto"
+            className="h-9 px-3 text-xs w-full"
           >
             Kelola Pengawas
           </Button>
@@ -319,7 +319,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             leftIcon={RefreshCw}
             loading={monitoringLoading}
             onClick={() => void loadMonitoringData()}
-            className="h-9 px-3 text-xs w-full sm:w-auto"
+            className="h-9 px-3 text-xs w-full"
           >
             Sinkronkan
           </Button>
