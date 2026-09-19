@@ -29,10 +29,10 @@ export function useAntiCheatEngine({
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [lastWarning, setLastWarning] = useState<string | null>(null);
 
-  // Buffer video sementara untuk ekstraksi frame screen capture
+  // Buffer untuk menyimpan frame aktif terakhir sebelum tab diminimalkan
+  const lastActiveSnapshotRef = useRef<string | null>(null);
   const hiddenScreenVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Inisialisasi elemen video penampung stream layar
   useEffect(() => {
     if (typeof document !== "undefined" && !hiddenScreenVideoRef.current) {
       const videoEl = document.createElement("video");
@@ -43,6 +43,29 @@ export function useAntiCheatEngine({
     }
   }, []);
 
+  // Update buffer frame terakhir setiap 500ms saat ujian aktif dan jendela masih terlihat
+  useEffect(() => {
+    if (!isExamActive || isLocked) return;
+
+    const interval = setInterval(() => {
+      if (!document.hidden && webcamRef?.current) {
+        try {
+          const frame = webcamRef.current.getScreenshot({
+            width: 640,
+            height: 480,
+          });
+          if (frame && frame.length > 100) {
+            lastActiveSnapshotRef.current = frame;
+          }
+        } catch {
+          // Abaikan kesalahan silent polling
+        }
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isExamActive, isLocked, webcamRef]);
+
   // Tangkap snapshot webcam siswa
   const captureWebcamSnapshot = useCallback((): string => {
     try {
@@ -52,18 +75,23 @@ export function useAntiCheatEngine({
           height: 480,
         });
 
-        if (imageSrc && imageSrc.length > 50) {
+        if (imageSrc && imageSrc.length > 100) {
           return imageSrc;
         }
       }
     } catch (err) {
-      console.warn("[ANTI-CHEAT] Gagal mengambil snapshot webcam:", err);
+      console.warn("[ANTI-CHEAT] Gagal mengambil snapshot real-time:", err);
+    }
+
+    // Ambil dari buffer frame terakhir jika pemanggilan real-time dibekukan browser
+    if (lastActiveSnapshotRef.current) {
+      return lastActiveSnapshotRef.current;
     }
 
     return "";
   }, [webcamRef]);
 
-  // Tangkap snapshot tampilan layar/tab yang sedang dibuka (jika screen stream aktif)
+  // Tangkap snapshot tampilan layar/tab (jika screen stream aktif)
   const captureScreenSnapshot = useCallback((): string => {
     try {
       const stream = screenStreamRef?.current;
@@ -99,16 +127,17 @@ export function useAntiCheatEngine({
     return "";
   }, [screenStreamRef]);
 
-  // Ekstraksi snapshot gabungan atau gambar fallback berstempel waktu
+  // Ekstraksi bukti visual utama
   const captureSnapshot = useCallback((): string => {
-    // Prioritaskan tangkapan layar jika ada (mengetahui tab tujuan), fallback ke webcam
+    // 1. Coba tangkap layar tujuan
     const screenImg = captureScreenSnapshot();
     if (screenImg) return screenImg;
 
+    // 2. Ambil snapshot webcam langsung atau dari buffer frame terakhir
     const webcamImg = captureWebcamSnapshot();
     if (webcamImg) return webcamImg;
 
-    // Fallback kanvas jika stream belum mengalir
+    // 3. Fallback Canvas informatif dengan visual jelas jika webcam mati
     const canvas = document.createElement("canvas");
     canvas.width = 640;
     canvas.height = 480;

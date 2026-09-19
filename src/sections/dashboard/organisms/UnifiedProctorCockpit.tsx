@@ -76,8 +76,21 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
       <TableCell className="font-mono text-xs font-bold text-slate-900 py-2">
         #{item.attemptId}
       </TableCell>
-      <TableCell className="text-xs font-medium text-slate-700 py-2">
-        {item.userId}
+      {/* Kolom Siswa & Kelas */}
+      <TableCell className="text-xs py-2">
+        <div className="flex flex-col gap-0.5">
+          <span className="font-bold text-slate-900 truncate max-w-[180px]">
+            {item.studentName || `Siswa #${item.userId}`}
+          </span>
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 font-medium text-blue-700 border border-blue-100">
+              {item.className || "-"}
+            </span>
+            <span className="font-mono text-[10px] text-slate-400">
+              ID: {item.userId}
+            </span>
+          </div>
+        </div>
       </TableCell>
       <TableCell className="text-xs text-slate-600 py-2">
         {item.roomNumber ? (
@@ -293,12 +306,12 @@ export const UnifiedProctorCockpit: React.FC = () => {
         />
       </div>
 
-      {/* Toolbar Filter: Sisi Kiri dan Sisi Kanan sejajar tanpa expanding */}
+      {/* Toolbar Filter */}
       <form
         onSubmit={handleFilterSubmit}
         className="grid grid-cols-1 gap-3.5 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs xl:grid-cols-[auto_auto] xl:items-center xl:justify-between w-full"
       >
-        {/* Kiri: Scope Pengawasan */}
+        {/* Scope Pengawasan */}
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[auto_11rem_12rem_auto] sm:items-center">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
             Scope Pengawasan:
@@ -342,7 +355,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
           </Button>
         </div>
 
-        {/* Kanan: Aksi Proctor & Sinkronisasi */}
+        {/* Aksi Proctor & Sinkronisasi */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full xl:w-auto items-center">
           <Button
             type="button"
@@ -400,7 +413,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     Attempt
                   </TableHeaderCell>
                   <TableHeaderCell className="text-white text-[11px] py-2">
-                    User
+                    Siswa & Kelas
                   </TableHeaderCell>
                   <TableHeaderCell className="text-white text-[11px] py-2">
                     Ruang

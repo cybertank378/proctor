@@ -137,7 +137,9 @@ export const ExamMonitoringTableView: React.FC = () => {
                 Attempt ID
               </TableHeaderCell>
               <TableHeaderCell className="text-white">Quiz ID</TableHeaderCell>
-              <TableHeaderCell className="text-white">User ID</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Siswa & Kelas
+              </TableHeaderCell>
               <TableHeaderCell className="text-white">Ruangan</TableHeaderCell>
               <TableHeaderCell className="text-white">
                 Pelanggaran
@@ -182,8 +184,27 @@ export const ExamMonitoringTableView: React.FC = () => {
                     <TableCell className="font-mono font-semibold text-gray-900">
                       #{item.attemptId}
                     </TableCell>
-                    <TableCell>{item.quizId}</TableCell>
-                    <TableCell>{item.userId}</TableCell>
+                    <TableCell className="font-mono text-gray-600">
+                      {item.quizId}
+                    </TableCell>
+
+                    {/* Kolom Siswa & Kelas */}
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-gray-900">
+                          {item.studentName || `Siswa #${item.userId}`}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                          <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[11px] font-medium text-blue-700 border border-blue-100">
+                            {item.className || "-"}
+                          </span>
+                          <span className="font-mono text-[11px] text-gray-400">
+                            ID: {item.userId}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+
                     <TableCell>{item.roomNumber ?? "-"}</TableCell>
                     <TableCell>
                       <span

@@ -16,7 +16,7 @@ export class PrismaExamMonitoringRepository
         where: { attemptId },
       });
       if (!record) return null;
-      return new ExamAttemptEntity(record);
+      return this.toEntity(record);
     } catch (error) {
       console.error("[ERROR findByAttemptId]:", error);
       return null;
@@ -50,7 +50,7 @@ export class PrismaExamMonitoringRepository
       );
 
       return {
-        items: records.map((r) => new ExamAttemptEntity(r)),
+        items: records.map((r) => this.toEntity(r)),
         total,
       };
     } catch (error) {
@@ -72,7 +72,7 @@ export class PrismaExamMonitoringRepository
         updatedAt: new Date(),
       },
     });
-    return new ExamAttemptEntity(updated);
+    return this.toEntity(updated);
   }
 
   public async findActiveQuizByRoom(
@@ -104,5 +104,38 @@ export class PrismaExamMonitoringRepository
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Helper internal untuk memetakan record Prisma ke domain entity ExamAttemptEntity
+   */
+  private toEntity(record: any): ExamAttemptEntity {
+    return new ExamAttemptEntity({
+      id: record.id,
+      quizId: record.quizId,
+      userId: record.userId,
+      attemptId: record.attemptId,
+      // Ambil nama siswa dari record atau fallback ke relasi user
+      studentName:
+        record.studentName ??
+        record.user?.fullname ??
+        record.user?.name ??
+        null,
+      // Ambil kelas dari record atau fallback ke relasi user
+      className:
+        record.className ??
+        record.user?.className ??
+        record.user?.department ??
+        null,
+      roomNumber: record.roomNumber,
+      status: record.status,
+      violationCount: record.violationCount,
+      maxAllowedViolations: record.maxAllowedViolations,
+      disqualificationReason: record.disqualificationReason,
+      isLockedByProctor: record.isLockedByProctor,
+      unlockedByProctorId: record.unlockedByProctorId,
+      createdAt: record.createdAt,
+      updatedAt: record.updatedAt,
+    });
   }
 }

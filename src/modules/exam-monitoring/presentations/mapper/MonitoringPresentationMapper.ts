@@ -18,6 +18,9 @@ export const MonitoringPresentationMapper = {
       quizId: entity.quizId,
       userId: entity.userId,
       attemptId: entity.attemptId,
+      // Memetakan nama siswa dan kelas dari entity
+      studentName: entity.studentName ?? `Siswa #${entity.userId}`,
+      className: entity.className ?? "-",
       roomNumber: entity.roomNumber ?? "Umum",
       status: entity.status,
       violationCount: entity.violationCount,
