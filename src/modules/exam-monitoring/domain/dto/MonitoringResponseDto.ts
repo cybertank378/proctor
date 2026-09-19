@@ -1,4 +1,4 @@
-//Files: src/modules/exam-monitoring/domain/dto/MonitoringResponseDto.ts
+// src/modules/exam-monitoring/domain/dto/MonitoringResponseDto.ts
 import type {AttemptStatus} from "../entity/ExamAttemptEntity";
 
 export interface ExamAttemptSummaryDto {
@@ -19,4 +19,10 @@ export interface UnlockAttemptResponseDto {
     readonly status: AttemptStatus;
     readonly unlockedAt: string;
     readonly unlockedByProctorId: string;
+}
+
+export interface ActiveQuizResolutionDto {
+    readonly quizId: number;
+    readonly quizName?: string;
+    readonly source: "ACTIVE_SESSION" | "MOODLE_SCHEDULE" | "FALLBACK_HISTORY";
 }

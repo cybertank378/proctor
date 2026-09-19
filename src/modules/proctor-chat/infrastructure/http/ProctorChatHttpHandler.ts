@@ -48,6 +48,7 @@ export class ProctorChatHttpHandler extends BaseHttpHandler {
         if (req.method === "GET") {
             const url = new URL(req.url);
             const quizIdParam = url.searchParams.get("quizId");
+            console.log("[DEBUG CHAT GET] Request quizId:", quizIdParam, "Referer:", req.headers.get("referer"));
             const limitParam = url.searchParams.get("limit");
 
             if (!quizIdParam) {

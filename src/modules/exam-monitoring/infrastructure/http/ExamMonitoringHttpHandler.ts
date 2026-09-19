@@ -1,4 +1,4 @@
-//Files: src/modules/exam-monitoring/infrastructure/http/ExamMonitoringHttpHandler.ts
+// src/modules/exam-monitoring/infrastructure/http/ExamMonitoringHttpHandler.ts
 import {BaseHttpHandler} from "@/core/infrastructure/http/BaseHttpHandler";
 import type {HttpRequest} from "@/core/infrastructure/http/HttpRequest";
 import {HttpResponse} from "@/core/infrastructure/http/HttpResponse";
@@ -26,6 +26,23 @@ export class ExamMonitoringHttpHandler extends BaseHttpHandler {
 
         if (req.method === "GET") {
             const url = new URL(req.url);
+
+            // 1. Rute Deteksi Kuis Aktif
+            if (url.pathname.includes("/active-quiz")) {
+                const result = await this.monitoringService.getActiveQuiz(
+                    url.searchParams.get("roomNumber"),
+                    proctor
+                );
+
+                if (result.isFailure) {
+                    return HttpResponse.success({ error: result.error }, result.error, result.statusCode ?? 500);
+                }
+
+                // Mengembalikan HTTP 200 (data: ActiveQuizResolutionDto atau null)
+                return HttpResponse.success(result.data, undefined, 200);
+            }
+
+            // 2. Rute Riwayat Siswa (Attempts)
             const quizIdParam = url.searchParams.get("quizId");
             const pageParam = url.searchParams.get("page");
             const pageSizeParam = url.searchParams.get("pageSize");

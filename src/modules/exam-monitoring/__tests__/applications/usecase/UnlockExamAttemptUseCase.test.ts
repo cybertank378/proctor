@@ -1,8 +1,12 @@
-//Files: src/modules/exam-monitoring/__tests__/applications/usecase/UnlockExamAttemptUseCase.test.ts
+// Files: src/modules/exam-monitoring/__tests__/applications/usecase/UnlockExamAttemptUseCase.test.ts
 import {describe, expect, it, vi} from "vitest";
 import {ProctorUserEntity} from "@/modules/auth/domain/entity/ProctorUserEntity";
 import {ExamAttemptEntity} from "@/modules/exam-monitoring/domain/entity/ExamAttemptEntity";
 import {UnlockExamAttemptUseCase} from "@/modules/exam-monitoring/application/usecase/UnlockExamAttemptUseCase";
+import type {
+    ExamMonitoringRepositoryContract
+} from "@/modules/exam-monitoring/domain/contract/ExamMonitoringRepositoryContract";
+import type {MoodleRpcClientContract} from "@/shared/contract/MoodleRpcClientContract";
 
 describe("UnlockExamAttemptUseCase (Application Layer Suite)", () => {
     const proctor = new ProctorUserEntity({
@@ -34,12 +38,25 @@ describe("UnlockExamAttemptUseCase (Application Layer Suite)", () => {
         updatedAt: new Date(),
     });
 
+    const createBaseMockRepo = (): ExamMonitoringRepositoryContract => ({
+        findByAttemptId: vi.fn(),
+        findActiveAttempts: vi.fn(),
+        unlockAttempt: vi.fn(),
+        findActiveQuizByRoom: vi.fn().mockResolvedValue(null),
+        findLatestQuizId: vi.fn().mockResolvedValue(null),
+    });
+
+    const createBaseMockRpc = (): MoodleRpcClientContract => ({
+        unlockStudentAttempt: vi.fn(),
+        getActiveQuizzes: vi.fn().mockResolvedValue([]),
+    });
+
     describe("Positive Cases", () => {
         it("harus berhasil membuka kunci saat ruangan cocok dan Moodle RPC sukses (AAA Pattern)", async () => {
             // Arrange
-            const mockRepo = {
+            const mockRepo: ExamMonitoringRepositoryContract = {
+                ...createBaseMockRepo(),
                 findByAttemptId: vi.fn().mockResolvedValue(lockedAttempt),
-                findActiveAttempts: vi.fn(),
                 unlockAttempt: vi.fn().mockResolvedValue(
                     new ExamAttemptEntity({
                         ...lockedAttempt,
@@ -49,7 +66,8 @@ describe("UnlockExamAttemptUseCase (Application Layer Suite)", () => {
                     })
                 ),
             };
-            const mockRpc = {
+            const mockRpc: MoodleRpcClientContract = {
+                ...createBaseMockRpc(),
                 unlockStudentAttempt: vi.fn().mockResolvedValue({ success: true }),
             };
 
@@ -75,12 +93,11 @@ describe("UnlockExamAttemptUseCase (Application Layer Suite)", () => {
                 ...lockedAttempt,
                 roomNumber: "Lab 02",
             });
-            const mockRepo = {
+            const mockRepo: ExamMonitoringRepositoryContract = {
+                ...createBaseMockRepo(),
                 findByAttemptId: vi.fn().mockResolvedValue(attemptOtherRoom),
-                findActiveAttempts: vi.fn(),
-                unlockAttempt: vi.fn(),
             };
-            const mockRpc = { unlockStudentAttempt: vi.fn() };
+            const mockRpc = createBaseMockRpc();
 
             const useCase = new UnlockExamAttemptUseCase(mockRepo, mockRpc);
 
@@ -98,12 +115,12 @@ describe("UnlockExamAttemptUseCase (Application Layer Suite)", () => {
 
         it("harus mengembalikan status 502 jika Moodle RPC merespons kegagalan (AAA Pattern)", async () => {
             // Arrange
-            const mockRepo = {
+            const mockRepo: ExamMonitoringRepositoryContract = {
+                ...createBaseMockRepo(),
                 findByAttemptId: vi.fn().mockResolvedValue(lockedAttempt),
-                findActiveAttempts: vi.fn(),
-                unlockAttempt: vi.fn(),
             };
-            const mockRpc = {
+            const mockRpc: MoodleRpcClientContract = {
+                ...createBaseMockRpc(),
                 unlockStudentAttempt: vi.fn().mockResolvedValue({
                     success: false,
                     message: "Attempt ID pada database Moodle tidak ditemukan",

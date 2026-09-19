@@ -1,5 +1,6 @@
-//Files: src/modules/exam-monitoring/infrastructure/rpc/MoodleGuardRpcClient.ts
+// src/modules/exam-monitoring/infrastructure/rpc/MoodleGuardRpcClient.ts
 import type {
+    MoodleActiveQuizItem,
     MoodleRpcClientContract,
     MoodleRpcResponse,
     MoodleUnlockStudentParams,
@@ -53,6 +54,47 @@ export class MoodleGuardRpcClient implements MoodleRpcClientContract {
                 success: false,
                 message: "Gagal terhubung ke Moodle RPC endpoint.",
             };
+        }
+    }
+
+    public async getActiveQuizzes(): Promise<readonly MoodleActiveQuizItem[]> {
+        const config = AppConfig.get();
+
+        if (!config.moodleWsToken || !config.moodleWsUrl) {
+            return [];
+        }
+
+        try {
+            const url = new URL(config.moodleWsUrl);
+            url.searchParams.set("wstoken", config.moodleWsToken);
+            url.searchParams.set("wsfunction", "quizaccess_guard_get_active_quizzes");
+            url.searchParams.set("moodlewsrestformat", "json");
+
+            const response = await fetch(url.toString(), {
+                method: "GET",
+                headers: { Accept: "application/json" },
+                cache: "no-store",
+            });
+
+            if (!response.ok) {
+                return [];
+            }
+
+            const result = await response.json();
+            if (!Array.isArray(result)) {
+                return [];
+            }
+
+            return result.map((item: Record<string, unknown>) => ({
+                quizId: Number(item.quiz_id),
+                courseId: Number(item.course_id),
+                courseName: String(item.course_name ?? ""),
+                quizName: String(item.quiz_name ?? ""),
+                timeOpen: Number(item.timeopen ?? 0),
+                timeClose: Number(item.timeclose ?? 0),
+            }));
+        } catch {
+            return [];
         }
     }
 }

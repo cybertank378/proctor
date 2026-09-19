@@ -1,4 +1,4 @@
-//Files: src/modules/exam-monitoring/infrastructure/repository/PrismaExamMonitoringRepository.ts
+// src/modules/exam-monitoring/infrastructure/repository/PrismaExamMonitoringRepository.ts
 import type {ExamMonitoringRepositoryContract} from "../../domain/contract/ExamMonitoringRepositoryContract";
 import {ExamAttemptEntity} from "../../domain/entity/ExamAttemptEntity";
 import {ExamMonitoringQueryBuilder} from "../builder/ExamMonitoringQueryBuilder";
@@ -7,7 +7,7 @@ import prisma from "@/lib/prisma";
 export class PrismaExamMonitoringRepository implements ExamMonitoringRepositoryContract {
     public async findByAttemptId(attemptId: number): Promise<ExamAttemptEntity | null> {
         const record = await prisma.examAttemptRecord.findUnique({
-            where: {attemptId},
+            where: { attemptId },
         });
         if (!record) return null;
         return new ExamAttemptEntity(record);
@@ -21,21 +21,51 @@ export class PrismaExamMonitoringRepository implements ExamMonitoringRepositoryC
         readonly take: number;
     }): Promise<{ readonly items: ExamAttemptEntity[]; readonly total: number }> {
         const where = ExamMonitoringQueryBuilder.buildFilter(filter);
-        const [records, total] = await Promise.all([prisma.examAttemptRecord.findMany({
-            where, skip: filter.skip, take: filter.take, orderBy: {updatedAt: "desc"},
-        }), prisma.examAttemptRecord.count({where}),]);
+        const [records, total] = await Promise.all([
+            prisma.examAttemptRecord.findMany({
+                where,
+                skip: filter.skip,
+                take: filter.take,
+                orderBy: { updatedAt: "desc" },
+            }),
+            prisma.examAttemptRecord.count({ where }),
+        ]);
 
         return {
-            items: records.map((r) => new ExamAttemptEntity(r)), total,
+            items: records.map((r) => new ExamAttemptEntity(r)),
+            total,
         };
     }
 
     public async unlockAttempt(attemptId: number, proctorId: string): Promise<ExamAttemptEntity> {
         const updated = await prisma.examAttemptRecord.update({
-            where: {attemptId}, data: {
-                status: "IN_PROGRESS", isLockedByProctor: false, unlockedByProctorId: proctorId,
+            where: { attemptId },
+            data: {
+                status: "IN_PROGRESS",
+                isLockedByProctor: false,
+                unlockedByProctorId: proctorId,
             },
         });
         return new ExamAttemptEntity(updated);
+    }
+
+    public async findActiveQuizByRoom(roomNumber?: string | null): Promise<number | null> {
+        const record = await prisma.examAttemptRecord.findFirst({
+            where: {
+                status: "IN_PROGRESS",
+                ...(roomNumber ? { roomNumber } : {}),
+            },
+            orderBy: { updatedAt: "desc" },
+            select: { quizId: true },
+        });
+        return record?.quizId ?? null;
+    }
+
+    public async findLatestQuizId(): Promise<number | null> {
+        const record = await prisma.examAttemptRecord.findFirst({
+            orderBy: { createdAt: "desc" },
+            select: { quizId: true },
+        });
+        return record?.quizId ?? null;
     }
 }

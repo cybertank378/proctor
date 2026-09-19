@@ -1,4 +1,4 @@
-//Files: src/sections/proctor-chat/organisms/ProctorChatPanel.tsx
+// Files: src/sections/proctor-chat/organisms/ProctorChatPanel.tsx
 "use client";
 
 import type React from "react";
@@ -23,18 +23,31 @@ interface CurrentUserSession {
 }
 
 export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
-                                                                      defaultQuizId = 1,
+                                                                      defaultQuizId,
                                                                       defaultRoomNumber = "",
                                                                       pollIntervalMs = 5000,
                                                                       className,
                                                                   }) => {
     const { messages, sending, loading, fetchMessages, sendMessage } = useProctorChatApi();
 
-    const [quizIdInput, setQuizIdInput] = useState<string>(String(defaultQuizId));
+    const [quizIdInput, setQuizIdInput] = useState<string>(
+        defaultQuizId ? String(defaultQuizId) : ""
+    );
     const [roomFilter, setRoomFilter] = useState<string>(defaultRoomNumber);
     const [messageText, setMessageText] = useState<string>("");
 
     const chatBottomRef = useRef<HTMLDivElement | null>(null);
+
+    // Sinkronkan state lokal saat props defaultQuizId atau defaultRoomNumber berubah dinamis
+    useEffect(() => {
+        if (defaultQuizId && defaultQuizId > 0) {
+            setQuizIdInput(String(defaultQuizId));
+        }
+    }, [defaultQuizId]);
+
+    useEffect(() => {
+        setRoomFilter(defaultRoomNumber);
+    }, [defaultRoomNumber]);
 
     const currentUser = useMemo<CurrentUserSession>(() => {
         if (typeof window === "undefined") {
@@ -48,22 +61,30 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
         }
     }, []);
 
-    const parsedQuizId = useMemo(() => {
+    const parsedQuizId = useMemo<number | null>(() => {
         const parsed = Number(quizIdInput);
-        return Number.isInteger(parsed) && parsed > 0 ? parsed : defaultQuizId;
+        if (Number.isInteger(parsed) && parsed > 0) {
+            return parsed;
+        }
+        if (defaultQuizId && defaultQuizId > 0) {
+            return defaultQuizId;
+        }
+        return null;
     }, [quizIdInput, defaultQuizId]);
 
     const loadChat = useCallback(() => {
-        if (parsedQuizId > 0) {
-            fetchMessages(parsedQuizId, roomFilter.trim() || undefined);
+        if (parsedQuizId && parsedQuizId > 0) {
+            void fetchMessages(parsedQuizId, roomFilter.trim() || undefined);
         }
     }, [parsedQuizId, roomFilter, fetchMessages]);
 
     useEffect(() => {
+        if (!parsedQuizId) return;
+
         loadChat();
         const interval = setInterval(loadChat, pollIntervalMs);
         return () => clearInterval(interval);
-    }, [loadChat, pollIntervalMs]);
+    }, [loadChat, pollIntervalMs, parsedQuizId]);
 
     useEffect(() => {
         chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,7 +93,7 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
     const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const normalizedContent = messageText.trim();
-        if (!normalizedContent || sending) {
+        if (!normalizedContent || sending || !parsedQuizId) {
             return;
         }
 
@@ -128,6 +149,7 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
                     color="secondary"
                     leftIcon={RefreshCw}
                     loading={loading}
+                    disabled={!parsedQuizId}
                     onClick={loadChat}
                     className="h-9 px-3 text-xs"
                     data-testid="chat-refresh-button"
@@ -141,7 +163,14 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
                 data-testid="chat-stream-container"
                 className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30"
             >
-                {loading && messages.length === 0 ? (
+                {!parsedQuizId ? (
+                    <div
+                        data-testid="chat-unselected-state"
+                        className="py-12 text-center text-sm text-gray-400"
+                    >
+                        Tentukan Quiz ID untuk melihat obrolan.
+                    </div>
+                ) : loading && messages.length === 0 ? (
                     <div
                         data-testid="chat-loading-state"
                         className="py-12 text-center text-sm text-gray-400"
@@ -176,11 +205,15 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
                     <TextField
                         size="md"
                         variant="outlined"
-                        placeholder="Ketik pesan koordinasi pengawas..."
+                        placeholder={
+                            parsedQuizId
+                                ? "Ketik pesan koordinasi pengawas..."
+                                : "Pilih Quiz ID terlebih dahulu..."
+                        }
                         value={messageText}
                         onChange={(e) => setMessageText(e.target.value)}
                         maxLengthValue={500}
-                        disabled={sending}
+                        disabled={sending || !parsedQuizId}
                         data-testid="chat-message-input"
                     />
                 </div>
@@ -192,7 +225,7 @@ export const ProctorChatPanel: React.FC<ProctorChatPanelProps> = ({
                     variant="filled"
                     leftIcon={Send}
                     loading={sending}
-                    disabled={sending || !messageText.trim()}
+                    disabled={sending || !messageText.trim() || !parsedQuizId}
                     className="h-11 px-5 rounded-lg font-semibold shrink-0"
                     data-testid="chat-send-button"
                 >

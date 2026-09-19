@@ -1,9 +1,9 @@
-//Files:  src/sections/dashboard/organisms/UnifiedProctorCockpit.tsx
+// src/sections/dashboard/organisms/UnifiedProctorCockpit.tsx
 "use client";
 
 import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {DoorOpen, Hash, MessageSquare, RefreshCw, Search, ShieldAlert, UserCheck, Users,} from "lucide-react";
+import {DoorOpen, Hash, MessageSquare, RefreshCw, Search, ShieldAlert, Sparkles, UserCheck, Users,} from "lucide-react";
 import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
 import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/presentations/hook/useExamMonitoringApi";
 import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
@@ -111,6 +111,8 @@ export const UnifiedProctorCockpit: React.FC = () => {
     const {
         loading: monitoringLoading,
         attempts,
+        activeQuizInfo,
+        fetchActiveQuiz,
         fetchAttempts,
         unlockStudent,
     } = useExamMonitoringApi();
@@ -122,13 +124,27 @@ export const UnifiedProctorCockpit: React.FC = () => {
         verifyIntegrity,
     } = useViolationsApi();
 
-    const [quizIdFilter, setQuizIdFilter] = useState<string>("10");
+    const [quizIdFilter, setQuizIdFilter] = useState<string>("");
     const [roomFilter, setRoomFilter] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [isDetectingQuiz, setIsDetectingQuiz] = useState<boolean>(false);
 
     const [selectedAttemptRecordId, setSelectedAttemptRecordId] = useState<string | null>(null);
     const [modalAttemptId, setModalAttemptId] = useState<string | null>(null);
     const [isProctorModalOpen, setIsProctorModalOpen] = useState<boolean>(false);
+
+    const initActiveQuiz = useCallback(async (room?: string) => {
+        setIsDetectingQuiz(true);
+        const resolvedQuizId = await fetchActiveQuiz(room);
+        if (resolvedQuizId) {
+            setQuizIdFilter(String(resolvedQuizId));
+        }
+        setIsDetectingQuiz(false);
+    }, [fetchActiveQuiz]);
+
+    useEffect(() => {
+        void initActiveQuiz(roomFilter);
+    }, [initActiveQuiz, roomFilter]);
 
     const activeQuizId = useMemo(() => {
         const val = Number(quizIdFilter);
@@ -140,8 +156,10 @@ export const UnifiedProctorCockpit: React.FC = () => {
     }, [fetchAttempts, activeQuizId, roomFilter]);
 
     useEffect(() => {
-        void loadMonitoringData();
-    }, [loadMonitoringData]);
+        if (activeQuizId) {
+            void loadMonitoringData();
+        }
+    }, [loadMonitoringData, activeQuizId]);
 
     useEffect(() => {
         const syncViolations = async () => {
@@ -195,16 +213,26 @@ export const UnifiedProctorCockpit: React.FC = () => {
         return attempts.slice(start, start + ITEMS_PER_PAGE);
     }, [attempts, currentPage]);
 
+    const quizHelperLabel = useMemo(() => {
+        if (isDetectingQuiz) return "Mendeteksi kuis...";
+        if (!activeQuizInfo) return undefined;
+        if (activeQuizInfo.source === "ACTIVE_SESSION") return "Terdeteksi: Sesi Berjalan";
+        if (activeQuizInfo.source === "MOODLE_SCHEDULE") {
+            return `Terdeteksi: ${activeQuizInfo.quizName ?? "Jadwal Moodle"}`;
+        }
+        return "Terdeteksi: Riwayat Terakhir";
+    }, [isDetectingQuiz, activeQuizInfo]);
+
     return (
         <div className="flex h-full w-full flex-col gap-4 overflow-y-auto lg:overflow-hidden pr-0.5 pb-8 lg:pb-0">
-            {/* 1. KARTU METRIK: 1 kolom di HP (<640px), 3 kolom di tablet/desktop */}
+            {/* Metrik Statistik */}
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 shrink-0 w-full">
                 <MetricCard title="Siswa Aktif Mengerjakan" value={activeCount} variant="success" />
                 <MetricCard title="Siswa Terkunci (Locked)" value={lockedCount} variant="warning" />
                 <MetricCard title="Total Catatan Pelanggaran" value={violationTotal} variant="danger" />
             </div>
 
-            {/* 2. FILTER TOOLBAR: Mendukung Alokasi Pengawas & Filter Kuis */}
+            {/* Filter Scope */}
             <form
                 onSubmit={handleFilterSubmit}
                 className="flex shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs md:flex-row md:items-center md:justify-between w-full"
@@ -213,15 +241,17 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
                         Scope Pengawasan:
                     </span>
-                    <div className="w-full sm:w-32">
+                    <div className="w-full sm:w-44">
                         <TextField
                             size="sm"
                             variant="outlined"
                             placeholder="Quiz ID"
-                            leftIcon={Hash}
+                            leftIcon={isDetectingQuiz ? Sparkles : Hash}
                             type="number"
                             value={quizIdFilter}
                             onChange={(e) => setQuizIdFilter(e.target.value)}
+                            helperText={quizHelperLabel}
+                            success={Boolean(activeQuizInfo)}
                         />
                     </div>
                     <div className="w-full sm:w-48">
@@ -240,7 +270,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                         size="sm"
                         variant="filled"
                         leftIcon={Search}
-                        disabled={monitoringLoading}
+                        disabled={monitoringLoading || isDetectingQuiz}
                         className="h-9 px-4 text-xs font-semibold w-full sm:w-auto"
                     >
                         Terapkan
@@ -274,9 +304,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 </div>
             </form>
 
-            {/* 3. GRID COCKPIT: Mobile = 1 Kolom Vertikal Stack | Desktop = 12 Kolom Sejajar */}
+            {/* Grid Cockpit */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-12 lg:overflow-hidden">
-                {/* PANEL 1: TABEL MONITORING SISWA */}
+                {/* Panel Tabel Monitoring */}
                 <section className="col-span-1 lg:col-span-6 flex flex-col h-120 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-2">
@@ -335,7 +365,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     )}
                 </section>
 
-                {/* PANEL 2: AUDIT BUKTI PELANGGARAN */}
+                {/* Panel Audit Bukti Pelanggaran */}
                 <section className="col-span-1 lg:col-span-3 flex flex-col h-95 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
                         <div className="flex items-center gap-1.5">
@@ -347,7 +377,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
                         {violations.length > 0 && (
                             <button
                                 type="button"
-                                onClick={() => setModalAttemptId(selectedAttemptRecordId || violations[0]?.attemptRecordId)}
+                                onClick={() =>
+                                    setModalAttemptId(selectedAttemptRecordId || violations[0]?.attemptRecordId)
+                                }
                                 className="text-[11px] font-semibold text-indigo-600 hover:underline cursor-pointer ml-2"
                             >
                                 Semua
@@ -379,7 +411,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     </div>
                 </section>
 
-                {/* PANEL 3: SALURAN CHAT KOORDINASI */}
+                {/* Panel Saluran Chat */}
                 <section className="col-span-1 lg:col-span-3 flex flex-col h-112.5 lg:h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
                     <div className="mb-2 flex shrink-0 items-center gap-1.5 border-b border-slate-100 pb-2">
                         <MessageSquare className="size-4 text-emerald-600 shrink-0" />
@@ -388,16 +420,25 @@ export const UnifiedProctorCockpit: React.FC = () => {
                         </h2>
                     </div>
                     <div className="flex-1 overflow-hidden">
-                        <ProctorChatPanel
-                            defaultQuizId={activeQuizId ?? 10}
-                            defaultRoomNumber={roomFilter}
-                            className="h-full border-0 shadow-none"
-                        />
+                        {activeQuizId ? (
+                            <ProctorChatPanel
+                                defaultQuizId={activeQuizId}
+                                defaultRoomNumber={roomFilter}
+                                className="h-full border-0 shadow-none"
+                            />
+                        ) : (
+                            <div className="flex h-full flex-col items-center justify-center p-4 text-center text-xs text-slate-400">
+                                <MessageSquare className="size-6 text-slate-300 mb-2" />
+                                {isDetectingQuiz
+                                    ? "Menghubungkan ke saluran kuis aktif..."
+                                    : "Pilih atau masukkan Quiz ID untuk membuka obrolan."}
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>
 
-            {/* Modal Detail Bukti Kejadian Pelanggaran */}
+            {/* Modal Bukti Pelanggaran */}
             {modalAttemptId && (
                 <ViolationEvidenceModal
                     isOpen={Boolean(modalAttemptId)}
@@ -406,7 +447,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 />
             )}
 
-            {/* Modal Manajemen & Penugasan Pengawas Moodle */}
+            {/* Modal Alokasi Pengawas */}
             <ProctorAssignmentModal
                 isOpen={isProctorModalOpen}
                 defaultRoomNumber={roomFilter}

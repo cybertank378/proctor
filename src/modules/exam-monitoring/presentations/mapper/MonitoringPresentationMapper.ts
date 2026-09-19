@@ -1,6 +1,10 @@
-//Files: src/modules/exam-monitoring/presentations/mapper/MonitoringPresentationMapper.ts
+// Files: src/modules/exam-monitoring/presentations/mapper/MonitoringPresentationMapper.ts
 import type {ExamAttemptEntity} from "../../domain/entity/ExamAttemptEntity";
-import type {ExamAttemptSummaryDto, UnlockAttemptResponseDto,} from "../../domain/dto/MonitoringResponseDto";
+import type {
+    ActiveQuizResolutionDto,
+    ExamAttemptSummaryDto,
+    UnlockAttemptResponseDto,
+} from "../../domain/dto/MonitoringResponseDto";
 
 export const MonitoringPresentationMapper = {
     toSummaryDto(entity: ExamAttemptEntity): ExamAttemptSummaryDto {
@@ -25,5 +29,17 @@ export const MonitoringPresentationMapper = {
             unlockedAt: entity.updatedAt.toISOString(),
             unlockedByProctorId: entity.unlockedByProctorId ?? "",
         };
-    }
-}
+    },
+
+    toActiveQuizDto(
+        quizId: number,
+        source: "ACTIVE_SESSION" | "MOODLE_SCHEDULE" | "FALLBACK_HISTORY",
+        quizName?: string
+    ): ActiveQuizResolutionDto {
+        return {
+            quizId,
+            source,
+            ...(quizName ? { quizName } : {}),
+        };
+    },
+};

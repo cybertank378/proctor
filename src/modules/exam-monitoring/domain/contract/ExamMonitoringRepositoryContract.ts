@@ -1,4 +1,4 @@
-//Files: src/modules/exam-monitoring/domain/contract/ExamMonitoringRepositoryContract.ts
+// src/modules/exam-monitoring/domain/contract/ExamMonitoringRepositoryContract.ts
 import type {ExamAttemptEntity} from "../entity/ExamAttemptEntity";
 
 export interface ExamMonitoringRepositoryContract {
@@ -11,4 +11,6 @@ export interface ExamMonitoringRepositoryContract {
         readonly take: number;
     }): Promise<{ readonly items: ExamAttemptEntity[]; readonly total: number }>;
     unlockAttempt(attemptId: number, proctorId: string): Promise<ExamAttemptEntity>;
+    findActiveQuizByRoom(roomNumber?: string | null): Promise<number | null>;
+    findLatestQuizId(): Promise<number | null>;
 }
