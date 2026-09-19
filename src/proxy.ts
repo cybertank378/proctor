@@ -21,7 +21,6 @@ export default async function proxy(
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   // 3. Susun Strict CSP: Bebas dari 'unsafe-inline' dan 'unsafe-eval'
-  // Mengizinkan skrip yang memiliki nonce serta mekanisme 'strict-dynamic' Next.js
   const cspHeader = `
         default-src 'self';
         script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
@@ -36,18 +35,24 @@ export default async function proxy(
     .replace(/\s{2,}/g, " ")
     .trim();
 
+  // Helper untuk menyematkan seluruh security header Next.js
+  const applySecurityHeaders = (res: NextResponse): NextResponse => {
+    res.headers.set("Content-Security-Policy", cspHeader);
+    res.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    return res;
+  };
+
   // 4. Siapkan request headers turunan
   const forwardHeaders = new Headers(request.headers);
   forwardHeaders.set("x-nonce", nonce);
   forwardHeaders.set("Content-Security-Policy", cspHeader);
 
-  // 5. Izinkan rute publik (tetap menyertakan CSP & Nonce)
+  // 5. Izinkan rute publik (tetap menyertakan CSP, Nonce, dan COOP)
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     const res = NextResponse.next({
       request: { headers: forwardHeaders },
     });
-    res.headers.set("Content-Security-Policy", cspHeader);
-    return res;
+    return applySecurityHeaders(res);
   }
 
   // 6. Ekstraksi token dari Cookies (prioritas) atau Header Authorization
@@ -68,7 +73,7 @@ export default async function proxy(
   // 7. Tangani jika token tidak tersedia (Unauthorized Boundary)
   if (!resolvedToken) {
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
+      const res = NextResponse.json(
         {
           success: false,
           error:
@@ -76,11 +81,13 @@ export default async function proxy(
         },
         { status: 401 },
       );
+      return applySecurityHeaders(res);
     }
 
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+    const res = NextResponse.redirect(loginUrl);
+    return applySecurityHeaders(res);
   }
 
   // 8. Meneruskan token valid ke downstream request headers
@@ -92,10 +99,7 @@ export default async function proxy(
     },
   });
 
-  // Pasang CSP header pada response browser
-  response.headers.set("Content-Security-Policy", cspHeader);
-
-  return response;
+  return applySecurityHeaders(response);
 }
 
 export const config = {
