@@ -8,59 +8,61 @@ import {ExamMonitoringHttpHandler} from "../http/ExamMonitoringHttpHandler";
 import {PrismaExamMonitoringRepository} from "../repository/PrismaExamMonitoringRepository";
 import {MoodleGuardRpcClient} from "../rpc/MoodleGuardRpcClient";
 
-export class ExamMonitoringFactory {
-    private static httpHandlerInstance: ExamMonitoringHttpHandler | null = null;
+let httpHandlerInstance: ExamMonitoringHttpHandler | null = null;
 
-    public static createRepository(): PrismaExamMonitoringRepository {
-        return new PrismaExamMonitoringRepository();
-    }
+export const ExamMonitoringFactory = {
+  createRepository(): PrismaExamMonitoringRepository {
+    return new PrismaExamMonitoringRepository();
+  },
 
-    public static createRpcClient(): MoodleGuardRpcClient {
-        return new MoodleGuardRpcClient();
-    }
+  createRpcClient(): MoodleGuardRpcClient {
+    return new MoodleGuardRpcClient();
+  },
 
-    public static createGetActiveAttemptsUseCase(): GetActiveAttemptsUseCase {
-        return new GetActiveAttemptsUseCase(ExamMonitoringFactory.createRepository());
-    }
+  createGetActiveAttemptsUseCase(): GetActiveAttemptsUseCase {
+    return new GetActiveAttemptsUseCase(
+      ExamMonitoringFactory.createRepository(),
+    );
+  },
 
-    public static createGetActiveQuizUseCase(): GetActiveQuizUseCase {
-        return new GetActiveQuizUseCase(
-            ExamMonitoringFactory.createRepository(),
-            ExamMonitoringFactory.createRpcClient()
-        );
-    }
+  createGetActiveQuizUseCase(): GetActiveQuizUseCase {
+    return new GetActiveQuizUseCase(
+      ExamMonitoringFactory.createRepository(),
+      ExamMonitoringFactory.createRpcClient(),
+    );
+  },
 
-    public static createUnlockExamAttemptUseCase(): UnlockExamAttemptUseCase {
-        return new UnlockExamAttemptUseCase(
-            ExamMonitoringFactory.createRepository(),
-            ExamMonitoringFactory.createRpcClient()
-        );
-    }
+  createUnlockExamAttemptUseCase(): UnlockExamAttemptUseCase {
+    return new UnlockExamAttemptUseCase(
+      ExamMonitoringFactory.createRepository(),
+      ExamMonitoringFactory.createRpcClient(),
+    );
+  },
 
-    public static createService(): ExamMonitoringService {
-        return new ExamMonitoringService(
-            ExamMonitoringFactory.createGetActiveAttemptsUseCase(),
-            ExamMonitoringFactory.createGetActiveQuizUseCase()
-        );
-    }
+  createService(): ExamMonitoringService {
+    return new ExamMonitoringService(
+      ExamMonitoringFactory.createGetActiveAttemptsUseCase(),
+      ExamMonitoringFactory.createGetActiveQuizUseCase(),
+    );
+  },
 
-    public static createHttpHandler(): ExamMonitoringHttpHandler {
-        if (!ExamMonitoringFactory.httpHandlerInstance) {
-            ExamMonitoringFactory.httpHandlerInstance = new ExamMonitoringHttpHandler(
-                ExamMonitoringFactory.createService(),
-                ExamMonitoringFactory.createUnlockExamAttemptUseCase(),
-                async (token: string) => {
-                    const sessionUseCase = AuthFactory.createGetCurrentSessionUseCase();
-                    const sessionResult = await sessionUseCase.execute(token);
-                    if (sessionResult.isFailure || !sessionResult.data) return null;
-                    return AuthFactory.createRepository().findById(sessionResult.data.id);
-                }
-            );
-        }
-        return ExamMonitoringFactory.httpHandlerInstance;
+  createHttpHandler(): ExamMonitoringHttpHandler {
+    if (!httpHandlerInstance) {
+      httpHandlerInstance = new ExamMonitoringHttpHandler(
+        ExamMonitoringFactory.createService(),
+        ExamMonitoringFactory.createUnlockExamAttemptUseCase(),
+        async (token: string) => {
+          const sessionUseCase = AuthFactory.createGetCurrentSessionUseCase();
+          const sessionResult = await sessionUseCase.execute(token);
+          if (sessionResult.isFailure || !sessionResult?.data) return null;
+          return AuthFactory.createRepository().findById(sessionResult.data.id);
+        },
+      );
     }
+    return httpHandlerInstance;
+  },
 
-    public static reset(): void {
-        ExamMonitoringFactory.httpHandlerInstance = null;
-    }
-}
+  reset(): void {
+    httpHandlerInstance = null;
+  },
+} as const;
