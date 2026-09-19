@@ -1,15 +1,16 @@
 //Files: src/modules/violations/domain/dto/ViolationRequestDto.ts
-import type {ViolationType} from "../entity/ViolationRecordEntity";
+
+import type {ViolationType} from "@/generated/prisma/enums";
 
 export interface RecordViolationRequestDto {
-    readonly attemptRecordId: string;
-    readonly type: ViolationType;
-    readonly localFilePath: string;
-    readonly fileUrl: string;
-    readonly sha256Hash: string;
-    readonly metadata: Record<string, unknown>;
+  readonly attemptRecordId: string;
+  readonly type: ViolationType;
+  readonly localFilePath: string;
+  readonly fileUrl: string;
+  readonly sha256Hash: string;
+  readonly metadata: Record<string, unknown>;
 }
 
 export interface VerifyEvidenceIntegrityRequestDto {
-    readonly violationId: string;
+  readonly violationId: string;
 }

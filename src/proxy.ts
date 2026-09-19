@@ -1,7 +1,15 @@
 // Files: src/proxy.ts
 import {type NextRequest, NextResponse} from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/violations/record"];
+// 1. Rute publik yang boleh diakses siswa & sistem tanpa token pengawas
+const PUBLIC_PATHS = [
+  "/login",
+  "/api/auth/login",
+  "/api/violations/record",
+  "/api/exam/session",
+  "/exam",
+];
+
 const isProduction = process.env.NODE_ENV === "production";
 
 export default async function proxy(
@@ -28,6 +36,7 @@ export default async function proxy(
     ? `'self' 'nonce-${nonce}' 'strict-dynamic'`
     : `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`;
 
+  // Susun CSP: Menambahkan frame-src untuk Moodle dan camera untuk anti-menyontek
   const cspHeader = `
         default-src 'self';
         script-src ${scriptDirectives};
@@ -35,6 +44,7 @@ export default async function proxy(
         img-src 'self' data: blob: https:;
         font-src 'self' data:;
         connect-src 'self' https: wss:;
+        frame-src 'self' https:;
         frame-ancestors 'self';
         base-uri 'self';
         form-action 'self';
@@ -46,6 +56,11 @@ export default async function proxy(
   const applySecurityHeaders = (res: NextResponse): NextResponse => {
     res.headers.set("Content-Security-Policy", cspHeader);
     res.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    // Mengizinkan fitur kamera untuk deteksi wajah & anti-menyontek siswa
+    res.headers.set(
+      "Permissions-Policy",
+      "camera=(self), microphone=(), geolocation=(), display-capture=(self)",
+    );
     return res;
   };
 
@@ -54,7 +69,7 @@ export default async function proxy(
   forwardHeaders.set("x-nonce", nonce);
   forwardHeaders.set("Content-Security-Policy", cspHeader);
 
-  // 5. Izinkan rute publik (tetap menyertakan CSP, Nonce, dan COOP)
+  // 5. Izinkan rute publik (tetap menyertakan CSP, Nonce, COOP, dan Permissions-Policy)
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     const res = NextResponse.next({
       request: { headers: forwardHeaders },
