@@ -1,66 +1,108 @@
-//Files: src/proxy.ts
+// Files: src/proxy.ts
 import {type NextRequest, NextResponse} from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/violations/record"];
 
-export default async function proxy(request: NextRequest): Promise<NextResponse> {
-    const { pathname } = request.nextUrl;
+export default async function proxy(
+  request: NextRequest,
+): Promise<NextResponse> {
+  const { pathname } = request.nextUrl;
 
-    // 1. Bypass aset statis, favicon, dan rute publik
-    if (
-        pathname.startsWith("/_next") ||
-        pathname.startsWith("/favicon.ico") ||
-        PUBLIC_PATHS.some((path) => pathname.startsWith(path))
-    ) {
-        return NextResponse.next();
-    }
+  // 1. Bypass aset internal dan statis
+  if (
+    pathname.startsWith("/_next/static") ||
+    pathname.startsWith("/_next/image") ||
+    pathname.startsWith("/favicon.ico")
+  ) {
+    return NextResponse.next();
+  }
 
-    // 2. Ekstraksi token dari Cookies (prioritas) atau Header Authorization
-    const cookieToken = request.cookies.get("proctor_access_token")?.value;
-    const authHeader = request.headers.get("authorization") || request.headers.get("Authorization");
-    const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.substring(7).trim() : null;
+  // 2. Generate Nonce Kriptografis Unik untuk setiap request
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
-    const resolvedToken =
-        cookieToken ||
-        (bearerToken && bearerToken !== "null" && bearerToken !== "undefined"
-            ? bearerToken
-            : null);
+  // 3. Susun Strict CSP: Bebas dari 'unsafe-inline' dan 'unsafe-eval'
+  // Mengizinkan skrip yang memiliki nonce serta mekanisme 'strict-dynamic' Next.js
+  const cspHeader = `
+        default-src 'self';
+        script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: blob: https:;
+        font-src 'self' data:;
+        connect-src 'self' https: wss:;
+        frame-ancestors 'self';
+        base-uri 'self';
+        form-action 'self';
+    `
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
-    // 3. Tangani jika token tidak tersedia (Unauthorized Boundary)
-    if (!resolvedToken) {
-        // Jika request menuju endpoint API, balas dengan format JSON standar
-        if (pathname.startsWith("/api/")) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Unauthorized: Sesi pengawas tidak ditemukan atau telah kedaluwarsa.",
-                },
-                { status: 401 }
-            );
-        }
+  // 4. Siapkan request headers turunan
+  const forwardHeaders = new Headers(request.headers);
+  forwardHeaders.set("x-nonce", nonce);
+  forwardHeaders.set("Content-Security-Policy", cspHeader);
 
-        // Jika navigasi halaman protected, redirect langsung ke /login
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("redirect", pathname);
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // 4. Meneruskan token valid ke downstream request headers
-    const forwardHeaders = new Headers(request.headers);
-    forwardHeaders.set("x-proctor-token", resolvedToken);
-
-    return NextResponse.next({
-        request: {
-            headers: forwardHeaders,
-        },
+  // 5. Izinkan rute publik (tetap menyertakan CSP & Nonce)
+  if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
+    const res = NextResponse.next({
+      request: { headers: forwardHeaders },
     });
+    res.headers.set("Content-Security-Policy", cspHeader);
+    return res;
+  }
+
+  // 6. Ekstraksi token dari Cookies (prioritas) atau Header Authorization
+  const cookieToken = request.cookies.get("proctor_access_token")?.value;
+  const authHeader =
+    request.headers.get("authorization") ||
+    request.headers.get("Authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.substring(7).trim()
+    : null;
+
+  const resolvedToken =
+    cookieToken ||
+    (bearerToken && bearerToken !== "null" && bearerToken !== "undefined"
+      ? bearerToken
+      : null);
+
+  // 7. Tangani jika token tidak tersedia (Unauthorized Boundary)
+  if (!resolvedToken) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Unauthorized: Sesi pengawas tidak ditemukan atau telah kedaluwarsa.",
+        },
+        { status: 401 },
+      );
+    }
+
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // 8. Meneruskan token valid ke downstream request headers
+  forwardHeaders.set("x-proctor-token", resolvedToken);
+
+  const response = NextResponse.next({
+    request: {
+      headers: forwardHeaders,
+    },
+  });
+
+  // Pasang CSP header pada response browser
+  response.headers.set("Content-Security-Policy", cspHeader);
+
+  return response;
 }
 
 export const config = {
-    matcher: [
-        /*
-         * Intersepsi seluruh rute kecuali static files internal Next.js
-         */
-        "/((?!_next/static|_next/image|favicon.ico).*)",
-    ],
+  matcher: [
+    /*
+     * Intersepsi seluruh rute kecuali static files internal Next.js
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };
