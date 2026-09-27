@@ -458,6 +458,12 @@ export const UnifiedProctorCockpit: React.FC = () => {
                     {isConnected ? "Live Stream Aktif" : "Menghubungkan..."}
                   </span>
                 )}
+                {monitoringLoading && (
+                  <span className="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+                    <span className="size-1.5 rounded-full bg-amber-500" />
+                    Menghubungkan Moodle... (Harap Menunggu)
+                  </span>
+                )}
               </h2>
             </div>
             <span className="text-[11px] font-semibold text-slate-400 shrink-0 ml-2">
@@ -491,7 +497,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
               </TableHead>
               <TableBody>
                 {monitoringLoading && attempts.length === 0 ? (
-                  <TableFeedbackRow message="Memuat data sesi ujian..." />
+                  <TableFeedbackRow message="Sedang menghubungkan ke Moodle & menyinkronkan data pengerjaan siswa... Mohon menunggu." />
                 ) : paginatedAttempts.length === 0 ? (
                   <TableFeedbackRow message="Tidak ada peserta pengerjaan kuis yang ditemukan." />
                 ) : (

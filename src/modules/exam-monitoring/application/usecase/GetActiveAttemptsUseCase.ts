@@ -51,15 +51,25 @@ export class GetActiveAttemptsUseCase extends BaseUseCase<
 
     if (input.filter.quizId && input.filter.quizId > 0) {
       try {
+        console.info(
+          `[GET ACTIVE ATTEMPTS] 🔄 Menghubungkan ke Moodle RPC untuk Quiz #${input.filter.quizId}...`
+        );
         const liveMoodleAttempts = await this.moodleRpcClient.getActiveAttempts(
           input.filter.quizId,
         );
 
+        console.info(
+          `[GET ACTIVE ATTEMPTS] Menerima ${liveMoodleAttempts.length} data attempts dari Moodle. Menyinkronkan ke DB lokal...`
+        );
+
         if (liveMoodleAttempts.length > 0) {
           await this.repository.syncMoodleAttempts(liveMoodleAttempts);
+          console.info(
+            `[GET ACTIVE ATTEMPTS] ✅ Sinkronisasi ${liveMoodleAttempts.length} data siswa dari Moodle ke DB selesai.`
+          );
         }
       } catch (err) {
-        console.warn("[RPC MOODLE WARN] Gagal sinkronisasi siswa aktif:", err);
+        console.warn("[RPC MOODLE WARN] Gagal sinkronisasi siswa aktif dari Moodle:", err);
       }
     }
 

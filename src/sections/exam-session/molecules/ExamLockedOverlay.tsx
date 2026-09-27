@@ -3,7 +3,7 @@
 
 import { Lock, RefreshCw, ShieldOff } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/shared-ui/component/Button";
 import { showErrorToast, showSuccessToast } from "@/shared-ui/component/Toast";
 
@@ -25,22 +25,36 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
   const [pin, setPin] = useState("");
   const [isUnlocking, setIsUnlocking] = useState(false);
 
+  useEffect(() => {
+    console.error(
+      `%c[EXAM-LOCKED-OVERLAY ACTIVE] 🔒 Layar siswa diblokir oleh overlay penguncian!\n` +
+        `Attempt ID: ${attemptId ?? "None"} | Pelanggaran: ${violationCount}/${maxAllowedViolations}\n` +
+        `Siswa harus meminta Pengawas Ruang untuk membuka kunci ujian via PIN atau Remote.`,
+      "color: #dc2626; font-size: 14px; font-weight: bold;"
+    );
+  }, [attemptId, violationCount, maxAllowedViolations]);
+
   const handleUnlockWithPin = async () => {
     if (!pin || pin.length < 4) return;
     setIsUnlocking(true);
+    console.info(`[EXAM-LOCKED-OVERLAY] Mencoba membuka kunci dengan PIN untuk Attempt #${attemptId}...`);
     try {
       const res = await fetch("/api/exam-session/unlock-with-pin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ attemptId, pin }),
       });
-      if (!res.ok) {
-        showErrorToast("PIN salah atau sesi tidak dapat dibuka.");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        console.warn(`[EXAM-LOCKED-OVERLAY] Gagal buka kunci:`, data);
+        showErrorToast(data.message || "PIN salah atau sesi tidak dapat dibuka.");
       } else {
+        console.info(`[EXAM-LOCKED-OVERLAY] Berhasil buka kunci!`, data);
         showSuccessToast("Kunci ujian berhasil dibuka!");
         onCheckUnlock(); // Refresh status setelah berhasil
       }
-    } catch {
+    } catch (err) {
+      console.error(`[EXAM-LOCKED-OVERLAY] Kesalahan jaringan saat buka kunci:`, err);
       showErrorToast("Terjadi kesalahan jaringan.");
     } finally {
       setIsUnlocking(false);

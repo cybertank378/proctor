@@ -219,7 +219,19 @@ export function useAntiCheatEngine({
 
   const triggerViolation = useCallback(
     async (type: ViolationType, reason: string, preCapturedSnapshot?: string) => {
-      if (isLocked) return;
+      if (isLocked) {
+        console.warn(
+          `[ANTI-CHEAT IGNORED] Event ${type} diabaikan karena layar sudah dalam status TERKUNCI.`
+        );
+        return;
+      }
+
+      console.warn(
+        `%c[ANTI-CHEAT DETECTED] ⚠️ Pelanggaran Terdeteksi: ${type} - "${reason}"\n` +
+          `Quiz ID: ${quizId} | Attempt ID: ${attemptId ?? "None"} | Siswa: ${studentIdentifier}\n` +
+          `Status Pelanggaran Sebelum: ${violationCount}/${maxTolerance}`,
+        "color: #f59e0b; font-weight: bold;"
+      );
 
       const screenshot = preCapturedSnapshot || captureSnapshot();
       setLastWarning(reason);
@@ -247,6 +259,13 @@ export function useAntiCheatEngine({
         },
       };
 
+      console.info(`[ANTI-CHEAT DISPATCH] 📡 Mengirim rekaman pelanggaran ke /api/violations/record...`, {
+        quizId: payload.quizId,
+        attemptId: payload.attemptId,
+        violationType: payload.violationType,
+        screenshotSizeKB: payload.screenshotBase64 ? Math.round(payload.screenshotBase64.length / 1024) : 0,
+      });
+
       try {
         const res = await fetch("/api/violations/record", {
           method: "POST",
@@ -255,24 +274,46 @@ export function useAntiCheatEngine({
         });
 
         const json = await res.json();
+        console.info(`[ANTI-CHEAT RESPONSE] HTTP ${res.status}:`, json);
+
         if (json.success && json.data) {
           setViolationCount(json.data.currentViolations);
           if (json.data.isLocked) {
+            console.error(
+              `%c[EXAM-LOCKOUT ACTIVATED] ⛔ LAYAR TERKUNCI OLEH SERVER!\n` +
+                `Siswa tidak dapat melanjutkan ujian karena telah melebihi batas pelanggaran.\n` +
+                `Total Pelanggaran: ${json.data.currentViolations}/${maxTolerance}\n` +
+                `Alasan: ${reason}`,
+              "color: #ef4444; font-size: 14px; font-weight: bold;"
+            );
             setIsLocked(true);
           }
         } else {
+          console.warn(
+            `[ANTI-CHEAT FALLBACK] Server merespons non-success atau data kosong. Menggunakan kalkulasi lokal...`,
+            json
+          );
           setViolationCount((prev) => {
             const next = prev + 1;
-            if (next >= maxTolerance) setIsLocked(true);
+            if (next >= maxTolerance) {
+              console.error(
+                `%c[EXAM-LOCKOUT ACTIVATED] ⛔ LAYAR TERKUNCI SECARA LOKAL (Batas Toleransi Tercapai)!\n` +
+                  `Total Pelanggaran: ${next}/${maxTolerance}\n` +
+                  `Alasan: ${reason}`,
+                "color: #ef4444; font-size: 14px; font-weight: bold;"
+              );
+              setIsLocked(true);
+            }
             return next;
           });
         }
       } catch (err) {
-        console.error("[ANTI-CHEAT DISPATCH ERROR]:", err);
+        console.error("[ANTI-CHEAT DISPATCH ERROR] Gagal mengirim data pelanggaran ke server:", err);
       }
     },
     [
       isLocked,
+      violationCount,
       captureSnapshot,
       maxTolerance,
       quizId,

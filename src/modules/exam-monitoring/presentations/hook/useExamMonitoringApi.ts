@@ -99,6 +99,12 @@ export function useExamMonitoringApi() {
   const fetchAttempts = useCallback(
     async (quizId?: number, roomNumber?: string): Promise<void> => {
       setLoading(true);
+      console.info(
+        `%c[PROCTOR-MONITOR] ⏳ Menghubungkan ke Moodle & server untuk mengambil data sesi siswa...\n` +
+          `Quiz ID: ${quizId ?? "Semua (Auto)"} | Ruangan: ${roomNumber ?? "Semua"}\n` +
+          `Status: Proses sedang berlangsung, mohon menunggu...`,
+        "color: #f59e0b; font-weight: bold;"
+      );
       try {
         const token = sessionStorage.getItem("proctor_access_token");
         const url = new URL("/api/monitoring/attempts", window.location.origin);
@@ -118,18 +124,43 @@ export function useExamMonitoringApi() {
 
         const json = await res.json();
         if (res.ok && json.success) {
-          const resolvedList = Array.isArray(json.data)
+          const resolvedList: ExamAttemptSummaryDto[] = Array.isArray(json.data)
             ? json.data
             : Array.isArray(json.data?.items)
               ? json.data.items
               : [];
+          
+          console.info(
+            `%c[PROCTOR-MONITOR] ✅ Data sesi berhasil diterima dari Moodle & Database!\n` +
+              `Total Siswa: ${resolvedList.length} | Siswa Terkunci: ${resolvedList.filter((s) => s.isLocked).length}`,
+            "color: #10b981; font-weight: bold;",
+            resolvedList.map((s) => ({
+              attemptId: s.attemptId,
+              siswa: s.studentName,
+              kelas: s.className,
+              pelanggaran: `${s.violationCount}/${s.maxAllowedViolations}`,
+              status: s.status,
+              isLocked: s.isLocked,
+              pin: s.unlockPin ?? "-",
+            }))
+          );
           setAttempts(resolvedList);
         } else {
+          console.error(
+            `%c[PROCTOR-MONITOR] ❌ Server/Moodle mengembalikan error:`,
+            "color: #ef4444; font-weight: bold;",
+            json.error || json.message
+          );
           showErrorToast(
             json.error || json.message || "Gagal memuat sesi ujian.",
           );
         }
-      } catch {
+      } catch (err) {
+        console.error(
+          `%c[PROCTOR-MONITOR] ❌ Kesalahan jaringan saat menghubungi server/Moodle:`,
+          "color: #ef4444; font-weight: bold;",
+          err
+        );
         showErrorToast("Kesalahan jaringan saat memuat data monitoring.");
       } finally {
         setLoading(false);
