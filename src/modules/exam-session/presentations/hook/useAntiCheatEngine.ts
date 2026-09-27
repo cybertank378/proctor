@@ -115,12 +115,25 @@ export function useAntiCheatEngine({
 
       if (video.videoWidth > 0 && video.videoHeight > 0) {
         const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        
+        // Downscale ke maksimal 1280x720 untuk menghemat ukuran base64 payload
+        const MAX_WIDTH = 1280;
+        const MAX_HEIGHT = 720;
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+        
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        canvas.width = width;
+        canvas.height = height;
         const ctx = canvas.getContext("2d");
         if (ctx) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          return canvas.toDataURL("image/png");
+          ctx.drawImage(video, 0, 0, width, height);
+          return canvas.toDataURL("image/jpeg", 0.5); // Gunakan JPEG 50%
         }
       }
     } catch (err) {
