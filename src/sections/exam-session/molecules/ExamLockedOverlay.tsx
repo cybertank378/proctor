@@ -4,7 +4,7 @@
 import {Lock, RefreshCw, ShieldOff} from "lucide-react";
 import React, { useState } from "react";
 import Button from "@/shared-ui/component/Button";
-import {Toast} from "@/shared-ui/component/Toast";
+import {showErrorToast, showSuccessToast} from "@/shared-ui/component/Toast";
 
 export interface ExamLockedOverlayProps {
   readonly violationCount: number;
@@ -34,13 +34,13 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
         body: JSON.stringify({ attemptId, pin }),
       });
       if (!res.ok) {
-        Toast.error("PIN salah atau sesi tidak dapat dibuka.");
+        showErrorToast("PIN salah atau sesi tidak dapat dibuka.");
       } else {
-        Toast.success("Kunci ujian berhasil dibuka!");
+        showSuccessToast("Kunci ujian berhasil dibuka!");
         onCheckUnlock(); // Refresh status setelah berhasil
       }
     } catch {
-      Toast.error("Terjadi kesalahan jaringan.");
+      showErrorToast("Terjadi kesalahan jaringan.");
     } finally {
       setIsUnlocking(false);
       setPin("");
