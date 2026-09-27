@@ -147,20 +147,21 @@ export class MoodleGuardRpcClient implements MoodleRpcClientContract {
 
       return result.map((item: Record<string, unknown>) => {
         const fullName =
+          item.studentName ||
           item.fullname ||
           [item.firstname, item.lastname].filter(Boolean).join(" ") ||
-          `Siswa #${item.userid}`;
+          `Siswa #${item.userId || item.userid}`;
 
         return {
-          attemptId: Number(item.attemptid || item.attempt_id),
-          quizId: Number(item.quizid || item.quiz_id || quizId),
-          userId: Number(item.userid || item.user_id),
+          attemptId: Number(item.attemptId || item.attemptid || item.attempt_id),
+          quizId: Number(item.quizId || item.quizid || item.quiz_id || quizId),
+          userId: Number(item.userId || item.userid || item.user_id),
           studentName: String(fullName),
           className: String(
-            item.department || item.classname || item.class || "-",
+            item.className || item.department || item.classname || item.class || "-",
           ),
-          roomNumber: item.roomnumber ? String(item.roomnumber) : null,
-          status: item.status === "finished" ? "finished" : "inprogress",
+          roomNumber: item.roomNumber || item.roomnumber ? String(item.roomNumber || item.roomnumber) : null,
+          status: item.status === "finished" || item.state === "finished" ? "finished" : "inprogress",
           islocked: Boolean(item.islocked),
           timestart: Number(item.timestart ?? 0),
           timefinish: Number(item.timefinish ?? 0),
