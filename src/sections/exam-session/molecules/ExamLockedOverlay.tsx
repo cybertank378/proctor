@@ -2,8 +2,9 @@
 "use client";
 
 import {Lock, RefreshCw, ShieldOff} from "lucide-react";
-import type React from "react";
+import React, { useState } from "react";
 import Button from "@/shared-ui/component/Button";
+import {Toast} from "@/shared-ui/component/Toast";
 
 export interface ExamLockedOverlayProps {
   readonly violationCount: number;
@@ -20,6 +21,31 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
   onCheckUnlock,
   attemptId,
 }) => {
+  const [pin, setPin] = useState("");
+  const [isUnlocking, setIsUnlocking] = useState(false);
+
+  const handleUnlockWithPin = async () => {
+    if (!pin || pin.length < 4) return;
+    setIsUnlocking(true);
+    try {
+      const res = await fetch("/api/exam-session/unlock-with-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId, pin }),
+      });
+      if (!res.ok) {
+        Toast.error("PIN salah atau sesi tidak dapat dibuka.");
+      } else {
+        Toast.success("Kunci ujian berhasil dibuka!");
+        onCheckUnlock(); // Refresh status setelah berhasil
+      }
+    } catch {
+      Toast.error("Terjadi kesalahan jaringan.");
+    } finally {
+      setIsUnlocking(false);
+      setPin("");
+    }
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md">
       <div className="grid w-full max-w-md grid-cols-1 gap-5 rounded-2xl border border-red-200 bg-white p-6 text-center shadow-2xl">
@@ -54,9 +80,33 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
             onClick={onCheckUnlock}
             className="h-10 w-full text-xs font-semibold"
           >
-            Cek Status Buka Kunci
+            Cek Status Buka Kunci (Remote)
           </Button>
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+
+          <div className="mt-4 border-t border-slate-100 pt-4">
+            <p className="mb-2 text-[11px] text-slate-500 font-medium">Buka Manual oleh Pengawas (On-Site):</p>
+            <div className="flex gap-2">
+              <input 
+                type="password" 
+                placeholder="PIN Pengawas" 
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              />
+              <Button
+                type="button"
+                color="secondary"
+                variant="filled"
+                loading={isUnlocking}
+                onClick={handleUnlockWithPin}
+                className="h-10 px-4 text-xs font-semibold"
+              >
+                Buka
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
             <ShieldOff className="size-3.5" />
             <span>Anti-Cheat Guard Engine</span>
           </div>

@@ -13,6 +13,7 @@ export interface ExamAttemptSummaryDto {
   readonly violationCount: number;
   readonly maxAllowedViolations: number;
   readonly isLocked: boolean;
+  readonly unlockPin?: string;
   readonly updatedAt: string;
 }
 
