@@ -19,6 +19,7 @@ import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
 import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
+import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
 import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
 import {MetricCard} from "@/sections/exam-monitoring/molecules/MetricCard";
 import {ExamSessionSelectorModal} from "@/sections/exam-monitoring/organisms/ExamSessionSelectorModal";
