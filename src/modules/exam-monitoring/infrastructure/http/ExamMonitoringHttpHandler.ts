@@ -42,6 +42,17 @@ export class ExamMonitoringHttpHandler extends BaseHttpHandler {
                 return HttpResponse.success(result.data, undefined, 200);
             }
 
+            // 1.5. Rute Daftar Sesi Ujian Aktif
+            if (url.pathname.includes("/sessions")) {
+                const result = await this.monitoringService.listActiveQuizzes(proctor);
+
+                if (result.isFailure) {
+                    return HttpResponse.success({ error: result.error }, result.error, result.statusCode ?? 500);
+                }
+
+                return HttpResponse.success(result.data, undefined, 200);
+            }
+
             // 2. Rute Riwayat Siswa (Attempts)
             const quizIdParam = url.searchParams.get("quizId");
             const pageParam = url.searchParams.get("page");
