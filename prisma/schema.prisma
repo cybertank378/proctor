@@ -92,8 +92,9 @@ model ExamAttemptRecord {
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
 
-  unlockedByProctor ProctorUser?      @relation("ProctorUnlockHistory", fields: [unlockedByProctorId], references: [id], onDelete: SetNull)
+  unlockedByProctor ProctorUser?             @relation("ProctorUnlockHistory", fields: [unlockedByProctorId], references: [id], onDelete: SetNull)
   evidences         ViolationRecord[]
+  streamLogs        ProctoringStreamRecord[]
 
   @@index([quizId, userId])
   @@index([roomNumber])
@@ -135,4 +136,19 @@ model ProctorChatMessageRecord {
   @@index([quizId, createdAt])
   @@index([roomNumber])
   @@map("proctor_chat_message_records")
+}
+
+/// Log aliran gambar (stream) webcam siswa saat ujian secara real-time
+model ProctoringStreamRecord {
+  id              String   @id @default(uuid())
+  attemptRecordId String
+  imagePath       String   @db.VarChar(500) // URL lokal/path dari file gambar frame
+  faceCount       Int      @default(0)
+  isSuspicious    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  attempt ExamAttemptRecord @relation(fields: [attemptRecordId], references: [id], onDelete: Cascade)
+
+  @@index([attemptRecordId])
+  @@map("proctoring_stream_records")
 }
