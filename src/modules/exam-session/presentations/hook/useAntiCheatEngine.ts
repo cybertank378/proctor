@@ -299,7 +299,7 @@ export function useAntiCheatEngine({
             immediateSnapshot // <-- Kirim bukti yang sudah kita tangkap 3 detik lalu
           );
         }
-      }, 3000);
+      }, 5000);
     };
 
     const onWindowFocus = () => {
