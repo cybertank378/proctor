@@ -1,6 +1,6 @@
 // Files: src/modules/exam-session/domain/validation/ExamSessionValidator.ts
 
-import type {RecordViolationRequestDto} from "../dto/ExamSessionRequestDto";
+import type { RecordViolationRequestDto } from "../dto/ExamSessionRequestDto";
 
 export const ExamSessionValidator = {
   validateQuizId(quizId: unknown): number {

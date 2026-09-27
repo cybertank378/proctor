@@ -1,7 +1,7 @@
 //Files: src/sections/exam-session/atoms/IntegrityBadge.tsx
 "use client";
 
-import {ShieldAlert, ShieldCheck} from "lucide-react";
+import { ShieldAlert, ShieldCheck } from "lucide-react";
 import type React from "react";
 import Badge from "@/shared-ui/component/Badge";
 

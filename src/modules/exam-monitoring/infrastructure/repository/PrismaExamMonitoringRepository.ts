@@ -1,11 +1,14 @@
 // Files: src/modules/exam-monitoring/infrastructure/repository/PrismaExamMonitoringRepository.ts
 
-import type {ExamAttemptRecord, Prisma} from "@/generated/prisma/client";
+import type { ExamAttemptRecord, Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
-import type {MoodleActiveAttemptItem} from "@/shared/contract/MoodleRpcClientContract";
-import type {ExamMonitoringRepositoryContract} from "../../domain/contract/ExamMonitoringRepositoryContract";
-import {type AttemptStatus, ExamAttemptEntity,} from "../../domain/entity/ExamAttemptEntity";
-import {ExamMonitoringQueryBuilder} from "../builder/ExamMonitoringQueryBuilder";
+import type { MoodleActiveAttemptItem } from "@/shared/contract/MoodleRpcClientContract";
+import type { ExamMonitoringRepositoryContract } from "../../domain/contract/ExamMonitoringRepositoryContract";
+import {
+  type AttemptStatus,
+  ExamAttemptEntity,
+} from "../../domain/entity/ExamAttemptEntity";
+import { ExamMonitoringQueryBuilder } from "../builder/ExamMonitoringQueryBuilder";
 
 export class PrismaExamMonitoringRepository
   implements ExamMonitoringRepositoryContract

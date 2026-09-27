@@ -1,5 +1,5 @@
 // Files: src/modules/exam-monitoring/infrastructure/builder/ExamMonitoringQueryBuilder.ts
-import type {AttemptStatus} from "@/generated/prisma/enums";
+import type { AttemptStatus } from "@/generated/prisma/enums";
 
 export const ExamMonitoringQueryBuilder = {
   buildFilter(filter: {

@@ -1,5 +1,5 @@
 //Files: src/modules/exam-session/domain/dto/ExamSessionRequestDto.ts
-import type {ViolationType} from "@/generated/prisma/enums";
+import type { ViolationType } from "@/generated/prisma/enums";
 
 export interface RecordViolationRequestDto {
   readonly quizId: number;

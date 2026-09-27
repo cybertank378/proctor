@@ -27,7 +27,7 @@ class ProctoringStreamManager {
   public subscribe(
     callback: (frame: StreamFrame) => void,
     quizIdFilter?: number,
-    roomFilter?: string
+    roomFilter?: string,
   ): () => void {
     const handler = (frame: StreamFrame) => {
       if (quizIdFilter && frame.quizId !== quizIdFilter) return;

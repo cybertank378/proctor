@@ -1,8 +1,8 @@
-import {NextResponse} from "next/server";
-import {PinGenerator} from "@/shared/helpers/PinGenerator";
-import {MoodleGuardRpcClient} from "@/modules/exam-monitoring/infrastructure/rpc/MoodleGuardRpcClient";
+import { NextResponse } from "next/server";
+import { AttemptStatus } from "@/generated/prisma/enums";
 import prisma from "@/lib/prisma";
-import {AttemptStatus} from "@/generated/prisma/enums";
+import { MoodleGuardRpcClient } from "@/modules/exam-monitoring/infrastructure/rpc/MoodleGuardRpcClient";
+import { PinGenerator } from "@/shared/helpers/PinGenerator";
 
 export async function POST(request: Request) {
   try {
@@ -12,32 +12,32 @@ export async function POST(request: Request) {
     if (!attemptId || !pin) {
       return NextResponse.json(
         { success: false, message: "Parameter tidak lengkap." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Ambil data attempt dari Prisma untuk mendapatkan quizId
     const attemptRecord = await prisma.examAttemptRecord.findFirst({
-      where: { attemptId: Number(attemptId) }
+      where: { attemptId: Number(attemptId) },
     });
 
     if (!attemptRecord) {
       return NextResponse.json(
         { success: false, message: "Attempt tidak ditemukan." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Validasi PIN
     const expectedPin = PinGenerator.generateForAttempt(
       Number(attemptId),
-      attemptRecord.quizId
+      attemptRecord.quizId,
     );
 
     if (pin !== expectedPin) {
       return NextResponse.json(
         { success: false, message: "PIN tidak valid." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -52,8 +52,11 @@ export async function POST(request: Request) {
 
     if (!rpcResult.success) {
       return NextResponse.json(
-        { success: false, message: "Gagal membuka kunci di Moodle: " + rpcResult.message },
-        { status: 500 }
+        {
+          success: false,
+          message: "Gagal membuka kunci di Moodle: " + rpcResult.message,
+        },
+        { status: 500 },
       );
     }
 
@@ -64,15 +67,18 @@ export async function POST(request: Request) {
         isLockedByProctor: false,
         status: AttemptStatus.IN_PROGRESS,
         unlockedByProctorId: "PIN-UNLOCK",
-      }
+      },
     });
 
-    return NextResponse.json({ success: true, message: "Kunci berhasil dibuka dengan PIN." });
+    return NextResponse.json({
+      success: true,
+      message: "Kunci berhasil dibuka dengan PIN.",
+    });
   } catch (error) {
     console.error("[Unlock PIN] Error:", error);
     return NextResponse.json(
       { success: false, message: "Terjadi kesalahan internal server." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

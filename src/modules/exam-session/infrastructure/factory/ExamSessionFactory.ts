@@ -1,11 +1,11 @@
 // Files: src/modules/exam-session/infrastructure/factory/ExamSessionFactory.ts
-import {ExamSessionService} from "../../application/service/ExamSessionService";
-import {LockAttemptSessionUseCase} from "../../application/usecase/LockAttemptSessionUseCase";
-import {RecordViolationUseCase} from "../../application/usecase/RecordViolationUseCase";
-import {VerifyAttemptSessionUseCase} from "../../application/usecase/VerifyAttemptSessionUseCase";
-import {MoodleQuizAdapter} from "../external/MoodleQuizAdapter";
-import {ExamSessionHttpHandler} from "../http/ExamSessionHttpHandler";
-import {PrismaExamSessionRepository} from "../repository/PrismaExamSessionRepository";
+import { ExamSessionService } from "../../application/service/ExamSessionService";
+import { LockAttemptSessionUseCase } from "../../application/usecase/LockAttemptSessionUseCase";
+import { RecordViolationUseCase } from "../../application/usecase/RecordViolationUseCase";
+import { VerifyAttemptSessionUseCase } from "../../application/usecase/VerifyAttemptSessionUseCase";
+import { MoodleQuizAdapter } from "../external/MoodleQuizAdapter";
+import { ExamSessionHttpHandler } from "../http/ExamSessionHttpHandler";
+import { PrismaExamSessionRepository } from "../repository/PrismaExamSessionRepository";
 
 let httpHandlerInstance: ExamSessionHttpHandler | null = null;
 

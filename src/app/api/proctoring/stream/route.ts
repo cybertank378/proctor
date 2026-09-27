@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { proctoringStreamManager } from "@/modules/live-proctoring/infrastructure/event/ProctoringStreamManager";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
       };
 
       // Send initial connection event
-      sendEvent({ type: "CONNECTED", message: "SSE connected for proctoring stream" });
+      sendEvent({
+        type: "CONNECTED",
+        message: "SSE connected for proctoring stream",
+      });
 
       // Subscribe to live frames
       const unsubscribe = proctoringStreamManager.subscribe((frame) => {

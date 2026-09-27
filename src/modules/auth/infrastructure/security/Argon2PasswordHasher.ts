@@ -1,6 +1,6 @@
 //Files: src/modules/auth/infrastructure/security/Argon2PasswordHasher.ts
 import * as argon2 from "argon2";
-import type {PasswordHasherContract} from "../../domain/contract/PasswordHasherContract";
+import type { PasswordHasherContract } from "../../domain/contract/PasswordHasherContract";
 
 export class Argon2PasswordHasher implements PasswordHasherContract {
   public async hash(plainText: string): Promise<string> {

@@ -1,13 +1,16 @@
 // src/modules/exam-monitoring/application/service/ExamMonitoringService.ts
-import {BaseService} from "@/core/application/base/BaseService";
-import type {AppResult} from "@/core/application/result/AppResult";
-import type {PaginatedResultContract} from "@/core/domain/contract/PaginatedResultContract";
-import type {ProctorUserEntity} from "@/modules/auth/domain/entity/ProctorUserEntity";
-import type {GetAttemptsFilterDto} from "../../domain/dto/MonitoringRequestDto";
-import type {ActiveQuizResolutionDto, ExamAttemptSummaryDto,} from "../../domain/dto/MonitoringResponseDto";
-import type {GetActiveAttemptsUseCase} from "../usecase/GetActiveAttemptsUseCase";
-import type {GetActiveQuizUseCase} from "../usecase/GetActiveQuizUseCase";
-import type {ListActiveQuizzesUseCase} from "../usecase/ListActiveQuizzesUseCase";
+import { BaseService } from "@/core/application/base/BaseService";
+import type { AppResult } from "@/core/application/result/AppResult";
+import type { PaginatedResultContract } from "@/core/domain/contract/PaginatedResultContract";
+import type { ProctorUserEntity } from "@/modules/auth/domain/entity/ProctorUserEntity";
+import type { GetAttemptsFilterDto } from "../../domain/dto/MonitoringRequestDto";
+import type {
+  ActiveQuizResolutionDto,
+  ExamAttemptSummaryDto,
+} from "../../domain/dto/MonitoringResponseDto";
+import type { GetActiveAttemptsUseCase } from "../usecase/GetActiveAttemptsUseCase";
+import type { GetActiveQuizUseCase } from "../usecase/GetActiveQuizUseCase";
+import type { ListActiveQuizzesUseCase } from "../usecase/ListActiveQuizzesUseCase";
 
 export class ExamMonitoringService extends BaseService {
   constructor(

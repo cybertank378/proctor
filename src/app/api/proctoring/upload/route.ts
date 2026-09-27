@@ -1,15 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaLiveProctoringRepository } from "@/modules/live-proctoring/infrastructure/repository/PrismaLiveProctoringRepository";
-import { proctoringStreamManager } from "@/modules/live-proctoring/infrastructure/event/ProctoringStreamManager";
+import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { proctoringStreamManager } from "@/modules/live-proctoring/infrastructure/event/ProctoringStreamManager";
+import { PrismaLiveProctoringRepository } from "@/modules/live-proctoring/infrastructure/repository/PrismaLiveProctoringRepository";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { attemptRecordId, attemptId, quizId, userId, screenshotBase64 } = body;
+    const { attemptRecordId, attemptId, quizId, userId, screenshotBase64 } =
+      body;
 
     if (!quizId || !screenshotBase64) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     let finalAttemptRecordId = attemptRecordId;
@@ -17,7 +21,7 @@ export async function POST(request: NextRequest) {
     if (!finalAttemptRecordId && attemptId) {
       // Find the record ID
       const record = await prisma.examAttemptRecord.findFirst({
-        where: { attemptId: Number(attemptId) }
+        where: { attemptId: Number(attemptId) },
       });
       if (record) {
         finalAttemptRecordId = record.id;
@@ -26,7 +30,10 @@ export async function POST(request: NextRequest) {
 
     if (!finalAttemptRecordId) {
       // We cannot save frame without attempt record id
-      return NextResponse.json({ error: "Attempt record not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Attempt record not found" },
+        { status: 404 },
+      );
     }
 
     // 1. Validasi / AI Processing (Dummy/Light)
@@ -58,6 +65,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: unknown) {
     console.error("[PROCTORING UPLOAD ERROR]", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

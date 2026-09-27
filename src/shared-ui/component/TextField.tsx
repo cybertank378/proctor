@@ -1,62 +1,67 @@
 // Files: src/shared-ui/component/TextField.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import type {LucideIcon} from "lucide-react"
-import {Clock, Eye, EyeOff} from "lucide-react"
-import React, {forwardRef, type InputHTMLAttributes, type ReactNode, useState} from "react"
+import clsx from "clsx";
+import type { LucideIcon } from "lucide-react";
+import { Clock, Eye, EyeOff } from "lucide-react";
+import React, {
+  forwardRef,
+  type InputHTMLAttributes,
+  type ReactNode,
+  useState,
+} from "react";
 
-import FormControl from "@/shared-ui/component/Form/FormControl"
-import FormHelperText from "@/shared-ui/component/Form/FormHelperText"
-import FormLabel from "@/shared-ui/component/Form/FormLabel"
+import FormControl from "@/shared-ui/component/Form/FormControl";
+import FormHelperText from "@/shared-ui/component/Form/FormHelperText";
+import FormLabel from "@/shared-ui/component/Form/FormLabel";
 
-type Variant = "outlined" | "filled" | "custom"
+type Variant = "outlined" | "filled" | "custom";
 
-type Size = "lg" | "md" | "sm"
+type Size = "lg" | "md" | "sm";
 
 interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
-  label?: ReactNode
+  label?: ReactNode;
 
-  helperText?: string
+  helperText?: string;
 
-  variant?: Variant
+  variant?: Variant;
 
-  size?: Size
+  size?: Size;
 
-  lang?: string
+  lang?: string;
 
-  timeFormat24?: boolean
+  timeFormat24?: boolean;
 
   ////////////////////////////////////////////////////////////
   // VALIDATION
   ////////////////////////////////////////////////////////////
 
-  error?: boolean | string
+  error?: boolean | string;
 
-  success?: boolean
+  success?: boolean;
 
   ////////////////////////////////////////////////////////////
   // ICON
   ////////////////////////////////////////////////////////////
 
-  leftIcon?: LucideIcon
+  leftIcon?: LucideIcon;
 
-  rightIcon?: LucideIcon
+  rightIcon?: LucideIcon;
 
-  onRightIconClick?: () => void
+  onRightIconClick?: () => void;
 
-  enablePasswordToggle?: boolean
+  enablePasswordToggle?: boolean;
 
   ////////////////////////////////////////////////////////////
   // LENGTH
   ////////////////////////////////////////////////////////////
 
-  maxLengthValue?: number
+  maxLengthValue?: number;
 
-  minLengthValue?: number
+  minLengthValue?: number;
 
-  showCounter?: boolean
+  showCounter?: boolean;
 }
 
 const sizeMap: Record<Size, string> = {
@@ -65,7 +70,7 @@ const sizeMap: Record<Size, string> = {
   md: "h-11 text-sm px-3",
 
   sm: "h-9 text-xs px-2",
-}
+};
 
 const variantMap: Record<Variant, string> = {
   outlined: "border bg-white",
@@ -73,7 +78,7 @@ const variantMap: Record<Variant, string> = {
   filled: "bg-gray-100 border border-transparent",
 
   custom: "border rounded-xl bg-white",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // TIME INPUT 24 HOURS
@@ -88,13 +93,13 @@ function TimeInput24({
 
   className,
 }: {
-  readonly value?: string | number | readonly string[]
+  readonly value?: string | number | readonly string[];
 
-  readonly disabled?: boolean
+  readonly disabled?: boolean;
 
-  readonly onChange?: React.ChangeEventHandler<HTMLInputElement>
+  readonly onChange?: React.ChangeEventHandler<HTMLInputElement>;
 
-  readonly className?: string
+  readonly className?: string;
 }) {
   return (
     <div className="relative flex items-center">
@@ -113,16 +118,13 @@ function TimeInput24({
 
           disabled && "cursor-not-allowed bg-gray-100 text-gray-400",
 
-          className
+          className,
         )}
       />
 
-      <Clock
-        size={16}
-        className="absolute right-3 text-gray-400"
-      />
+      <Clock size={16} className="absolute right-3 text-gray-400" />
     </div>
-  )
+  );
 }
 
 const TextField = forwardRef<HTMLInputElement, Props>(
@@ -170,39 +172,44 @@ const TextField = forwardRef<HTMLInputElement, Props>(
 
       ...props
     },
-    ref
+    ref,
   ) => {
     //////////////////////////////////////////////////////////
     // STATE
     //////////////////////////////////////////////////////////
 
-    const [showPassword, setShowPassword] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
 
-    const [internalError, setInternalError] = useState<string | null>(null)
+    const [internalError, setInternalError] = useState<string | null>(null);
 
     //////////////////////////////////////////////////////////
     // PASSWORD
     //////////////////////////////////////////////////////////
 
-    const isPassword = type === "password"
+    const isPassword = type === "password";
 
-    const inputType = enablePasswordToggle && isPassword ? (showPassword ? "text" : "password") : type
+    const inputType =
+      enablePasswordToggle && isPassword
+        ? showPassword
+          ? "text"
+          : "password"
+        : type;
 
-    const ToggleIcon = showPassword ? EyeOff : Eye
+    const ToggleIcon = showPassword ? EyeOff : Eye;
 
     //////////////////////////////////////////////////////////
     // CHANGE
     //////////////////////////////////////////////////////////
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-      const newValue = e.target.value
+      const newValue = e.target.value;
 
       ////////////////////////////////////////////////////////
       // MAX LENGTH
       ////////////////////////////////////////////////////////
 
       if (maxLengthValue && newValue.length > maxLengthValue) {
-        return
+        return;
       }
 
       ////////////////////////////////////////////////////////
@@ -210,46 +217,40 @@ const TextField = forwardRef<HTMLInputElement, Props>(
       ////////////////////////////////////////////////////////
 
       if (minLengthValue && newValue.length < minLengthValue) {
-        setInternalError(`Minimal ${minLengthValue} karakter`)
+        setInternalError(`Minimal ${minLengthValue} karakter`);
       } else {
-        setInternalError(null)
+        setInternalError(null);
       }
 
-      onChange?.(e)
-    }
+      onChange?.(e);
+    };
 
     //////////////////////////////////////////////////////////
     // ERROR
     //////////////////////////////////////////////////////////
 
-    const externalErrorMessage = typeof error === "string" ? error : null
+    const externalErrorMessage = typeof error === "string" ? error : null;
 
-    const externalErrorBoolean = typeof error === "boolean" ? error : !!externalErrorMessage
+    const externalErrorBoolean =
+      typeof error === "boolean" ? error : !!externalErrorMessage;
 
-    const finalError = externalErrorBoolean || !!internalError
+    const finalError = externalErrorBoolean || !!internalError;
 
-    const finalMessage = internalError ?? externalErrorMessage ?? null
+    const finalMessage = internalError ?? externalErrorMessage ?? null;
 
     //////////////////////////////////////////////////////////
     // UI
     //////////////////////////////////////////////////////////
 
     return (
-      <FormControl
-        error={finalError}
-        success={success}
-        disabled={disabled}
-      >
+      <FormControl error={finalError} success={success} disabled={disabled}>
         {label && <FormLabel>{label}</FormLabel>}
 
         <div className="relative flex items-center">
           {/* LEFT ICON */}
 
           {LeftIcon && (
-            <LeftIcon
-              size={16}
-              className="absolute left-3 text-gray-400"
-            />
+            <LeftIcon size={16} className="absolute left-3 text-gray-400" />
           )}
 
           {/* INPUT */}
@@ -259,11 +260,13 @@ const TextField = forwardRef<HTMLInputElement, Props>(
               value={value}
               disabled={disabled}
               onChange={(event) => {
-                const raw = event.target.value
+                const raw = event.target.value;
 
-                event.target.value = raw.replace(/[^0-9]/g, "").replace(/^(\d{2})(\d{2})$/, "$1:$2")
+                event.target.value = raw
+                  .replace(/[^0-9]/g, "")
+                  .replace(/^(\d{2})(\d{2})$/, "$1:$2");
 
-                onChange?.(event)
+                onChange?.(event);
               }}
               className={className}
             />
@@ -289,15 +292,19 @@ const TextField = forwardRef<HTMLInputElement, Props>(
 
                 finalError && "border-red-500 focus:ring-2 focus:ring-red-200",
 
-                success && !finalError && "border-green-500 focus:ring-2 focus:ring-green-200",
+                success &&
+                  !finalError &&
+                  "border-green-500 focus:ring-2 focus:ring-green-200",
 
-                !finalError && !success && "border-gray-300 focus:border-indigo-500 focus:ring-2 indigo:ring-indigo-200",
+                !finalError &&
+                  !success &&
+                  "border-gray-300 focus:border-indigo-500 focus:ring-2 indigo:ring-indigo-200",
 
                 LeftIcon && "pl-9",
 
                 disabled && "bg-gray-100 text-gray-400 cursor-not-allowed",
 
-                className
+                className,
               )}
               {...props}
             />
@@ -333,9 +340,13 @@ const TextField = forwardRef<HTMLInputElement, Props>(
         {/* FOOTER */}
 
         <div className="mt-1 space-y-1">
-          {finalMessage && <FormHelperText error>{finalMessage}</FormHelperText>}
+          {finalMessage && (
+            <FormHelperText error>{finalMessage}</FormHelperText>
+          )}
 
-          {!finalMessage && helperText && <FormHelperText success={success}>{helperText}</FormHelperText>}
+          {!finalMessage && helperText && (
+            <FormHelperText success={success}>{helperText}</FormHelperText>
+          )}
 
           {showCounter && maxLengthValue && (
             <div className="text-right text-xs text-gray-400">
@@ -344,10 +355,10 @@ const TextField = forwardRef<HTMLInputElement, Props>(
           )}
         </div>
       </FormControl>
-    )
-  }
-)
+    );
+  },
+);
 
-TextField.displayName = "TextField"
+TextField.displayName = "TextField";
 
-export default TextField
+export default TextField;

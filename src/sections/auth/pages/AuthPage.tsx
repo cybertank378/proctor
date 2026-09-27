@@ -7,18 +7,18 @@ import LoginFormSection from "../organisms/LoginFormSection";
 export type AuthMode = "login";
 
 interface AuthPageProps {
-    readonly mode?: AuthMode;
+  readonly mode?: AuthMode;
 }
 
 export default function AuthPage({ mode = "login" }: AuthPageProps) {
-    const resolveComponent = (): React.ReactNode => {
-        switch (mode) {
-            case "login":
-                return <LoginFormSection />;
-            default:
-                return <LoginFormSection />;
-        }
-    };
+  const resolveComponent = (): React.ReactNode => {
+    switch (mode) {
+      case "login":
+        return <LoginFormSection />;
+      default:
+        return <LoginFormSection />;
+    }
+  };
 
-    return <main className="min-h-screen bg-slate-50">{resolveComponent()}</main>;
+  return <main className="min-h-screen bg-slate-50">{resolveComponent()}</main>;
 }

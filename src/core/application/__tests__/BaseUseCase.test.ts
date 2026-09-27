@@ -1,8 +1,8 @@
 //Files: src/core/application/__tests__/BaseUseCase.test.ts
-import {describe, expect, it} from "vitest";
-import {BaseUseCase} from "@/core/application/base/BaseUseCase";
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
+import { describe, expect, it } from "vitest";
+import { BaseUseCase } from "@/core/application/base/BaseUseCase";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
 
 interface MockInputDto {
   targetRoom: string;

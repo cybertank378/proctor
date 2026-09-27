@@ -1,6 +1,6 @@
 //Files: src/modules/violations/domain/dto/ViolationRequestDto.ts
 
-import type {ViolationType} from "@/generated/prisma/enums";
+import type { ViolationType } from "@/generated/prisma/enums";
 
 export interface RecordViolationRequestDto {
   readonly attemptRecordId: string;

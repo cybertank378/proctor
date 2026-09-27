@@ -1,27 +1,34 @@
 // File: src/shared-ui/component/ExpandableTable.tsx
 
-"use client"
+"use client";
 
-import {ChevronDown, ChevronRight} from "lucide-react"
-import type React from "react"
-import {Fragment, useCallback, useMemo, useState} from "react"
+import { ChevronDown, ChevronRight } from "lucide-react";
+import type React from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 
-import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@/shared-ui/component/Table";
 
 //////////////////////////////////////////////////////////////
 // COLUMN
 //////////////////////////////////////////////////////////////
 
 export interface ExpandableTableColumn<T> {
-  key: keyof T | string
+  key: keyof T | string;
 
-  title: string
+  title: string;
 
-  className?: string
+  className?: string;
 
-  headerClassName?: string
+  headerClassName?: string;
 
-  render?: (row: T) => React.ReactNode
+  render?: (row: T) => React.ReactNode;
 }
 
 //////////////////////////////////////////////////////////////
@@ -33,39 +40,39 @@ interface Props<T> {
   // DATA
   ////////////////////////////////////////////////////////////
 
-  data: T[]
+  data: T[];
 
-  rowKey: (row: T) => string
+  rowKey: (row: T) => string;
 
-  columns: ExpandableTableColumn<T>[]
+  columns: ExpandableTableColumn<T>[];
 
   ////////////////////////////////////////////////////////////
   // EXPANDED SLOT
   ////////////////////////////////////////////////////////////
 
-  renderExpandedHeader?: (row: T) => React.ReactNode
+  renderExpandedHeader?: (row: T) => React.ReactNode;
 
-  renderExpandedContent: (row: T) => React.ReactNode
+  renderExpandedContent: (row: T) => React.ReactNode;
 
-  renderExpandedFooter?: (row: T) => React.ReactNode
+  renderExpandedFooter?: (row: T) => React.ReactNode;
 
   ////////////////////////////////////////////////////////////
   // STATE
   ////////////////////////////////////////////////////////////
 
-  loading?: boolean
+  loading?: boolean;
 
-  loadingRows?: number
+  loadingRows?: number;
 
-  expandable?: boolean
+  expandable?: boolean;
 
-  defaultExpandedRow?: string | null
+  defaultExpandedRow?: string | null;
 
   ////////////////////////////////////////////////////////////
   // DISPLAY
   ////////////////////////////////////////////////////////////
 
-  emptyMessage?: string
+  emptyMessage?: string;
 }
 
 //////////////////////////////////////////////////////////////
@@ -73,51 +80,51 @@ interface Props<T> {
 //////////////////////////////////////////////////////////////
 
 export default function ExpandableTable<T>({
-                                             ////////////////////////////////////////////////////////////
-                                             // DATA
-                                             ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
+  // DATA
+  ////////////////////////////////////////////////////////////
 
-                                             data,
+  data,
 
-                                             rowKey,
+  rowKey,
 
-                                             columns,
+  columns,
 
-                                             ////////////////////////////////////////////////////////////
-                                             // SLOT
-                                             ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
+  // SLOT
+  ////////////////////////////////////////////////////////////
 
-                                             renderExpandedHeader,
+  renderExpandedHeader,
 
-                                             renderExpandedContent,
+  renderExpandedContent,
 
-                                             renderExpandedFooter,
+  renderExpandedFooter,
 
-                                             ////////////////////////////////////////////////////////////
-                                             // STATE
-                                             ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
+  // STATE
+  ////////////////////////////////////////////////////////////
 
-                                             loading = false,
+  loading = false,
 
-                                             loadingRows = 8,
+  loadingRows = 8,
 
-                                             expandable = true,
+  expandable = true,
 
-                                             defaultExpandedRow = null,
+  defaultExpandedRow = null,
 
-                                             ////////////////////////////////////////////////////////////
-                                             // DISPLAY
-                                             ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
+  // DISPLAY
+  ////////////////////////////////////////////////////////////
 
-                                             emptyMessage = "Data tidak tersedia",
-                                           }: Props<T>) {
+  emptyMessage = "Data tidak tersedia",
+}: Props<T>) {
   ////////////////////////////////////////////////////////////
   // STATE
   ////////////////////////////////////////////////////////////
 
   const [expandedRow, setExpandedRow] = useState<string | null>(
-    defaultExpandedRow
-  )
+    defaultExpandedRow,
+  );
 
   ////////////////////////////////////////////////////////////
   // MEMO
@@ -125,8 +132,8 @@ export default function ExpandableTable<T>({
 
   const totalColumns = useMemo(
     () => columns.length + (expandable ? 1 : 0),
-    [columns.length, expandable]
-  )
+    [columns.length, expandable],
+  );
 
   const loadingKeys = useMemo(
     () =>
@@ -134,10 +141,10 @@ export default function ExpandableTable<T>({
         {
           length: loadingRows,
         },
-        (_, index) => `loading-row-${index + 1}`
+        (_, index) => `loading-row-${index + 1}`,
       ),
-    [loadingRows]
-  )
+    [loadingRows],
+  );
 
   ////////////////////////////////////////////////////////////
   // TOGGLE
@@ -146,13 +153,13 @@ export default function ExpandableTable<T>({
   const handleToggle = useCallback(
     (id: string) => {
       if (!expandable) {
-        return
+        return;
       }
 
-      setExpandedRow((previous) => (previous === id ? null : id))
+      setExpandedRow((previous) => (previous === id ? null : id));
     },
-    [expandable]
-  )
+    [expandable],
+  );
 
   ////////////////////////////////////////////////////////////
   // RENDER
@@ -182,106 +189,100 @@ export default function ExpandableTable<T>({
       <TableBody>
         {loading
           ? loadingKeys.map((loadingKey) => (
-            <TableRow key={loadingKey}>
-              {expandable && (
-                <TableCell className="w-14">
-                  <div className="mx-auto h-5 w-5 animate-pulse rounded bg-slate-200"/>
-                </TableCell>
-              )}
+              <TableRow key={loadingKey}>
+                {expandable && (
+                  <TableCell className="w-14">
+                    <div className="mx-auto h-5 w-5 animate-pulse rounded bg-slate-200" />
+                  </TableCell>
+                )}
 
-              {columns.map((column) => (
-                <TableCell
-                  key={`${loadingKey}-${String(column.key)}`}
-                  className={column.className}
-                >
-                  <div className="h-5 w-full animate-pulse rounded-md bg-slate-200"/>
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
+                {columns.map((column) => (
+                  <TableCell
+                    key={`${loadingKey}-${String(column.key)}`}
+                    className={column.className}
+                  >
+                    <div className="h-5 w-full animate-pulse rounded-md bg-slate-200" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
           : data.map((row) => {
-            const id = rowKey(row)
+              const id = rowKey(row);
 
-            const isExpanded = expandedRow === id
+              const isExpanded = expandedRow === id;
 
-            return (
-              <Fragment key={id}>
-                <TableRow
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={isExpanded}
-                  className="cursor-pointer transition-colors hover:bg-slate-50"
-                  onClick={() => handleToggle(id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault()
+              return (
+                <Fragment key={id}>
+                  <TableRow
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={isExpanded}
+                    className="cursor-pointer transition-colors hover:bg-slate-50"
+                    onClick={() => handleToggle(id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
 
-                      handleToggle(id)
-                    }
-                  }}
-                >
-                  {expandable && (
-                    <TableCell className="w-14">
-                      <div className="flex items-center justify-center">
-                        {isExpanded ? (
-                          <ChevronDown
-                            size={18}
-                            className="text-slate-500"
-                          />
-                        ) : (
-                          <ChevronRight
-                            size={18}
-                            className="text-slate-500"
-                          />
-                        )}
-                      </div>
-                    </TableCell>
-                  )}
-
-                  {columns.map((column) => (
-                    <TableCell
-                      key={String(column.key)}
-                      className={column.className}
-                    >
-                      {column.render
-                        ? column.render(row)
-                        : String(row[column.key as keyof T] ?? "-")}
-                    </TableCell>
-                  ))}
-                </TableRow>
-
-                {isExpanded && (
-                  <TableRow className="bg-slate-50 hover:bg-slate-50 even:bg-slate-50">
-                    <TableCell
-                      colSpan={totalColumns}
-                      className="p-0"
-                    >
-                      <div className="border-t border-slate-200 bg-slate-50">
-                        <div className="space-y-6 p-6">
-                          {renderExpandedHeader && (
-                            <section className="rounded-xl">
-                              {renderExpandedHeader(row)}
-                            </section>
-                          )}
-
-                          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                            {renderExpandedContent(row)}
-                          </section>
-
-                          {renderExpandedFooter && (
-                            <section className="rounded-xl">
-                              {renderExpandedFooter(row)}
-                            </section>
+                        handleToggle(id);
+                      }
+                    }}
+                  >
+                    {expandable && (
+                      <TableCell className="w-14">
+                        <div className="flex items-center justify-center">
+                          {isExpanded ? (
+                            <ChevronDown size={18} className="text-slate-500" />
+                          ) : (
+                            <ChevronRight
+                              size={18}
+                              className="text-slate-500"
+                            />
                           )}
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
+                    )}
+
+                    {columns.map((column) => (
+                      <TableCell
+                        key={String(column.key)}
+                        className={column.className}
+                      >
+                        {column.render
+                          ? column.render(row)
+                          : String(row[column.key as keyof T] ?? "-")}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                )}
-              </Fragment>
-            )
-          })}
+
+                  {isExpanded && (
+                    <TableRow className="bg-slate-50 hover:bg-slate-50 even:bg-slate-50">
+                      <TableCell colSpan={totalColumns} className="p-0">
+                        <div className="border-t border-slate-200 bg-slate-50">
+                          <div className="space-y-6 p-6">
+                            {renderExpandedHeader && (
+                              <section className="rounded-xl">
+                                {renderExpandedHeader(row)}
+                              </section>
+                            )}
+
+                            <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                              {renderExpandedContent(row)}
+                            </section>
+
+                            {renderExpandedFooter && (
+                              <section className="rounded-xl">
+                                {renderExpandedFooter(row)}
+                              </section>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
+              );
+            })}
       </TableBody>
     </Table>
-  )
+  );
 }

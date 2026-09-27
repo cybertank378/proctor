@@ -1,12 +1,12 @@
 // Files: src/modules/exam-monitoring/presentations/mapper/MonitoringPresentationMapper.ts
 
+import { PinGenerator } from "@/shared/helpers/PinGenerator";
 import type {
   ActiveQuizResolutionDto,
   ExamAttemptSummaryDto,
   UnlockAttemptResponseDto,
 } from "../../domain/dto/MonitoringResponseDto";
-import type {ExamAttemptEntity} from "../../domain/entity/ExamAttemptEntity";
-import {PinGenerator} from "@/shared/helpers/PinGenerator";
+import type { ExamAttemptEntity } from "../../domain/entity/ExamAttemptEntity";
 
 export const MonitoringPresentationMapper = {
   toSummaryDto(entity: ExamAttemptEntity): ExamAttemptSummaryDto {
@@ -30,7 +30,10 @@ export const MonitoringPresentationMapper = {
         typeof entity.isLocked === "function"
           ? entity.isLocked()
           : Boolean(entity.isLocked),
-      unlockPin: PinGenerator.generateForAttempt(entity.attemptId, entity.quizId),
+      unlockPin: PinGenerator.generateForAttempt(
+        entity.attemptId,
+        entity.quizId,
+      ),
       updatedAt: safeUpdatedAt,
     };
   },

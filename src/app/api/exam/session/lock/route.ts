@@ -1,6 +1,6 @@
 // Files: src/app/api/exam/session/lock/route.ts
-import type {NextRequest} from "next/server";
-import {ExamSessionFactory} from "@/modules/exam-session/infrastructure/factory/ExamSessionFactory";
+import type { NextRequest } from "next/server";
+import { ExamSessionFactory } from "@/modules/exam-session/infrastructure/factory/ExamSessionFactory";
 
 export async function POST(request: NextRequest): Promise<Response> {
   const handler = ExamSessionFactory.createHttpHandler();

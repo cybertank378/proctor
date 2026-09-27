@@ -1,15 +1,15 @@
 //Files: src/shared-ui/component/Form/FormSection.tsx
 
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
 const FormSection: React.FC<Props> = ({ children }) => {
-  return <div className="space-y-4">{children}</div>
-}
+  return <div className="space-y-4">{children}</div>;
+};
 
-export default FormSection
+export default FormSection;

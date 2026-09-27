@@ -180,7 +180,7 @@ export function useAntiCheatEngine({
 
       const payload = {
         quizId: Number(quizId),
-        attemptId: attemptId ? Number(attemptId) : undefined, 
+        attemptId: attemptId ? Number(attemptId) : undefined,
         userId: Number(studentIdentifier),
         screenshotBase64: screenshot,
       };
@@ -195,7 +195,14 @@ export function useAntiCheatEngine({
     }, 10000); // 10 detik
 
     return () => clearInterval(interval);
-  }, [isExamActive, isLocked, attemptId, quizId, studentIdentifier, captureSnapshot]);
+  }, [
+    isExamActive,
+    isLocked,
+    attemptId,
+    quizId,
+    studentIdentifier,
+    captureSnapshot,
+  ]);
 
   const triggerViolation = useCallback(
     async (type: ViolationType, reason: string, preCapturedSnapshot?: string) => {

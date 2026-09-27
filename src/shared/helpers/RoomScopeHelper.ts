@@ -1,6 +1,6 @@
 // Files: src/shared/helpers/RoomScopeHelper.ts
 
-import type {ProctorRole} from "@/generated/prisma/enums";
+import type { ProctorRole } from "@/generated/prisma/enums";
 
 export const RoomScopeHelper = {
   resolveFilterRoom(

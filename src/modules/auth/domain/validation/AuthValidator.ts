@@ -1,5 +1,5 @@
 //Files: src/modules/auth/domain/validation/AuthValidator.ts
-import {AuthError} from "./AuthError";
+import { AuthError } from "./AuthError";
 
 export const AuthValidator = {
   validateLogin(username: string, password: string): void {

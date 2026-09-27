@@ -1,13 +1,13 @@
 // Files: src/sections/violations/molecules/EvidenceCard.tsx
 "use client";
 
-import {ImageOff, ShieldCheck} from "lucide-react";
+import { ImageOff, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import type React from "react";
-import {useMemo, useState} from "react";
-import type {ViolationSummaryDto} from "@/modules/violations/domain/dto/ViolationResponseDto";
+import { useMemo, useState } from "react";
+import type { ViolationSummaryDto } from "@/modules/violations/domain/dto/ViolationResponseDto";
 import Button from "@/shared-ui/component/Button";
-import {ViolationTypeBadge} from "../atoms/ViolationTypeBadge";
+import { ViolationTypeBadge } from "../atoms/ViolationTypeBadge";
 
 interface EvidenceCardProps {
   readonly violation: ViolationSummaryDto;

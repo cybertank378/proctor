@@ -1,7 +1,7 @@
 //Files: src/core/application/__tests__/AppResult.test.ts
-import {describe, expect, it} from "vitest";
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
+import { describe, expect, it } from "vitest";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
 
 describe("AppResult & AppResultFactory (Result Pattern)", () => {
   it("harus membuat result sukses dengan payload data yang tepat (AAA Pattern)", () => {
