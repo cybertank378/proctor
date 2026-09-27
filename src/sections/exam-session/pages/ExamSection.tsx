@@ -7,6 +7,7 @@ import type Webcam from "react-webcam";
 import {useAntiCheatEngine} from "@/modules/exam-session/presentations/hook/useAntiCheatEngine";
 import {useExamSessionApi} from "@/modules/exam-session/presentations/hook/useExamSessionApi";
 import {ExamGateView} from "@/sections/exam-session/molecules/ExamGateView";
+import {showErrorToast, showWarningToast} from "@/shared-ui/component/Toast";
 import {ExamView} from "../organisms/ExamView";
 
 interface ExamSectionProps {
@@ -67,13 +68,13 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
       stream.getVideoTracks()[0].addEventListener("ended", () => {
         setHasScreenPermission(false);
         setIsExamStarted(false);
-        alert("Sesi ujian dihentikan sementara karena Anda menghentikan pembagian layar. Silakan izinkan kembali untuk melanjutkan.");
+        showWarningToast("Sesi ujian dihentikan sementara karena Anda menghentikan pembagian layar. Silakan izinkan kembali untuk melanjutkan.");
       });
 
       setHasScreenPermission(true);
     } catch (err) {
       console.warn("User menolak izin berbagi layar:", err);
-      alert("Akses perekaman layar ditolak. Anda wajib membagikan layar untuk dapat memulai atau melanjutkan ujian.");
+      showErrorToast("Akses perekaman layar ditolak. Anda wajib membagikan layar untuk dapat memulai atau melanjutkan ujian.");
     }
   };
 
