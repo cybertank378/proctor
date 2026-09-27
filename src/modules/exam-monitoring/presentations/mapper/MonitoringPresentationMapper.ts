@@ -6,6 +6,7 @@ import type {
   UnlockAttemptResponseDto,
 } from "../../domain/dto/MonitoringResponseDto";
 import type {ExamAttemptEntity} from "../../domain/entity/ExamAttemptEntity";
+import {PinGenerator} from "@/shared/helpers/PinGenerator";
 
 export const MonitoringPresentationMapper = {
   toSummaryDto(entity: ExamAttemptEntity): ExamAttemptSummaryDto {
@@ -29,6 +30,7 @@ export const MonitoringPresentationMapper = {
         typeof entity.isLocked === "function"
           ? entity.isLocked()
           : Boolean(entity.isLocked),
+      unlockPin: PinGenerator.generateForAttempt(entity.attemptId, entity.quizId),
       updatedAt: safeUpdatedAt,
     };
   },
