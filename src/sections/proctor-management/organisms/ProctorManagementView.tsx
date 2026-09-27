@@ -49,8 +49,7 @@ export function ProctorManagementView() {
           <SearchField 
             placeholder="Cari nama atau username..." 
             value={search} 
-            onChange={(e) => setSearch(e.target.value)} 
-            onClear={() => setSearch("")} 
+            onChange={(val) => setSearch(val)} 
           />
         </div>
 
