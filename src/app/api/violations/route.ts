@@ -1,22 +1,22 @@
 //Files: src/app/api/violations/route.ts
-import type {NextRequest} from "next/server";
-import {ViolationFactory} from "@/modules/violations/infrastructure/factory/ViolationFactory";
+import type { NextRequest } from "next/server";
+import { ViolationFactory } from "@/modules/violations/infrastructure/factory/ViolationFactory";
 
 export async function POST(req: NextRequest): Promise<Response> {
-    const body = (await req.json().catch(() => ({}))) as unknown;
+  const body = (await req.json().catch(() => ({}))) as unknown;
 
-    return ViolationFactory.createHttpHandler().handle({
-        headers: req.headers,
-        url: req.url,
-        method: "POST",
-        body,
-    });
+  return ViolationFactory.createHttpHandler().handle({
+    headers: req.headers,
+    url: req.url,
+    method: "POST",
+    body,
+  });
 }
 
 export async function GET(req: NextRequest): Promise<Response> {
-    return ViolationFactory.createHttpHandler().handle({
-        headers: req.headers,
-        url: req.url,
-        method: "GET",
-    });
+  return ViolationFactory.createHttpHandler().handle({
+    headers: req.headers,
+    url: req.url,
+    method: "GET",
+  });
 }

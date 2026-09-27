@@ -1,37 +1,43 @@
 // Files: src/shared-ui/component/SearchField.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import { Search, X } from "lucide-react"
-import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react"
+import clsx from "clsx";
+import { Search, X } from "lucide-react";
+import {
+  type ChangeEvent,
+  type KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-import Button from "@/shared-ui/component/Button"
+import Button from "@/shared-ui/component/Button";
 
 //////////////////////////////////////////////////////////////
 // TYPES
 //////////////////////////////////////////////////////////////
 
-type Size = "sm" | "md" | "lg"
+type Size = "sm" | "md" | "lg";
 
 //////////////////////////////////////////////////////////////
 // PROPS
 //////////////////////////////////////////////////////////////
 
 interface Props {
-  value: string
+  value: string;
 
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
 
-  placeholder?: string
+  placeholder?: string;
 
-  size?: Size
+  size?: Size;
 
-  debounce?: number
+  debounce?: number;
 
-  autoFocus?: boolean
+  autoFocus?: boolean;
 
-  className?: string
+  className?: string;
 }
 
 //////////////////////////////////////////////////////////////
@@ -44,34 +50,42 @@ const sizeMap: Record<Size, string> = {
   md: "h-11 text-sm",
 
   lg: "h-12 text-base",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // COMPONENT
 //////////////////////////////////////////////////////////////
 
-export default function SearchField({ value, onChange, placeholder = "Search...", size = "md", debounce = 0, autoFocus = false, className }: Props) {
+export default function SearchField({
+  value,
+  onChange,
+  placeholder = "Search...",
+  size = "md",
+  debounce = 0,
+  autoFocus = false,
+  className,
+}: Props) {
   ////////////////////////////////////////////////////////////
   // STATE
   ////////////////////////////////////////////////////////////
 
-  const [internalValue, setInternalValue] = useState(value)
+  const [internalValue, setInternalValue] = useState(value);
 
   ////////////////////////////////////////////////////////////
   // REFS
   ////////////////////////////////////////////////////////////
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   ////////////////////////////////////////////////////////////
   // SYNC EXTERNAL VALUE
   ////////////////////////////////////////////////////////////
 
   useEffect(() => {
-    setInternalValue(value)
-  }, [value])
+    setInternalValue(value);
+  }, [value]);
 
   ////////////////////////////////////////////////////////////
   // AUTO FOCUS
@@ -79,9 +93,9 @@ export default function SearchField({ value, onChange, placeholder = "Search..."
 
   useEffect(() => {
     if (autoFocus) {
-      inputRef.current?.focus()
+      inputRef.current?.focus();
     }
-  }, [autoFocus])
+  }, [autoFocus]);
 
   ////////////////////////////////////////////////////////////
   // CLEANUP
@@ -90,34 +104,34 @@ export default function SearchField({ value, onChange, placeholder = "Search..."
   useEffect(() => {
     return () => {
       if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current)
+        clearTimeout(debounceTimer.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   ////////////////////////////////////////////////////////////
   // CHANGE
   ////////////////////////////////////////////////////////////
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value
+    const newValue = event.target.value;
 
-    setInternalValue(newValue)
+    setInternalValue(newValue);
 
     if (!debounce) {
-      onChange(newValue)
+      onChange(newValue);
 
-      return
+      return;
     }
 
     if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current)
+      clearTimeout(debounceTimer.current);
     }
 
     debounceTimer.current = setTimeout(() => {
-      onChange(newValue)
-    }, debounce)
-  }
+      onChange(newValue);
+    }, debounce);
+  };
 
   ////////////////////////////////////////////////////////////
   // ESCAPE
@@ -125,19 +139,19 @@ export default function SearchField({ value, onChange, placeholder = "Search..."
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== "Escape") {
-      return
+      return;
     }
 
     if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current)
+      clearTimeout(debounceTimer.current);
     }
 
-    setInternalValue("")
+    setInternalValue("");
 
-    onChange("")
+    onChange("");
 
-    inputRef.current?.blur()
-  }
+    inputRef.current?.blur();
+  };
 
   ////////////////////////////////////////////////////////////
   // CLEAR
@@ -145,21 +159,21 @@ export default function SearchField({ value, onChange, placeholder = "Search..."
 
   const handleClear = () => {
     if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current)
+      clearTimeout(debounceTimer.current);
     }
 
-    setInternalValue("")
+    setInternalValue("");
 
-    onChange("")
+    onChange("");
 
-    inputRef.current?.focus()
-  }
+    inputRef.current?.focus();
+  };
 
   ////////////////////////////////////////////////////////////
   // COMPUTED
   ////////////////////////////////////////////////////////////
 
-  const hasValue = internalValue.trim().length > 0
+  const hasValue = internalValue.trim().length > 0;
 
   ////////////////////////////////////////////////////////////
   // RENDER
@@ -185,14 +199,25 @@ export default function SearchField({ value, onChange, placeholder = "Search..."
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={clsx("flex-1 border-0 bg-transparent outline-none ring-0", "text-sm text-gray-800", "placeholder:text-gray-400")}
+        className={clsx(
+          "flex-1 border-0 bg-transparent outline-none ring-0",
+          "text-sm text-gray-800",
+          "placeholder:text-gray-400",
+        )}
       />
 
       {hasValue && (
-        <Button type="button" variant="text" color="secondary" iconOnly onClick={handleClear} className="text-gray-400 hover:text-gray-600">
+        <Button
+          type="button"
+          variant="text"
+          color="secondary"
+          iconOnly
+          onClick={handleClear}
+          className="text-gray-400 hover:text-gray-600"
+        >
           <X size={16} />
         </Button>
       )}
     </div>
-  )
+  );
 }

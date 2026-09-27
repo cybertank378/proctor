@@ -1,5 +1,5 @@
 // Files: src/proxy.ts
-import {type NextRequest, NextResponse} from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 // 1. Rute publik yang boleh diakses siswa & sistem tanpa token pengawas
 const PUBLIC_PATHS = [

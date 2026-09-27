@@ -16,22 +16,29 @@ import {
   X,
 } from "lucide-react";
 import type React from "react";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
-import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
-import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
-import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
-import {MetricCard} from "@/sections/exam-monitoring/molecules/MetricCard";
-import {ExamSessionSelectorModal} from "@/sections/exam-monitoring/organisms/ExamSessionSelectorModal";
-import {useLiveProctoring} from "@/modules/live-proctoring/presentations/hook/useLiveProctoring";
-import {ProctorChatPanel} from "@/sections/proctor-chat/organisms/ProctorChatPanel";
-import {ProctorAssignmentModal} from "@/sections/proctor-management/organisms/ProctorAssignmentModal";
-import {EvidenceCard} from "@/sections/violations/molecules/EvidenceCard";
-import {ViolationEvidenceModal} from "@/sections/violations/organisms/ViolationEvidenceModal";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ExamAttemptSummaryDto } from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
+import { useExamMonitoringApi } from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
+import { useLiveProctoring } from "@/modules/live-proctoring/presentations/hook/useLiveProctoring";
+import { useViolationsApi } from "@/modules/violations/presentations/hook/useViolationsApi";
+import { StatusBadge } from "@/sections/exam-monitoring/atoms/StatusBadge";
+import { MetricCard } from "@/sections/exam-monitoring/molecules/MetricCard";
+import { ExamSessionSelectorModal } from "@/sections/exam-monitoring/organisms/ExamSessionSelectorModal";
+import { ProctorChatPanel } from "@/sections/proctor-chat/organisms/ProctorChatPanel";
+import { ProctorAssignmentModal } from "@/sections/proctor-management/organisms/ProctorAssignmentModal";
+import { EvidenceCard } from "@/sections/violations/molecules/EvidenceCard";
+import { ViolationEvidenceModal } from "@/sections/violations/organisms/ViolationEvidenceModal";
 import Badge from "@/shared-ui/component/Badge";
 import Button from "@/shared-ui/component/Button";
 import Pagination from "@/shared-ui/component/Pagination";
-import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@/shared-ui/component/Table";
 import TextField from "@/shared-ui/component/TextField";
 
 const ITEMS_PER_PAGE = 7;
@@ -86,9 +93,15 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
           <div className="relative shrink-0 size-10 rounded overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center">
             {liveFrame ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={liveFrame} alt="Live feed" className="object-cover w-full h-full" />
+              <img
+                src={liveFrame}
+                alt="Live feed"
+                className="object-cover w-full h-full"
+              />
             ) : (
-              <span className="text-[9px] text-slate-400 font-medium">Offline</span>
+              <span className="text-[9px] text-slate-400 font-medium">
+                Offline
+              </span>
             )}
           </div>
           <div className="flex flex-col gap-0.5">
@@ -130,7 +143,10 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
         <StatusBadge status={item.status} isLocked={item.isLocked} />
         {item.isLocked && item.unlockPin && (
           <div className="mt-1 text-[10px] text-slate-500">
-            PIN: <span className="font-bold font-mono text-slate-700">{item.unlockPin}</span>
+            PIN:{" "}
+            <span className="font-bold font-mono text-slate-700">
+              {item.unlockPin}
+            </span>
           </div>
         )}
       </TableCell>
@@ -178,7 +194,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
   } = useViolationsApi();
 
   const [quizIdFilter, setQuizIdFilter] = useState<string>("");
-  
+
   const activeQuizId = useMemo(() => {
     const val = Number(quizIdFilter);
     return Number.isInteger(val) && val > 0 ? val : undefined;
@@ -436,7 +452,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
                 Pemantauan Siswa Real-Time
                 {activeQuizId && (
                   <span className="flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                    <span className={`size-1.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                    <span
+                      className={`size-1.5 rounded-full ${isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"}`}
+                    />
                     {isConnected ? "Live Stream Aktif" : "Menghubungkan..."}
                   </span>
                 )}

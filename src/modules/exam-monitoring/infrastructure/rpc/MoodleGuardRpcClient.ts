@@ -1,12 +1,12 @@
 // Files: src/modules/exam-monitoring/infrastructure/rpc/MoodleGuardRpcClient.ts
 
-import {AppConfig} from "@/shared/config/AppConfig";
+import { AppConfig } from "@/shared/config/AppConfig";
 import type {
-    MoodleActiveAttemptItem,
-    MoodleActiveQuizItem,
-    MoodleRpcClientContract,
-    MoodleRpcResponse,
-    MoodleUnlockStudentParams,
+  MoodleActiveAttemptItem,
+  MoodleActiveQuizItem,
+  MoodleRpcClientContract,
+  MoodleRpcResponse,
+  MoodleUnlockStudentParams,
 } from "@/shared/contract/MoodleRpcClientContract";
 
 export class MoodleGuardRpcClient implements MoodleRpcClientContract {
@@ -153,15 +153,27 @@ export class MoodleGuardRpcClient implements MoodleRpcClientContract {
           `Siswa #${item.userId || item.userid}`;
 
         return {
-          attemptId: Number(item.attemptId || item.attemptid || item.attempt_id),
+          attemptId: Number(
+            item.attemptId || item.attemptid || item.attempt_id,
+          ),
           quizId: Number(item.quizId || item.quizid || item.quiz_id || quizId),
           userId: Number(item.userId || item.userid || item.user_id),
           studentName: String(fullName),
           className: String(
-            item.className || item.department || item.classname || item.class || "-",
+            item.className ||
+              item.department ||
+              item.classname ||
+              item.class ||
+              "-",
           ),
-          roomNumber: item.roomNumber || item.roomnumber ? String(item.roomNumber || item.roomnumber) : null,
-          status: item.status === "finished" || item.state === "finished" ? "finished" : "inprogress",
+          roomNumber:
+            item.roomNumber || item.roomnumber
+              ? String(item.roomNumber || item.roomnumber)
+              : null,
+          status:
+            item.status === "finished" || item.state === "finished"
+              ? "finished"
+              : "inprogress",
           islocked: Boolean(item.islocked),
           timestart: Number(item.timestart ?? 0),
           timefinish: Number(item.timefinish ?? 0),

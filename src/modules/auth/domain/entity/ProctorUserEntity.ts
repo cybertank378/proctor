@@ -60,6 +60,8 @@ export class ProctorUserEntity {
     if (!this.roomNumber || !targetRoom.trim()) {
       return false;
     }
-    return this.roomNumber.trim().toLowerCase() === targetRoom.trim().toLowerCase();
+    return (
+      this.roomNumber.trim().toLowerCase() === targetRoom.trim().toLowerCase()
+    );
   }
 }

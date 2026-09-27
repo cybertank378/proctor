@@ -1,13 +1,13 @@
 // Files: src/shared-ui/component/TabLayout/TabLayout.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import {useCallback, useMemo, useState} from "react"
+import clsx from "clsx";
+import { useCallback, useMemo, useState } from "react";
 
-import TabContext from "./TabContext"
+import TabContext from "./TabContext";
 
-import type {TabContextValue, TabLayoutProps} from "./types"
+import type { TabContextValue, TabLayoutProps } from "./types";
 
 export default function TabLayout({
   value,
@@ -21,20 +21,20 @@ export default function TabLayout({
   onValueChange,
   ...props
 }: TabLayoutProps) {
-  const [internalValue, setInternalValue] = useState(defaultValue ?? "")
+  const [internalValue, setInternalValue] = useState(defaultValue ?? "");
 
-  const currentValue = value ?? internalValue
+  const currentValue = value ?? internalValue;
 
   const setValue = useCallback(
     (nextValue: string) => {
       if (value === undefined) {
-        setInternalValue(nextValue)
+        setInternalValue(nextValue);
       }
 
-      onValueChange?.(nextValue)
+      onValueChange?.(nextValue);
     },
-    [value, onValueChange]
-  )
+    [value, onValueChange],
+  );
 
   const context = useMemo<TabContextValue>(
     () => ({
@@ -45,17 +45,14 @@ export default function TabLayout({
       keepMounted,
       setValue,
     }),
-    [currentValue, size, orientation, fullWidth, keepMounted, setValue]
-  )
+    [currentValue, size, orientation, fullWidth, keepMounted, setValue],
+  );
 
   return (
     <TabContext.Provider value={context}>
-      <div
-        {...props}
-        className={clsx("w-full", className)}
-      >
+      <div {...props} className={clsx("w-full", className)}>
         {children}
       </div>
     </TabContext.Provider>
-  )
+  );
 }

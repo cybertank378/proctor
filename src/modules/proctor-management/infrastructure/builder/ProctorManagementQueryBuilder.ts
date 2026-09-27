@@ -1,21 +1,18 @@
 //Files: src/modules/proctor-management/infrastructure/builder/ProctorManagementQueryBuilder.ts
-import type {Prisma} from "@/generated/prisma/client";
+import type { Prisma } from "@/generated/prisma/client";
 
 export const ProctorManagementQueryBuilder = {
-    buildListFilter(roomNumber?: string): Prisma.ProctorUserWhereInput {
-        if (!roomNumber || roomNumber.trim().length === 0) {
-            return {};
-        }
-        return {
-            OR: [
-                { roomNumber: roomNumber.trim() },
-                { role: "CHIEF_PROCTOR" },
-            ],
-        };
-    },
+  buildListFilter(roomNumber?: string): Prisma.ProctorUserWhereInput {
+    if (!roomNumber || roomNumber.trim().length === 0) {
+      return {};
+    }
+    return {
+      OR: [{ roomNumber: roomNumber.trim() }, { role: "CHIEF_PROCTOR" }],
+    };
+  },
 
-    getMoodleTeacherRawSql(): string {
-        return ` SELECT DISTINCT 
+  getMoodleTeacherRawSql(): string {
+    return ` SELECT DISTINCT 
           u.id AS user_id,
           u.username,
           u.firstname,
@@ -34,5 +31,5 @@ export const ProctorManagementQueryBuilder = {
         AND u.suspended = 0
       ORDER BY u.lastname, c.fullname;
     `;
-    }
-}
+  },
+};

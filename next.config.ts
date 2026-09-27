@@ -1,4 +1,4 @@
-import type {NextConfig} from "next";
+import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
 

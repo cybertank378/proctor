@@ -1,8 +1,8 @@
 //Files: src/core/infrastructure/http/BaseHttpHandler.ts
-import type {AuthenticatedProctorContext} from "./HttpAuthentication";
-import {HttpAuthentication} from "./HttpAuthentication";
-import type {HttpRequest} from "./HttpRequest";
-import {RouteErrorHandler} from "./RouteErrorHandler";
+import type { AuthenticatedProctorContext } from "./HttpAuthentication";
+import { HttpAuthentication } from "./HttpAuthentication";
+import type { HttpRequest } from "./HttpRequest";
+import { RouteErrorHandler } from "./RouteErrorHandler";
 
 export abstract class BaseHttpHandler {
   public async handle(req: HttpRequest): Promise<Response> {

@@ -1,6 +1,10 @@
 //Files: src/core/contract/__tests__/EventPublisherContract.test.ts
-import {describe, expect, it, vi} from "vitest";
-import type {DomainEvent, EventPublisherContract, EventSubscriber,} from "../EventPublisherContract";
+import { describe, expect, it, vi } from "vitest";
+import type {
+  DomainEvent,
+  EventPublisherContract,
+  EventSubscriber,
+} from "../EventPublisherContract";
 
 interface StudentLockedEventPayload {
   readonly attemptId: number;

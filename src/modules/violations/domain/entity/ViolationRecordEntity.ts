@@ -1,6 +1,6 @@
 //Files: src/modules/violations/domain/entity/ViolationRecordEntity.ts
 
-import type {ViolationType} from "@/generated/prisma/enums";
+import type { ViolationType } from "@/generated/prisma/enums";
 
 export interface ViolationRecordProps {
   readonly id: string;

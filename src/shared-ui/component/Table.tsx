@@ -1,20 +1,20 @@
 // Files: src/shared-ui/component/Table.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import type React from "react"
+import clsx from "clsx";
+import type React from "react";
 
 //////////////////////////////////////////////////////////////
 // TABLE CONTAINER
 //////////////////////////////////////////////////////////////
 
 type TableProps = {
-  children: React.ReactNode
+  children: React.ReactNode;
 
-  className?: string
+  className?: string;
 
-  wrapperClassName?: string
+  wrapperClassName?: string;
 
   /**
    * Mengaktifkan sticky header.
@@ -24,7 +24,7 @@ type TableProps = {
    *
    * @default false
    */
-  stickyHeader?: boolean
+  stickyHeader?: boolean;
 
   /**
    * Tinggi maksimum container ketika sticky header aktif.
@@ -34,7 +34,7 @@ type TableProps = {
    * - "70vh"
    * - "600px"
    */
-  maxHeight?: string
+  maxHeight?: string;
 
   /**
    * Mengaktifkan responsive horizontal scrolling.
@@ -44,7 +44,7 @@ type TableProps = {
    *
    * @default true
    */
-  responsive?: boolean
+  responsive?: boolean;
 
   /**
    * Mengaktifkan sticky kolom pertama.
@@ -55,8 +55,8 @@ type TableProps = {
    *
    * @default false
    */
-  stickyFirstColumn?: boolean
-}
+  stickyFirstColumn?: boolean;
+};
 
 export const Table = ({
   children,
@@ -69,7 +69,12 @@ export const Table = ({
 }: TableProps) => {
   return (
     <div
-      className={clsx("w-full", responsive && "overflow-x-auto", stickyHeader && "overflow-y-auto", wrapperClassName)}
+      className={clsx(
+        "w-full",
+        responsive && "overflow-x-auto",
+        stickyHeader && "overflow-y-auto",
+        wrapperClassName,
+      )}
       style={
         stickyHeader && maxHeight
           ? {
@@ -114,82 +119,113 @@ export const Table = ({
             "[&_thead_tr>*:first-child]:z-30",
           ],
 
-          className
+          className,
         )}
       >
         {children}
       </table>
     </div>
-  )
-}
+  );
+};
 
 //////////////////////////////////////////////////////////////
 // TABLE HEAD
 //////////////////////////////////////////////////////////////
 
 type TableHeadProps = {
-  children: React.ReactNode
+  children: React.ReactNode;
 
-  className?: string
+  className?: string;
 
   /**
    * Mengaktifkan sticky header.
    *
    * @default false
    */
-  sticky?: boolean
-}
+  sticky?: boolean;
+};
 
-export const TableHead = ({ children, className, sticky = false }: TableHeadProps) => {
-  return <thead className={clsx(sticky && ["sticky", "top-0", "z-20", "bg-gray-500", "h-11"], className)}>{children}</thead>
-}
+export const TableHead = ({
+  children,
+  className,
+  sticky = false,
+}: TableHeadProps) => {
+  return (
+    <thead
+      className={clsx(
+        sticky && ["sticky", "top-0", "z-20", "bg-gray-500", "h-11"],
+        className,
+      )}
+    >
+      {children}
+    </thead>
+  );
+};
 
 //////////////////////////////////////////////////////////////
 // TABLE BODY
 //////////////////////////////////////////////////////////////
 
 type TableBodyProps = {
-  children: React.ReactNode
+  children: React.ReactNode;
 
-  className?: string
-}
+  className?: string;
+};
 
 export const TableBody = ({ children, className }: TableBodyProps) => {
-  return <tbody className={clsx("divide-y divide-gray-200", className)}>{children}</tbody>
-}
+  return (
+    <tbody className={clsx("divide-y divide-gray-200", className)}>
+      {children}
+    </tbody>
+  );
+};
 
 //////////////////////////////////////////////////////////////
 // TABLE HEADER CELL
 //////////////////////////////////////////////////////////////
 
 type TableHeaderCellProps = React.ThHTMLAttributes<HTMLTableCellElement> & {
-  children?: React.ReactNode
-}
+  children?: React.ReactNode;
+};
 
-export const TableHeaderCell = ({ children, className, ...props }: TableHeaderCellProps) => {
+export const TableHeaderCell = ({
+  children,
+  className,
+  ...props
+}: TableHeaderCellProps) => {
   return (
     <th
-      className={clsx("h-11 whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600", className)}
+      className={clsx(
+        "h-11 whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600",
+        className,
+      )}
       {...props}
     >
       {children}
     </th>
-  )
-}
+  );
+};
 
 //////////////////////////////////////////////////////////////
 // TABLE ROW
 //////////////////////////////////////////////////////////////
 
 type TableRowProps = React.HTMLAttributes<HTMLTableRowElement> & {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-export const TableRow: React.FC<TableRowProps> = ({ children, className, ...props }) => {
+export const TableRow: React.FC<TableRowProps> = ({
+  children,
+  className,
+  ...props
+}) => {
   return (
-      <tr className={clsx("transition-colors hover:bg-gray-50", className)} {...props}>
-        {children}
-      </tr>
+    <tr
+      className={clsx("transition-colors hover:bg-gray-50", className)}
+      {...props}
+    >
+      {children}
+    </tr>
   );
 };
 
@@ -198,16 +234,23 @@ export const TableRow: React.FC<TableRowProps> = ({ children, className, ...prop
 //////////////////////////////////////////////////////////////
 
 type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement> & {
-  children?: React.ReactNode
-}
+  children?: React.ReactNode;
+};
 
-export const TableCell = ({ children, className, ...props }: TableCellProps) => {
+export const TableCell = ({
+  children,
+  className,
+  ...props
+}: TableCellProps) => {
   return (
     <td
-      className={clsx("whitespace-nowrap px-4 py-3 text-sm text-gray-700", className)}
+      className={clsx(
+        "whitespace-nowrap px-4 py-3 text-sm text-gray-700",
+        className,
+      )}
       {...props}
     >
       {children}
     </td>
-  )
-}
+  );
+};

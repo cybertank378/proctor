@@ -3,8 +3,8 @@
 
 import type React from "react";
 import type Webcam from "react-webcam";
-import {CameraFeed} from "../atoms/CameraFeed";
-import {ExamLockedOverlay} from "../molecules/ExamLockedOverlay";
+import { CameraFeed } from "../atoms/CameraFeed";
+import { ExamLockedOverlay } from "../molecules/ExamLockedOverlay";
 
 export interface ExamViewProps {
   readonly embedUrl: string;

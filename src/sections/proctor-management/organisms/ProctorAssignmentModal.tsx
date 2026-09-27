@@ -1,15 +1,22 @@
 //Files: src/sections/proctor-management/organisms/ProctorAssignmentModal.tsx
 "use client";
 
-import {DoorOpen, KeyRound, RefreshCw, User, UserCheck, UserPlus,} from "lucide-react";
+import {
+  DoorOpen,
+  KeyRound,
+  RefreshCw,
+  User,
+  UserCheck,
+  UserPlus,
+} from "lucide-react";
 import type React from "react";
-import {useEffect, useState} from "react";
-import {useProctorManagementApi} from "@/modules/proctor-management/presentations/hook/useProctorManagementApi";
+import { useEffect, useState } from "react";
+import { useProctorManagementApi } from "@/modules/proctor-management/presentations/hook/useProctorManagementApi";
 import Button from "@/shared-ui/component/Button";
-import {Modal} from "@/shared-ui/component/Modal";
+import { Modal } from "@/shared-ui/component/Modal";
 import SelectField from "@/shared-ui/component/SelectField";
 import TextField from "@/shared-ui/component/TextField";
-import {ProctorSelectItem} from "../molecules/ProctorSelectItem";
+import { ProctorSelectItem } from "../molecules/ProctorSelectItem";
 
 interface ProctorAssignmentModalProps {
   readonly isOpen: boolean;

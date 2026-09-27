@@ -1,12 +1,19 @@
 "use client";
 
-import {ShieldAlert, ShieldCheck, UserCog} from "lucide-react";
-import React, {useEffect, useState} from "react";
-import {useProctorManagementApi} from "@/modules/proctor-management/presentations/hook/useProctorManagementApi";
+import { ShieldAlert, ShieldCheck, UserCog } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useProctorManagementApi } from "@/modules/proctor-management/presentations/hook/useProctorManagementApi";
 import Button from "@/shared-ui/component/Button";
-import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table";
-import {ProctorAssignmentModal} from "./ProctorAssignmentModal";
 import SearchField from "@/shared-ui/component/SearchField";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@/shared-ui/component/Table";
+import { ProctorAssignmentModal } from "./ProctorAssignmentModal";
 
 export function ProctorManagementView() {
   const { proctors, loading, fetchProctors } = useProctorManagementApi();
@@ -17,9 +24,10 @@ export function ProctorManagementView() {
     void fetchProctors();
   }, [fetchProctors]);
 
-  const filteredProctors = proctors.filter((p) =>
-    p.fullName.toLowerCase().includes(search.toLowerCase()) ||
-    p.username.toLowerCase().includes(search.toLowerCase())
+  const filteredProctors = proctors.filter(
+    (p) =>
+      p.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      p.username.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -31,7 +39,8 @@ export function ProctorManagementView() {
             Manajemen Pengawas
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Kelola data pengawas, penetapan ruangan, dan sinkronisasi dengan Moodle.
+            Kelola data pengawas, penetapan ruangan, dan sinkronisasi dengan
+            Moodle.
           </p>
         </div>
         <Button
@@ -46,10 +55,10 @@ export function ProctorManagementView() {
 
       <div className="flex bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex-col space-y-4">
         <div className="w-full max-w-sm">
-          <SearchField 
-            placeholder="Cari nama atau username..." 
-            value={search} 
-            onChange={(val) => setSearch(val)} 
+          <SearchField
+            placeholder="Cari nama atau username..."
+            value={search}
+            onChange={(val) => setSearch(val)}
           />
         </div>
 
@@ -66,13 +75,19 @@ export function ProctorManagementView() {
           <TableBody>
             {loading && proctors.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-gray-500"
+                >
                   Memuat data pengawas...
                 </TableCell>
               </TableRow>
             ) : filteredProctors.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-gray-500"
+                >
                   Tidak ada pengawas ditemukan.
                 </TableCell>
               </TableRow>
@@ -82,7 +97,9 @@ export function ProctorManagementView() {
                   <TableCell className="font-medium text-gray-900">
                     {proctor.fullName}
                   </TableCell>
-                  <TableCell className="text-gray-500">{proctor.username}</TableCell>
+                  <TableCell className="text-gray-500">
+                    {proctor.username}
+                  </TableCell>
                   <TableCell>
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -91,7 +108,9 @@ export function ProctorManagementView() {
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {proctor.role === "CHIEF_PROCTOR" ? "Ketua Pengawas" : "Pengawas Ruang"}
+                      {proctor.role === "CHIEF_PROCTOR"
+                        ? "Ketua Pengawas"
+                        : "Pengawas Ruang"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -100,7 +119,9 @@ export function ProctorManagementView() {
                         {proctor.roomNumber}
                       </span>
                     ) : (
-                      <span className="text-gray-400 italic">Semua (Global)</span>
+                      <span className="text-gray-400 italic">
+                        Semua (Global)
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>

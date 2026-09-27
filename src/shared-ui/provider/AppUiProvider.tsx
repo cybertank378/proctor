@@ -3,8 +3,15 @@
 
 import "react-toastify/dist/ReactToastify.css";
 
-import {createContext, type ReactNode, useCallback, useContext, useMemo, useState,} from "react";
-import {ToastContainer} from "react-toastify";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import { ToastContainer } from "react-toastify";
 
 interface AppUiContextValue {
   isSidebarOpen: boolean;

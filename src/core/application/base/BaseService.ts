@@ -1,7 +1,7 @@
 //Files: src/core/application/base/BaseService.ts
 
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
 
 export abstract class BaseService {
   protected async handleExecution<T>(

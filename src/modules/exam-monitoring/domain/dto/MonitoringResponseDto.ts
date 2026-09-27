@@ -1,5 +1,5 @@
 // src/modules/exam-monitoring/domain/dto/MonitoringResponseDto.ts
-import type {AttemptStatus} from "../entity/ExamAttemptEntity";
+import type { AttemptStatus } from "../entity/ExamAttemptEntity";
 
 export interface ExamAttemptSummaryDto {
   readonly id: string;

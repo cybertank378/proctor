@@ -1,49 +1,49 @@
 // Files: src/shared-ui/component/ExpandableCard.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import type {LucideIcon} from "lucide-react"
-import {ChevronDown, ChevronUp} from "lucide-react"
-import type React from "react"
-import {useEffect, useId, useRef, useState} from "react"
+import clsx from "clsx";
+import type { LucideIcon } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import type React from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 //////////////////////////////////////////////////////////////
 // TYPES
 //////////////////////////////////////////////////////////////
 
 interface Props {
-  title: string
+  title: string;
 
-  subtitle?: string
+  subtitle?: string;
 
-  children: React.ReactNode
+  children: React.ReactNode;
 
   ////////////////////////////////////////////////////////////
   // CONTROLLED
   ////////////////////////////////////////////////////////////
 
-  isOpen: boolean
+  isOpen: boolean;
 
-  onToggle: () => void
+  onToggle: () => void;
 
   ////////////////////////////////////////////////////////////
   // OPTIONAL
   ////////////////////////////////////////////////////////////
 
-  icon?: LucideIcon
+  icon?: LucideIcon;
 
-  className?: string
+  className?: string;
 
   ////////////////////////////////////////////////////////////
   // ACCESSIBILITY
   ////////////////////////////////////////////////////////////
 
-  index?: number
+  index?: number;
 
-  total?: number
+  total?: number;
 
-  onRequestFocusIndex?: (index: number) => void
+  onRequestFocusIndex?: (index: number) => void;
 }
 
 //////////////////////////////////////////////////////////////
@@ -69,53 +69,53 @@ export default function ExpandableCard({
   // IDS
   //////////////////////////////////////////////////////////////
 
-  const headerId = useId()
+  const headerId = useId();
 
-  const panelId = `${headerId}-panel`
+  const panelId = `${headerId}-panel`;
 
   //////////////////////////////////////////////////////////////
   // REFS
   //////////////////////////////////////////////////////////////
 
-  const contentRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null);
 
   //////////////////////////////////////////////////////////////
   // STATE
   //////////////////////////////////////////////////////////////
 
-  const [height, setHeight] = useState(0)
+  const [height, setHeight] = useState(0);
 
   //////////////////////////////////////////////////////////////
   // AUTO HEIGHT
   //////////////////////////////////////////////////////////////
 
   useEffect(() => {
-    const element = contentRef.current
+    const element = contentRef.current;
 
     if (!element) {
-      return
+      return;
     }
 
     const updateHeight = () => {
       requestAnimationFrame(() => {
-        setHeight(isOpen ? element.scrollHeight : 0)
-      })
-    }
+        setHeight(isOpen ? element.scrollHeight : 0);
+      });
+    };
 
-    updateHeight()
+    updateHeight();
 
     const observer = new ResizeObserver(() => {
       if (isOpen) {
-        updateHeight()
+        updateHeight();
       }
-    })
+    });
 
-    observer.observe(element)
+    observer.observe(element);
 
     return () => {
-      observer.disconnect()
-    }
-  }, [isOpen])
+      observer.disconnect();
+    };
+  }, [isOpen]);
 
   //////////////////////////////////////////////////////////////
   // KEYBOARD SUPPORT
@@ -124,48 +124,48 @@ export default function ExpandableCard({
   const onKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (event) => {
     switch (event.key) {
       case "ArrowDown":
-        event.preventDefault()
+        event.preventDefault();
 
         if (
           onRequestFocusIndex &&
           typeof index === "number" &&
           typeof total === "number"
         ) {
-          onRequestFocusIndex((index + 1) % total)
+          onRequestFocusIndex((index + 1) % total);
         }
 
-        break
+        break;
 
       case "ArrowUp":
-        event.preventDefault()
+        event.preventDefault();
 
         if (
           onRequestFocusIndex &&
           typeof index === "number" &&
           typeof total === "number"
         ) {
-          onRequestFocusIndex((index - 1 + total) % total)
+          onRequestFocusIndex((index - 1 + total) % total);
         }
 
-        break
+        break;
 
       case "Home":
-        event.preventDefault()
+        event.preventDefault();
 
-        onRequestFocusIndex?.(0)
+        onRequestFocusIndex?.(0);
 
-        break
+        break;
 
       case "End":
-        event.preventDefault()
+        event.preventDefault();
 
         if (typeof total === "number") {
-          onRequestFocusIndex?.(total - 1)
+          onRequestFocusIndex?.(total - 1);
         }
 
-        break
+        break;
     }
-  }
+  };
 
   //////////////////////////////////////////////////////////////
   // VIEW
@@ -175,7 +175,7 @@ export default function ExpandableCard({
     <div
       className={clsx(
         "overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm",
-        className
+        className,
       )}
     >
       ////////////////////////////////////////////////////////// // HEADER
@@ -191,12 +191,7 @@ export default function ExpandableCard({
         className="flex min-h-18 w-full items-center justify-between border-b bg-gray-100 px-4 py-3 text-left transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       >
         <div className="flex items-start gap-3">
-          {Icon && (
-            <Icon
-              size={18}
-              className="mt-1 shrink-0 text-gray-600"
-            />
-          )}
+          {Icon && <Icon size={18} className="mt-1 shrink-0 text-gray-600" />}
 
           <div className="space-y-1">
             <p className="text-sm font-semibold leading-snug text-gray-900">
@@ -211,7 +206,7 @@ export default function ExpandableCard({
           aria-hidden="true"
           className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600"
         >
-          {isOpen ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </span>
       </button>
       ////////////////////////////////////////////////////////// // BODY
@@ -224,13 +219,10 @@ export default function ExpandableCard({
         }}
         className="overflow-hidden transition-[height] duration-300 ease-in-out will-change-[height]"
       >
-        <div
-          ref={contentRef}
-          className="p-3"
-        >
+        <div ref={contentRef} className="p-3">
           {children}
         </div>
       </section>
     </div>
-  )
+  );
 }

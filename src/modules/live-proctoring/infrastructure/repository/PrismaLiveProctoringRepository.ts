@@ -12,7 +12,7 @@ export class PrismaLiveProctoringRepository
   implements LiveProctoringRepositoryContract
 {
   public async saveFrame(
-    dto: SaveStreamFrameDto
+    dto: SaveStreamFrameDto,
   ): Promise<StreamFrameResultDto> {
     const frameId = crypto.randomUUID();
     const fileName = `${frameId}.png`;
@@ -22,7 +22,7 @@ export class PrismaLiveProctoringRepository
       "public",
       "assets",
       "images",
-      "streams"
+      "streams",
     );
     const absoluteFilePath = path.join(targetDir, fileName);
 
@@ -39,7 +39,7 @@ export class PrismaLiveProctoringRepository
         console.warn("[LIVE PROCTORING] Gagal menyimpan frame PNG:", err);
       }
     } else {
-        return { success: false, imagePath: "" };
+      return { success: false, imagePath: "" };
     }
 
     // Save metadata to database (optional, can be skipped for pure SSE or kept for history)

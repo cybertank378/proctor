@@ -1,11 +1,11 @@
 // Files: src/modules/exam-session/application/usecase/LockAttemptSessionUseCase.ts
 
-import {BaseUseCase} from "@/core/application/base/BaseUseCase";
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
-import type {ExamSessionRepositoryContract} from "../../domain/contract/ExamSessionRepositoryContract";
-import type {LockAttemptRequestDto} from "../../domain/dto/ExamSessionRequestDto";
-import {ExamSessionValidator} from "../../domain/validation/ExamSessionValidator";
+import { BaseUseCase } from "@/core/application/base/BaseUseCase";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
+import type { ExamSessionRepositoryContract } from "../../domain/contract/ExamSessionRepositoryContract";
+import type { LockAttemptRequestDto } from "../../domain/dto/ExamSessionRequestDto";
+import { ExamSessionValidator } from "../../domain/validation/ExamSessionValidator";
 
 export class LockAttemptSessionUseCase extends BaseUseCase<
   LockAttemptRequestDto,

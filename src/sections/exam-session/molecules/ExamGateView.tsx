@@ -1,9 +1,9 @@
 //Files: src/sections/exam-session/organisms/ExamGateView.tsx
 "use client";
 
-import {Camera, CheckCircle2, Monitor} from "lucide-react";
+import { Camera, CheckCircle2, Monitor } from "lucide-react";
 import type React from "react";
-import {PreExamCheckItem} from "@/sections/exam-session/atoms/PreExamCheckItem";
+import { PreExamCheckItem } from "@/sections/exam-session/atoms/PreExamCheckItem";
 import Button from "@/shared-ui/component/Button";
 
 interface ExamGateViewProps {

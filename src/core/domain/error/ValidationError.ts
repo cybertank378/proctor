@@ -1,5 +1,5 @@
 //Files: src/core/domain/error/ValidationError.ts
-import {AppError} from "./AppError";
+import { AppError } from "./AppError";
 
 export class ValidationError extends AppError {
   public readonly errors?: Record<string, string | readonly string[]>;

@@ -1,6 +1,9 @@
 //Files: src/core/domain/contract/__tests__/PaginatedResultContract.test.ts
-import {describe, expect, it} from "vitest";
-import type {PaginatedMetaContract, PaginatedResultContract,} from "../PaginatedResultContract";
+import { describe, expect, it } from "vitest";
+import type {
+  PaginatedMetaContract,
+  PaginatedResultContract,
+} from "../PaginatedResultContract";
 
 interface MockViolationRecord {
   readonly id: string;

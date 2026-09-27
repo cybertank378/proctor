@@ -1,12 +1,10 @@
 // Files: src/modules/exam-monitoring/__tests__/applications/usecase/UnlockExamAttemptUseCase.test.ts
-import {describe, expect, it, vi} from "vitest";
-import {ProctorUserEntity} from "@/modules/auth/domain/entity/ProctorUserEntity";
-import {UnlockExamAttemptUseCase} from "@/modules/exam-monitoring/application/usecase/UnlockExamAttemptUseCase";
-import type {
-    ExamMonitoringRepositoryContract
-} from "@/modules/exam-monitoring/domain/contract/ExamMonitoringRepositoryContract";
-import {ExamAttemptEntity} from "@/modules/exam-monitoring/domain/entity/ExamAttemptEntity";
-import type {MoodleRpcClientContract} from "@/shared/contract/MoodleRpcClientContract";
+import { describe, expect, it, vi } from "vitest";
+import { ProctorUserEntity } from "@/modules/auth/domain/entity/ProctorUserEntity";
+import { UnlockExamAttemptUseCase } from "@/modules/exam-monitoring/application/usecase/UnlockExamAttemptUseCase";
+import type { ExamMonitoringRepositoryContract } from "@/modules/exam-monitoring/domain/contract/ExamMonitoringRepositoryContract";
+import { ExamAttemptEntity } from "@/modules/exam-monitoring/domain/entity/ExamAttemptEntity";
+import type { MoodleRpcClientContract } from "@/shared/contract/MoodleRpcClientContract";
 
 describe("UnlockExamAttemptUseCase (Application Layer Suite)", () => {
   const proctor = new ProctorUserEntity({

@@ -1,5 +1,5 @@
 //Files: src/core/application/result/AppResultFactory.ts
-import {AppResult} from "@/core/application/result/AppResult";
+import { AppResult } from "@/core/application/result/AppResult";
 
 export const AppResultFactory = {
   success<T>(

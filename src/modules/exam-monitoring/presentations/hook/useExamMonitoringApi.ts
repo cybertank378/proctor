@@ -1,13 +1,13 @@
 // Files: src/modules/exam-monitoring/presentations/hook/useExamMonitoringApi.ts
 "use client";
 
-import {useCallback, useState} from "react";
+import { useCallback, useState } from "react";
 import type {
   ActiveQuizResolutionDto,
   ExamAttemptSummaryDto,
 } from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
 import type { MoodleActiveQuizItem } from "@/shared/contract/MoodleRpcClientContract";
-import {showErrorToast, showSuccessToast} from "@/shared-ui/component/Toast";
+import { showErrorToast, showSuccessToast } from "@/shared-ui/component/Toast";
 
 interface ApiResponse<T> {
   readonly success: boolean;
@@ -23,9 +23,9 @@ export function useExamMonitoringApi() {
   const [loading, setLoading] = useState<boolean>(false);
   const [activeQuizInfo, setActiveQuizInfo] =
     useState<ActiveQuizResolutionDto | null>(null);
-  const [availableQuizzes, setAvailableQuizzes] = useState<readonly MoodleActiveQuizItem[]>(
-    [],
-  );
+  const [availableQuizzes, setAvailableQuizzes] = useState<
+    readonly MoodleActiveQuizItem[]
+  >([]);
 
   const fetchActiveQuiz = useCallback(
     async (roomNumber?: string): Promise<number | null> => {
@@ -68,34 +68,33 @@ export function useExamMonitoringApi() {
     [],
   );
 
-  const fetchAvailableQuizzes = useCallback(
-    async (): Promise<void> => {
-      setLoading(true);
-      try {
-        const token = sessionStorage.getItem("proctor_access_token");
-        const url = new URL("/api/monitoring/sessions", window.location.origin);
-        
-        const res = await fetch(url.toString(), {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          cache: "no-store",
-        });
+  const fetchAvailableQuizzes = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    try {
+      const token = sessionStorage.getItem("proctor_access_token");
+      const url = new URL("/api/monitoring/sessions", window.location.origin);
 
-        const json = await res.json();
-        if (res.ok && json.success) {
-          setAvailableQuizzes(json.data || []);
-        } else {
-          showErrorToast(json.error || json.message || "Gagal memuat daftar kuis.");
-        }
-      } catch {
-        showErrorToast("Kesalahan jaringan saat memuat daftar kuis.");
-      } finally {
-        setLoading(false);
+      const res = await fetch(url.toString(), {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: "no-store",
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setAvailableQuizzes(json.data || []);
+      } else {
+        showErrorToast(
+          json.error || json.message || "Gagal memuat daftar kuis.",
+        );
       }
-    },
-    [],
-  );
+    } catch {
+      showErrorToast("Kesalahan jaringan saat memuat daftar kuis.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const fetchAttempts = useCallback(
     async (quizId?: number, roomNumber?: string): Promise<void> => {

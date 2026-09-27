@@ -1,6 +1,6 @@
 //Files: src/core/domain/contract/__tests__/DataInvalidationContract.test.ts
-import {describe, expect, it} from "vitest";
-import type {DataInvalidationContract} from "../DataInvalidationContract";
+import { describe, expect, it } from "vitest";
+import type { DataInvalidationContract } from "../DataInvalidationContract";
 
 class InMemoryCacheInvalidator implements DataInvalidationContract {
   private readonly invalidatedTags = new Set<string>();

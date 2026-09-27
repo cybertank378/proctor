@@ -3,8 +3,8 @@
 
 import type React from "react";
 import type Webcam from "react-webcam";
-import {IntegrityBadge} from "@/sections/exam-session/atoms/IntegrityBadge";
-import {CameraFeed} from "../atoms/CameraFeed";
+import { IntegrityBadge } from "@/sections/exam-session/atoms/IntegrityBadge";
+import { CameraFeed } from "../atoms/CameraFeed";
 
 interface ExamIntegrityMonitorProps {
   readonly webcamRef: React.RefObject<Webcam | null>;

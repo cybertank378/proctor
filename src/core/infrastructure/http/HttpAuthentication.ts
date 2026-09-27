@@ -1,5 +1,5 @@
 //Files: src/core/infrastructure/http/HttpAuthentication.ts
-import {UnauthorizedError} from "@/core/domain/error/UnauthorizedError";
+import { UnauthorizedError } from "@/core/domain/error/UnauthorizedError";
 
 export interface AuthenticatedProctorContext {
   readonly token: string;

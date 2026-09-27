@@ -1,35 +1,35 @@
 // Files: src/shared-ui/component/TabLayout/types.ts
 
-import type {ButtonHTMLAttributes, HTMLAttributes, ReactNode} from "react"
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
 //////////////////////////////////////////////////////////////
 // TYPES
 //////////////////////////////////////////////////////////////
 
-export type TabOrientation = "horizontal" | "vertical"
+export type TabOrientation = "horizontal" | "vertical";
 
-export type TabSize = "sm" | "md" | "lg"
+export type TabSize = "sm" | "md" | "lg";
 
 //////////////////////////////////////////////////////////////
 // TAB LAYOUT
 //////////////////////////////////////////////////////////////
 
 export interface TabLayoutProps extends HTMLAttributes<HTMLDivElement> {
-  readonly value?: string
+  readonly value?: string;
 
-  readonly defaultValue?: string
+  readonly defaultValue?: string;
 
-  readonly size?: TabSize
+  readonly size?: TabSize;
 
-  readonly orientation?: TabOrientation
+  readonly orientation?: TabOrientation;
 
-  readonly fullWidth?: boolean
+  readonly fullWidth?: boolean;
 
-  readonly keepMounted?: boolean
+  readonly keepMounted?: boolean;
 
-  readonly children: ReactNode
+  readonly children: ReactNode;
 
-  readonly onValueChange?: (value: string) => void
+  readonly onValueChange?: (value: string) => void;
 }
 
 //////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ export interface TabLayoutProps extends HTMLAttributes<HTMLDivElement> {
 //////////////////////////////////////////////////////////////
 
 export interface TabListProps extends HTMLAttributes<HTMLDivElement> {
-  readonly children: ReactNode
+  readonly children: ReactNode;
 }
 
 //////////////////////////////////////////////////////////////
@@ -45,11 +45,11 @@ export interface TabListProps extends HTMLAttributes<HTMLDivElement> {
 //////////////////////////////////////////////////////////////
 
 export interface TabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  readonly value: string
+  readonly value: string;
 
-  readonly disabled?: boolean
+  readonly disabled?: boolean;
 
-  readonly children: ReactNode
+  readonly children: ReactNode;
 }
 
 //////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ export interface TabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 //////////////////////////////////////////////////////////////
 
 export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
-  readonly value: string
+  readonly value: string;
 
-  readonly children: ReactNode
+  readonly children: ReactNode;
 }
 
 //////////////////////////////////////////////////////////////
@@ -67,15 +67,15 @@ export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
 //////////////////////////////////////////////////////////////
 
 export interface TabContextValue {
-  readonly value: string
+  readonly value: string;
 
-  readonly size: TabSize
+  readonly size: TabSize;
 
-  readonly orientation: TabOrientation
+  readonly orientation: TabOrientation;
 
-  readonly fullWidth: boolean
+  readonly fullWidth: boolean;
 
-  readonly keepMounted: boolean
+  readonly keepMounted: boolean;
 
-  readonly setValue: (value: string) => void
+  readonly setValue: (value: string) => void;
 }

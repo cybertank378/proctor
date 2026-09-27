@@ -1,6 +1,6 @@
 //Files: src/core/domain/contract/__tests__/MutationResultContract.test.ts
-import {describe, expect, it} from "vitest";
-import type {MutationResultContract} from "../MutationResultContract";
+import { describe, expect, it } from "vitest";
+import type { MutationResultContract } from "../MutationResultContract";
 
 describe("MutationResultContract", () => {
   it("harus merepresentasikan hasil mutasi sukses dengan identitas entitas yang terdampak (AAA Pattern)", () => {
