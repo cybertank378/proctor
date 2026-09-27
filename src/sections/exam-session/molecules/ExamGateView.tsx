@@ -1,22 +1,26 @@
 //Files: src/sections/exam-session/organisms/ExamGateView.tsx
 "use client";
 
-import {Camera, CheckCircle2} from "lucide-react";
+import {Camera, CheckCircle2, Monitor} from "lucide-react";
 import type React from "react";
 import {PreExamCheckItem} from "@/sections/exam-session/atoms/PreExamCheckItem";
 import Button from "@/shared-ui/component/Button";
 
 interface ExamGateViewProps {
   readonly quizId: number;
-  readonly hasPermission: boolean;
+  readonly hasCameraPermission: boolean;
+  readonly hasScreenPermission: boolean;
   readonly onRequestCamera: () => void;
+  readonly onRequestScreen: () => void;
   readonly onStartExam: () => void;
 }
 
 export const ExamGateView: React.FC<ExamGateViewProps> = ({
   quizId,
-  hasPermission,
+  hasCameraPermission,
+  hasScreenPermission,
   onRequestCamera,
+  onRequestScreen,
   onStartExam,
 }) => (
   <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-4">
@@ -41,10 +45,15 @@ export const ExamGateView: React.FC<ExamGateViewProps> = ({
           title="Izin Akses Kamera"
           description="Kamera wajib aktif menghadap wajah siswa selama ujian berlangsung."
         />
+        <PreExamCheckItem
+          icon={Monitor}
+          title="Izin Rekam Layar"
+          description="Sistem akan merekam layar untuk memastikan tidak ada aktivitas mencurigakan di luar browser ujian."
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-2.5 pt-2">
-        {!hasPermission ? (
+        {!hasCameraPermission ? (
           <Button
             type="button"
             color="primary"
@@ -54,6 +63,17 @@ export const ExamGateView: React.FC<ExamGateViewProps> = ({
             className="h-11 w-full text-xs font-semibold"
           >
             Izinkan & Aktifkan Kamera
+          </Button>
+        ) : !hasScreenPermission ? (
+          <Button
+            type="button"
+            color="secondary"
+            variant="filled"
+            leftIcon={Monitor}
+            onClick={onRequestScreen}
+            className="h-11 w-full text-xs font-semibold"
+          >
+            Izinkan Rekam Layar
           </Button>
         ) : (
           <Button
