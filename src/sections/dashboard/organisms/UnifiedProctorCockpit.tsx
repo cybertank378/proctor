@@ -115,6 +115,11 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
       </TableCell>
       <TableCell className="py-2">
         <StatusBadge status={item.status} isLocked={item.isLocked} />
+        {item.isLocked && item.unlockPin && (
+          <div className="mt-1 text-[10px] text-slate-500">
+            PIN: <span className="font-bold font-mono text-slate-700">{item.unlockPin}</span>
+          </div>
+        )}
       </TableCell>
       <TableCell className="text-right py-2">
         {canUnlock ? (
