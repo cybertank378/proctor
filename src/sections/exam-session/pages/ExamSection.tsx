@@ -66,11 +66,14 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
       // Jika stream dihentikan oleh user (misal klik 'Stop sharing')
       stream.getVideoTracks()[0].addEventListener("ended", () => {
         setHasScreenPermission(false);
+        setIsExamStarted(false);
+        alert("Sesi ujian dihentikan sementara karena Anda menghentikan pembagian layar. Silakan izinkan kembali untuk melanjutkan.");
       });
 
       setHasScreenPermission(true);
     } catch (err) {
       console.warn("User menolak izin berbagi layar:", err);
+      alert("Akses perekaman layar ditolak. Anda wajib membagikan layar untuk dapat memulai atau melanjutkan ujian.");
     }
   };
 
