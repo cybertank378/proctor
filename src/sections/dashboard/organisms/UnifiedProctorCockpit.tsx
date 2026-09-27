@@ -19,10 +19,10 @@ import type React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import type {ExamAttemptSummaryDto} from "@/modules/exam-monitoring/domain/dto/MonitoringResponseDto";
 import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
-import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
 import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
 import {MetricCard} from "@/sections/exam-monitoring/molecules/MetricCard";
 import {ExamSessionSelectorModal} from "@/sections/exam-monitoring/organisms/ExamSessionSelectorModal";
+import {useLiveProctoring} from "@/modules/live-proctoring/presentations/hook/useLiveProctoring";
 import {ProctorChatPanel} from "@/sections/proctor-chat/organisms/ProctorChatPanel";
 import {ProctorAssignmentModal} from "@/sections/proctor-management/organisms/ProctorAssignmentModal";
 import {EvidenceCard} from "@/sections/violations/molecules/EvidenceCard";
@@ -53,6 +53,7 @@ interface AttemptRowItemProps {
   readonly isLoading: boolean;
   readonly onSelect: (id: string) => void;
   readonly onUnlock: (attemptId: number) => void;
+  readonly liveFrame?: string;
 }
 
 const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
@@ -61,6 +62,7 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
   isLoading,
   onSelect,
   onUnlock,
+  liveFrame,
 }) => {
   const canUnlock =
     item.isLocked &&
@@ -77,19 +79,29 @@ const AttemptRowItem: React.FC<AttemptRowItemProps> = ({
       <TableCell className="font-mono text-xs font-bold text-slate-900 py-2">
         #{item.attemptId}
       </TableCell>
-      {/* Kolom Siswa & Kelas */}
       <TableCell className="text-xs py-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="font-bold text-slate-900 truncate max-w-[180px]">
-            {item.studentName || `Siswa #${item.userId}`}
-          </span>
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-            <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 font-medium text-blue-700 border border-blue-100">
-              {item.className || "-"}
+        <div className="flex items-center gap-3">
+          {/* Live Thumbnail */}
+          <div className="relative shrink-0 size-10 rounded overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center">
+            {liveFrame ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={liveFrame} alt="Live feed" className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-[9px] text-slate-400 font-medium">Offline</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-bold text-slate-900 truncate max-w-[150px]">
+              {item.studentName || `Siswa #${item.userId}`}
             </span>
-            <span className="font-mono text-[10px] text-slate-400">
-              ID: {item.userId}
-            </span>
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 font-medium text-blue-700 border border-blue-100">
+                {item.className || "-"}
+              </span>
+              <span className="font-mono text-[10px] text-slate-400">
+                ID: {item.userId}
+              </span>
+            </div>
           </div>
         </div>
       </TableCell>
@@ -165,6 +177,14 @@ export const UnifiedProctorCockpit: React.FC = () => {
   } = useViolationsApi();
 
   const [quizIdFilter, setQuizIdFilter] = useState<string>("");
+  
+  const activeQuizId = useMemo(() => {
+    const val = Number(quizIdFilter);
+    return Number.isInteger(val) && val > 0 ? val : undefined;
+  }, [quizIdFilter]);
+
+  const { frames, isConnected } = useLiveProctoring(activeQuizId);
+
   const [roomFilter, setRoomFilter] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isDetectingQuiz, setIsDetectingQuiz] = useState<boolean>(false);
@@ -194,11 +214,6 @@ export const UnifiedProctorCockpit: React.FC = () => {
   useEffect(() => {
     void initActiveQuiz(roomFilter);
   }, [initActiveQuiz, roomFilter]);
-
-  const activeQuizId = useMemo(() => {
-    const val = Number(quizIdFilter);
-    return Number.isInteger(val) && val > 0 ? val : undefined;
-  }, [quizIdFilter]);
 
   const loadMonitoringData = useCallback(async () => {
     const resolvedQuizId = activeQuizId ? Number(activeQuizId) : undefined;
@@ -416,8 +431,14 @@ export const UnifiedProctorCockpit: React.FC = () => {
           <div className="mb-2 flex shrink-0 items-center justify-between border-b border-slate-100 pb-2">
             <div className="flex items-center gap-2">
               <Users className="size-4 text-indigo-600 shrink-0" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 truncate">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 truncate flex items-center gap-2">
                 Pemantauan Siswa Real-Time
+                {activeQuizId && (
+                  <span className="flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    <span className={`size-1.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                    {isConnected ? "Live Stream Aktif" : "Menghubungkan..."}
+                  </span>
+                )}
               </h2>
             </div>
             <span className="text-[11px] font-semibold text-slate-400 shrink-0 ml-2">
@@ -463,6 +484,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
                       isLoading={monitoringLoading}
                       onSelect={(id) => setSelectedAttemptRecordId(id)}
                       onUnlock={(attId) => void handleUnlockAttempt(attId)}
+                      liveFrame={frames[item.id]?.imagePath}
                     />
                   ))
                 )}
