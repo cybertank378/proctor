@@ -12,9 +12,11 @@ import {ExamView} from "../organisms/ExamView";
 
 interface ExamSectionProps {
   readonly quizId: number;
+  readonly userId?: number;
+  readonly attemptId?: number;
 }
 
-export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
+export const ExamSection: React.FC<ExamSectionProps> = ({ quizId, userId, attemptId: initialAttemptId }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean>(false);
   const [hasScreenPermission, setHasScreenPermission] = useState<boolean>(false);
   const [isExamStarted, setIsExamStarted] = useState<boolean>(false);
@@ -35,7 +37,8 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
     lastWarning,
   } = useAntiCheatEngine({
     quizId,
-    attemptId: sessionData?.attemptId,
+    attemptId: sessionData?.attemptId ?? initialAttemptId,
+    studentIdentifier: userId ? String(userId) : "Siswa",
     isExamActive: isExamStarted,
     maxTolerance: sessionData?.maxAllowedViolations ?? 3,
     webcamRef,
@@ -91,14 +94,16 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId }) => {
     );
   }
 
+  const fallbackEmbedUrl = `https://ujian.smpn29jkt.sch.id/mod/quiz/view.php?id=${quizId}&guard_runner=1`;
+  const embedUrl = sessionData?.moodleEmbedUrl 
+    ? (sessionData.moodleEmbedUrl.includes('?') ? `${sessionData.moodleEmbedUrl}&guard_runner=1` : `${sessionData.moodleEmbedUrl}?guard_runner=1`)
+    : fallbackEmbedUrl;
+
   return (
     <ExamView
-      embedUrl={
-        sessionData?.moodleEmbedUrl ??
-        `https://ujian.smpn29jkt.sch.id/mod/quiz/view.php?id=${quizId}`
-      }
+      embedUrl={embedUrl}
       isLocked={isCurrentlyLocked}
-      attemptId={sessionData?.attemptId}
+      attemptId={sessionData?.attemptId ?? initialAttemptId}
       violationCount={violationCount}
       maxViolations={sessionData?.maxAllowedViolations ?? 3}
       lastWarning={lastWarning}
