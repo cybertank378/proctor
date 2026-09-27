@@ -40,6 +40,7 @@ import {
   TableRow,
 } from "@/shared-ui/component/Table";
 import TextField from "@/shared-ui/component/TextField";
+import { useViolationsApi } from "@/modules/violations/presentations/hook/useViolationsApi";
 
 const ITEMS_PER_PAGE = 7;
 
