@@ -162,6 +162,35 @@ export function useAntiCheatEngine({
     return "";
   }, [captureScreenSnapshot, captureWebcamSnapshot]);
 
+  // Push frame ke API Stream tiap 10 detik
+  useEffect(() => {
+    if (!isExamActive || isLocked || !attemptId) return;
+
+    const interval = setInterval(() => {
+      if (document.hidden) return; // Jangan push black frame jika minimize
+
+      const screenshot = captureSnapshot();
+      if (!screenshot) return;
+
+      const payload = {
+        quizId: Number(quizId),
+        attemptId: attemptId ? Number(attemptId) : undefined, 
+        userId: Number(studentIdentifier),
+        screenshotBase64: screenshot,
+      };
+
+      fetch("/api/proctoring/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch((err) => {
+        console.warn("[ANTI-CHEAT] Gagal upload frame stream:", err);
+      });
+    }, 10000); // 10 detik
+
+    return () => clearInterval(interval);
+  }, [isExamActive, isLocked, attemptId, quizId, studentIdentifier, captureSnapshot]);
+
   const triggerViolation = useCallback(
     async (type: ViolationType, reason: string) => {
       if (isLocked) return;
