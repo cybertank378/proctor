@@ -4,6 +4,7 @@ import {AuthFactory} from "@/modules/auth/infrastructure/factory/AuthFactory";
 import {ExamMonitoringService} from "../../application/service/ExamMonitoringService";
 import {GetActiveAttemptsUseCase} from "../../application/usecase/GetActiveAttemptsUseCase";
 import {GetActiveQuizUseCase} from "../../application/usecase/GetActiveQuizUseCase";
+import {ListActiveQuizzesUseCase} from "../../application/usecase/ListActiveQuizzesUseCase";
 import {UnlockExamAttemptUseCase} from "../../application/usecase/UnlockExamAttemptUseCase";
 import {ExamMonitoringHttpHandler} from "../http/ExamMonitoringHttpHandler";
 import {PrismaExamMonitoringRepository} from "../repository/PrismaExamMonitoringRepository";
@@ -34,6 +35,12 @@ export const ExamMonitoringFactory = {
     );
   },
 
+  createListActiveQuizzesUseCase(): ListActiveQuizzesUseCase {
+    return new ListActiveQuizzesUseCase(
+      ExamMonitoringFactory.createRpcClient(),
+    );
+  },
+
   createUnlockExamAttemptUseCase(): UnlockExamAttemptUseCase {
     return new UnlockExamAttemptUseCase(
       ExamMonitoringFactory.createRepository(),
@@ -45,6 +52,7 @@ export const ExamMonitoringFactory = {
     return new ExamMonitoringService(
       ExamMonitoringFactory.createGetActiveAttemptsUseCase(),
       ExamMonitoringFactory.createGetActiveQuizUseCase(),
+      ExamMonitoringFactory.createListActiveQuizzesUseCase(),
     );
   },
 

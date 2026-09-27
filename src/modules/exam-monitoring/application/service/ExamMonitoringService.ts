@@ -7,11 +7,13 @@ import type {GetAttemptsFilterDto} from "../../domain/dto/MonitoringRequestDto";
 import type {ActiveQuizResolutionDto, ExamAttemptSummaryDto,} from "../../domain/dto/MonitoringResponseDto";
 import type {GetActiveAttemptsUseCase} from "../usecase/GetActiveAttemptsUseCase";
 import type {GetActiveQuizUseCase} from "../usecase/GetActiveQuizUseCase";
+import type {ListActiveQuizzesUseCase} from "../usecase/ListActiveQuizzesUseCase";
 
 export class ExamMonitoringService extends BaseService {
   constructor(
     private readonly getActiveAttemptsUseCase: GetActiveAttemptsUseCase,
     private readonly getActiveQuizUseCase: GetActiveQuizUseCase,
+    private readonly listActiveQuizzesUseCase: ListActiveQuizzesUseCase,
   ) {
     super();
   }
@@ -28,5 +30,11 @@ export class ExamMonitoringService extends BaseService {
     proctor: ProctorUserEntity,
   ): Promise<AppResult<ActiveQuizResolutionDto | null>> {
     return this.getActiveQuizUseCase.execute({ roomNumber, proctor });
+  }
+
+  public async listActiveQuizzes(
+    proctor: ProctorUserEntity,
+  ): Promise<AppResult<readonly any[]>> {
+    return this.listActiveQuizzesUseCase.execute({ proctor });
   }
 }

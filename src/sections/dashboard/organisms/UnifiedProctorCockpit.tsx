@@ -22,6 +22,7 @@ import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook
 import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
 import {StatusBadge} from "@/sections/exam-monitoring/atoms/StatusBadge";
 import {MetricCard} from "@/sections/exam-monitoring/molecules/MetricCard";
+import {ExamSessionSelectorModal} from "@/sections/exam-monitoring/organisms/ExamSessionSelectorModal";
 import {ProctorChatPanel} from "@/sections/proctor-chat/organisms/ProctorChatPanel";
 import {ProctorAssignmentModal} from "@/sections/proctor-management/organisms/ProctorAssignmentModal";
 import {EvidenceCard} from "@/sections/violations/molecules/EvidenceCard";
@@ -144,7 +145,9 @@ export const UnifiedProctorCockpit: React.FC = () => {
     loading: monitoringLoading,
     attempts,
     activeQuizInfo,
+    availableQuizzes,
     fetchActiveQuiz,
+    fetchAvailableQuizzes,
     fetchAttempts,
     unlockStudent,
   } = useExamMonitoringApi();
@@ -166,6 +169,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
   >(null);
   const [modalAttemptId, setModalAttemptId] = useState<string | null>(null);
   const [isProctorModalOpen, setIsProctorModalOpen] = useState<boolean>(false);
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState<boolean>(false);
 
   const [chatState, setChatState] = useState<ChatPanelState>("normal");
   const [unreadCount, setUnreadCount] = useState<number>(0);
@@ -317,7 +321,7 @@ export const UnifiedProctorCockpit: React.FC = () => {
             Scope Pengawasan:
           </span>
 
-          <div className="w-full">
+          <div className="flex gap-2 w-full">
             <TextField
               size="sm"
               variant="outlined"
@@ -329,6 +333,17 @@ export const UnifiedProctorCockpit: React.FC = () => {
               helperText={quizHelperLabel}
               success={Boolean(activeQuizInfo)}
             />
+            <Button
+              type="button"
+              color="secondary"
+              variant="outline"
+              size="sm"
+              className="h-9 px-3 shrink-0 self-start"
+              onClick={() => setIsSessionModalOpen(true)}
+              title="Pilih Kuis dari Moodle"
+            >
+              Pilih
+            </Button>
           </div>
 
           <div className="w-full">
@@ -659,6 +674,22 @@ export const UnifiedProctorCockpit: React.FC = () => {
         isOpen={isProctorModalOpen}
         defaultRoomNumber={roomFilter}
         onClose={() => setIsProctorModalOpen(false)}
+      />
+
+      {/* Modal Pemilihan Sesi Ujian */}
+      <ExamSessionSelectorModal
+        isOpen={isSessionModalOpen}
+        onClose={() => setIsSessionModalOpen(false)}
+        availableQuizzes={availableQuizzes}
+        isLoading={monitoringLoading}
+        onSelectQuiz={(quizId) => {
+          setQuizIdFilter(String(quizId));
+          setCurrentPage(1);
+          setTimeout(() => {
+            void fetchAttempts(quizId, roomFilter);
+          }, 100);
+        }}
+        onFetch={fetchAvailableQuizzes}
       />
     </div>
   );
