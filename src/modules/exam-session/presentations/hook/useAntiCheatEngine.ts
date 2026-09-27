@@ -2,9 +2,9 @@
 "use client";
 
 import type React from "react";
-import {useCallback, useEffect, useRef, useState} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type Webcam from "react-webcam";
-import type {ViolationType} from "@/generated/prisma/enums";
+import type { ViolationType } from "@/generated/prisma/enums";
 
 interface UseAntiCheatOptions {
   readonly quizId: number;
@@ -69,6 +69,12 @@ export function useAntiCheatEngine({
   // Tangkap snapshot webcam siswa
   const captureWebcamSnapshot = useCallback((): string => {
     try {
+      // Jika tab tersembunyi (diminimalkan/pindah tab), browser akan freeze kamera dan me-return frame hitam.
+      // Langsung gunakan buffer terakhir yang valid.
+      if (typeof document !== "undefined" && document.hidden && lastActiveSnapshotRef.current) {
+        return lastActiveSnapshotRef.current;
+      }
+
       if (webcamRef?.current) {
         const imageSrc = webcamRef.current.getScreenshot({
           width: 640,
@@ -192,10 +198,10 @@ export function useAntiCheatEngine({
   }, [isExamActive, isLocked, attemptId, quizId, studentIdentifier, captureSnapshot]);
 
   const triggerViolation = useCallback(
-    async (type: ViolationType, reason: string) => {
+    async (type: ViolationType, reason: string, preCapturedSnapshot?: string) => {
       if (isLocked) return;
 
-      const screenshot = captureSnapshot();
+      const screenshot = preCapturedSnapshot || captureSnapshot();
       setLastWarning(reason);
 
       const payload = {
@@ -262,14 +268,20 @@ export function useAntiCheatEngine({
 
     const onVisibilityChange = () => {
       if (document.hidden) {
+        // Tangkap sesegera mungkin saat event pindah tab terdeteksi
+        const immediateSnapshot = captureSnapshot();
         void triggerViolation(
           "TAB_SWITCH" as ViolationType,
           "Siswa terdeteksi beralih tab atau meminimalkan browser ujian.",
+          immediateSnapshot
         );
       }
     };
 
     const onWindowBlur = () => {
+      // Tangkap bukti segera sebelum browser sempat menidurkan (freeze) thread atau rendering
+      const immediateSnapshot = captureSnapshot();
+      
       if (blurTimeout) clearTimeout(blurTimeout);
       blurTimeout = setTimeout(() => {
         // Abaikan jika fokus berpindah ke dalam iframe kuis Moodle
@@ -284,9 +296,10 @@ export function useAntiCheatEngine({
           void triggerViolation(
             "WINDOW_BLUR" as ViolationType,
             "Jendela ujian kehilangan fokus (terdeteksi membuka aplikasi lain).",
+            immediateSnapshot // <-- Kirim bukti yang sudah kita tangkap 3 detik lalu
           );
         }
-      }, 200);
+      }, 3000);
     };
 
     const onWindowFocus = () => {
