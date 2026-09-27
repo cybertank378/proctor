@@ -80,6 +80,8 @@ model ExamAttemptRecord {
   quizId                 Int // Sesuai dengan id kuis pada tabel mdl_quiz
   userId                 Int // Sesuai dengan id siswa pada tabel mdl_user
   attemptId              Int           @unique // Sesuai dengan id attempt pengerjaan pada mdl_quiz_attempts
+  studentName            String?       @db.VarChar(255)
+  className              String?       @db.VarChar(100)
   roomNumber             String?       @db.VarChar(50) // Ruangan tempat siswa mengerjakan kuis
   status                 AttemptStatus @default(IN_PROGRESS)
   violationCount         Int           @default(0)

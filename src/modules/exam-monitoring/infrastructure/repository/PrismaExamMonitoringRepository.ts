@@ -120,6 +120,8 @@ export class PrismaExamMonitoringRepository
             quizId: item.quizId,
             userId: item.userId,
             attemptId: item.attemptId,
+            studentName: item.studentName,
+            className: item.className,
             roomNumber: item.roomNumber ?? "Umum",
             status: (item.status === "finished"
               ? "COMPLETED"
@@ -136,6 +138,8 @@ export class PrismaExamMonitoringRepository
           return prisma.examAttemptRecord.upsert({
             where: { attemptId: item.attemptId },
             update: {
+              studentName: item.studentName,
+              className: item.className,
               status: (item.status === "finished" ? "COMPLETED" : undefined) as
                 | AttemptStatus
                 | undefined,
