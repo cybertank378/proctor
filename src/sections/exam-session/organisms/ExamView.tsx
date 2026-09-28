@@ -23,6 +23,7 @@ export interface ExamViewProps {
 export const ExamView: React.FC<ExamViewProps> = ({
   embedUrl,
   isLocked,
+  attemptId,
   violationCount,
   maxViolations,
   lastWarning,
