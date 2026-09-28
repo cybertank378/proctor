@@ -26,7 +26,7 @@ export const ExamLockedOverlay: React.FC<ExamLockedOverlayProps> = ({
   const [isUnlocking, setIsUnlocking] = useState(false);
 
   useEffect(() => {
-    console.error(
+    console.warn(
       `%c[EXAM-LOCKED-OVERLAY ACTIVE] 🔒 Layar siswa diblokir oleh overlay penguncian!\n` +
         `Attempt ID: ${attemptId ?? "None"} | Pelanggaran: ${violationCount}/${maxAllowedViolations}\n` +
         `Siswa harus meminta Pengawas Ruang untuk membuka kunci ujian via PIN atau Remote.`,

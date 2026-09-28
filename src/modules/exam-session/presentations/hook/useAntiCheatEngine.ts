@@ -279,7 +279,7 @@ export function useAntiCheatEngine({
         if (json.success && json.data) {
           setViolationCount(json.data.currentViolations);
           if (json.data.isLocked) {
-            console.error(
+            console.warn(
               `%c[EXAM-LOCKOUT ACTIVATED] ⛔ LAYAR TERKUNCI OLEH SERVER!\n` +
                 `Siswa tidak dapat melanjutkan ujian karena telah melebihi batas pelanggaran.\n` +
                 `Total Pelanggaran: ${json.data.currentViolations}/${maxTolerance}\n` +
@@ -296,7 +296,7 @@ export function useAntiCheatEngine({
           setViolationCount((prev) => {
             const next = prev + 1;
             if (next >= maxTolerance) {
-              console.error(
+              console.warn(
                 `%c[EXAM-LOCKOUT ACTIVATED] ⛔ LAYAR TERKUNCI SECARA LOKAL (Batas Toleransi Tercapai)!\n` +
                   `Total Pelanggaran: ${next}/${maxTolerance}\n` +
                   `Alasan: ${reason}`,
