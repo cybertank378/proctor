@@ -10,7 +10,16 @@ export class MoodleQuizAdapter implements MoodleQuizAdapterContract {
       process.env.NEXT_PUBLIC_MOODLE_URL ?? "https://ujian.smpn29jkt.sch.id";
   }
 
-  public getQuizEmbedUrl(quizId: number, cmid?: number): string {
+  public getQuizEmbedUrl(
+    quizId: number,
+    cmid?: number,
+    userId?: number,
+    signature?: string,
+  ): string {
+    if (userId && signature) {
+      const cmidParam = cmid && cmid > 0 ? `&cmid=${cmid}` : "";
+      return `${this.baseUrl}/mod/quiz/accessrule/guard/launch.php?quizid=${quizId}${cmidParam}&uid=${userId}&sig=${signature}`;
+    }
     if (cmid && cmid > 0) {
       return `${this.baseUrl}/mod/quiz/view.php?id=${cmid}`;
     }

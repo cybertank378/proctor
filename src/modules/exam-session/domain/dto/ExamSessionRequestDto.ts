@@ -15,6 +15,8 @@ export interface VerifyAttemptRequestDto {
   readonly quizId: number;
   readonly attemptId?: number;
   readonly cmid?: number;
+  readonly userId?: number;
+  readonly signature?: string;
 }
 
 export interface StartExamSessionRequestDto {

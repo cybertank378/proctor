@@ -18,6 +18,7 @@ export default async function ExamPage({
 
   const uid = typeof sp.uid === "string" ? Number(sp.uid) : undefined;
   const cmid = typeof sp.cmid === "string" ? Number(sp.cmid) : undefined;
+  const sig = typeof sp.sig === "string" ? sp.sig : undefined;
   const attemptId =
     typeof sp.attemptId === "string" ? Number(sp.attemptId) : undefined;
 
@@ -26,6 +27,7 @@ export default async function ExamPage({
       quizId={Number(quizId)}
       cmid={cmid}
       userId={uid}
+      signature={sig}
       attemptId={attemptId}
     />
   );

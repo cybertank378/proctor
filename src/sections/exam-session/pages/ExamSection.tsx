@@ -14,6 +14,7 @@ interface ExamSectionProps {
   readonly quizId: number;
   readonly cmid?: number;
   readonly userId?: number;
+  readonly signature?: string;
   readonly attemptId?: number;
 }
 
@@ -21,6 +22,7 @@ export const ExamSection: React.FC<ExamSectionProps> = ({
   quizId,
   cmid,
   userId,
+  signature,
   attemptId: initialAttemptId,
 }) => {
   const [hasCameraPermission, setHasCameraPermission] =
@@ -58,9 +60,9 @@ export const ExamSection: React.FC<ExamSectionProps> = ({
 
   useEffect(() => {
     if (quizId > 0) {
-      void fetchSessionStatus(quizId, undefined, cmid);
+      void fetchSessionStatus(quizId, undefined, cmid, userId, signature);
     }
-  }, [quizId, cmid, fetchSessionStatus]);
+  }, [quizId, cmid, userId, signature, fetchSessionStatus]);
 
   // Ketika server mengonfirmasi status ujian tidak lagi terkunci, buka kunci engine lokal
   useEffect(() => {
@@ -71,7 +73,13 @@ export const ExamSection: React.FC<ExamSectionProps> = ({
   }, [sessionData?.isLocked, engineLocked, resetLock]);
 
   const handleRefreshStatus = async () => {
-    const data = await fetchSessionStatus(quizId, sessionData?.attemptId, cmid);
+    const data = await fetchSessionStatus(
+      quizId,
+      sessionData?.attemptId,
+      cmid,
+      userId,
+      signature,
+    );
     if (data && !data.isLocked) {
       resetLock();
     }
@@ -120,9 +128,12 @@ export const ExamSection: React.FC<ExamSectionProps> = ({
 
   const moodleBaseUrl =
     process.env.NEXT_PUBLIC_MOODLE_URL ?? "https://ujian.smpn29jkt.sch.id";
-  const fallbackEmbedUrl = cmid
-    ? `${moodleBaseUrl}/mod/quiz/view.php?id=${cmid}&guard_runner=1`
-    : `${moodleBaseUrl}/mod/quiz/view.php?q=${quizId}&guard_runner=1`;
+  const fallbackEmbedUrl =
+    userId && signature
+      ? `${moodleBaseUrl}/mod/quiz/accessrule/guard/launch.php?quizid=${quizId}${cmid ? `&cmid=${cmid}` : ""}&uid=${userId}&sig=${signature}`
+      : cmid
+        ? `${moodleBaseUrl}/mod/quiz/view.php?id=${cmid}&guard_runner=1`
+        : `${moodleBaseUrl}/mod/quiz/view.php?q=${quizId}&guard_runner=1`;
   const embedUrl = sessionData?.moodleEmbedUrl
     ? sessionData.moodleEmbedUrl.includes("?")
       ? `${sessionData.moodleEmbedUrl}&guard_runner=1`

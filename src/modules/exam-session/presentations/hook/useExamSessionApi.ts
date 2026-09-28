@@ -27,6 +27,8 @@ export function useExamSessionApi() {
       quizId: number,
       attemptId?: number,
       cmid?: number,
+      userId?: number,
+      signature?: string,
     ): Promise<ExamSessionStatusDto | null> => {
       setLoading(true);
       try {
@@ -37,6 +39,12 @@ export function useExamSessionApi() {
         }
         if (cmid) {
           url.searchParams.set("cmid", String(cmid));
+        }
+        if (userId) {
+          url.searchParams.set("userId", String(userId));
+        }
+        if (signature) {
+          url.searchParams.set("signature", signature);
         }
 
         const res = await fetch(url.toString());

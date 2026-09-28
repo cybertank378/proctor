@@ -97,6 +97,8 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
       const quizIdParam = url.searchParams.get("quizId");
       const attemptIdParam = url.searchParams.get("attemptId");
       const cmidParam = url.searchParams.get("cmid");
+      const userIdParam = url.searchParams.get("userId") ?? url.searchParams.get("uid");
+      const signatureParam = url.searchParams.get("signature") ?? url.searchParams.get("sig");
 
       if (!quizIdParam) {
         return HttpResponse.success(
@@ -112,6 +114,11 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
           cmidParam && !Number.isNaN(Number(cmidParam))
             ? Number(cmidParam)
             : undefined,
+        userId:
+          userIdParam && !Number.isNaN(Number(userIdParam))
+            ? Number(userIdParam)
+            : undefined,
+        signature: signatureParam ?? undefined,
         attemptId:
           attemptIdParam && !Number.isNaN(Number(attemptIdParam))
             ? Number(attemptIdParam)

@@ -26,14 +26,19 @@ export class VerifyAttemptSessionUseCase extends BaseUseCase<
       const safeQuizId = ExamSessionValidator.validateQuizId(input.quizId);
 
       const moodleBase =
-        process.env.NEXT_PUBLIC_MOODLE_URL ?? "https://ujian.smpn29jkt.sch.id";
-      let embedUrl = input.cmid
-        ? `${moodleBase}/mod/quiz/view.php?id=${input.cmid}`
-        : `${moodleBase}/mod/quiz/view.php?q=${safeQuizId}`;
+        process.env.NEXT_PUBLIC_MOODLE_URL ?? "http://moodle.local";
+      let embedUrl =
+        input.userId && input.signature
+          ? `${moodleBase}/mod/quiz/accessrule/guard/launch.php?quizid=${safeQuizId}${input.cmid ? `&cmid=${input.cmid}` : ""}&uid=${input.userId}&sig=${input.signature}`
+          : input.cmid
+            ? `${moodleBase}/mod/quiz/view.php?id=${input.cmid}`
+            : `${moodleBase}/mod/quiz/view.php?q=${safeQuizId}`;
       try {
         const generatedUrl = this.moodleAdapter.getQuizEmbedUrl(
           safeQuizId,
           input.cmid,
+          input.userId,
+          input.signature,
         );
         if (generatedUrl) embedUrl = generatedUrl;
       } catch {
