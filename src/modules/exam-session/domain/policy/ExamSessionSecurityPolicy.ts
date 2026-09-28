@@ -1,6 +1,6 @@
 // Files: src/modules/exam-session/domain/policy/ExamSessionSecurityPolicy.ts
 
-import type {ExamSessionEntity} from "../entity/ExamSessionEntity";
+import type { ExamSessionEntity } from "../entity/ExamSessionEntity";
 
 export const ExamSessionSecurityPolicy = {
   canContinueExam(session: ExamSessionEntity): boolean {

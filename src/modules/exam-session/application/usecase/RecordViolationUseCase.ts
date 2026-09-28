@@ -1,12 +1,12 @@
 // Files: src/modules/exam-session/application/usecase/RecordViolationUseCase.ts
 
-import {BaseUseCase} from "@/core/application/base/BaseUseCase";
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
-import type {ExamSessionRepositoryContract} from "../../domain/contract/ExamSessionRepositoryContract";
-import type {RecordViolationRequestDto} from "../../domain/dto/ExamSessionRequestDto";
-import type {RecordViolationResultDto} from "../../domain/dto/ExamSessionResponseDto";
-import {ExamSessionValidator} from "../../domain/validation/ExamSessionValidator";
+import { BaseUseCase } from "@/core/application/base/BaseUseCase";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
+import type { ExamSessionRepositoryContract } from "../../domain/contract/ExamSessionRepositoryContract";
+import type { RecordViolationRequestDto } from "../../domain/dto/ExamSessionRequestDto";
+import type { RecordViolationResultDto } from "../../domain/dto/ExamSessionResponseDto";
+import { ExamSessionValidator } from "../../domain/validation/ExamSessionValidator";
 
 export class RecordViolationUseCase extends BaseUseCase<
   RecordViolationRequestDto,

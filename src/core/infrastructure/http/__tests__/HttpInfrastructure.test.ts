@@ -1,12 +1,12 @@
 //Files: src/core/infrastructure/http/__tests__/HttpInfrastructure.test.ts
-import {describe, expect, it} from "vitest";
-import {UnauthorizedError} from "@/core/domain/error/UnauthorizedError";
-import {ValidationError} from "@/core/domain/error/ValidationError";
-import {BaseHttpHandler} from "../BaseHttpHandler";
-import {HttpAuthentication} from "../HttpAuthentication";
-import type {HttpRequest} from "../HttpRequest";
-import {HttpResponse} from "../HttpResponse";
-import {RouteErrorHandler} from "../RouteErrorHandler";
+import { describe, expect, it } from "vitest";
+import { UnauthorizedError } from "@/core/domain/error/UnauthorizedError";
+import { ValidationError } from "@/core/domain/error/ValidationError";
+import { BaseHttpHandler } from "../BaseHttpHandler";
+import { HttpAuthentication } from "../HttpAuthentication";
+import type { HttpRequest } from "../HttpRequest";
+import { HttpResponse } from "../HttpResponse";
+import { RouteErrorHandler } from "../RouteErrorHandler";
 
 describe("HttpAuthentication", () => {
   it("harus berhasil mengekstrak token bearer dari header Authorization yang valid (AAA Pattern)", () => {

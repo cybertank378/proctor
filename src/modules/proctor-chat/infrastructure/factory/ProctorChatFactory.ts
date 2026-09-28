@@ -1,11 +1,11 @@
 // src/modules/proctor-chat/infrastructure/factory/ProctorChatFactory.ts
-import {AuthFactory} from "@/modules/auth/infrastructure/factory/AuthFactory";
-import {ProctorChatService} from "../../application/service/ProctorChatService";
-import {GetRecentChatMessagesUseCase} from "../../application/usecase/GetRecentChatMessagesUseCase";
-import {PruneExpiredChatMessagesUseCase} from "../../application/usecase/PruneExpiredChatMessagesUseCase";
-import {SendChatMessageUseCase} from "../../application/usecase/SendChatMessageUseCase";
-import {ProctorChatHttpHandler} from "../http/ProctorChatHttpHandler";
-import {PrismaProctorChatRepository} from "../repository/PrismaProctorChatRepository";
+import { AuthFactory } from "@/modules/auth/infrastructure/factory/AuthFactory";
+import { ProctorChatService } from "../../application/service/ProctorChatService";
+import { GetRecentChatMessagesUseCase } from "../../application/usecase/GetRecentChatMessagesUseCase";
+import { PruneExpiredChatMessagesUseCase } from "../../application/usecase/PruneExpiredChatMessagesUseCase";
+import { SendChatMessageUseCase } from "../../application/usecase/SendChatMessageUseCase";
+import { ProctorChatHttpHandler } from "../http/ProctorChatHttpHandler";
+import { PrismaProctorChatRepository } from "../repository/PrismaProctorChatRepository";
 
 let httpHandlerInstance: ProctorChatHttpHandler | null = null;
 

@@ -1,13 +1,13 @@
 // Files: src/sections/proctor-chat/organisms/ProctorChatPanel.tsx
 "use client";
 
-import {DoorOpen, Hash, RefreshCw, Send} from "lucide-react";
+import { DoorOpen, Hash, RefreshCw, Send } from "lucide-react";
 import type React from "react";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useProctorChatApi} from "@/modules/proctor-chat/presentations/hook/useProctorChatApi";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useProctorChatApi } from "@/modules/proctor-chat/presentations/hook/useProctorChatApi";
 import Button from "@/shared-ui/component/Button";
 import TextField from "@/shared-ui/component/TextField";
-import {ChatMessageBubble} from "../molecules/ChatMessageBubble";
+import { ChatMessageBubble } from "../molecules/ChatMessageBubble";
 
 export interface ProctorChatPanelProps {
   readonly defaultQuizId?: number;

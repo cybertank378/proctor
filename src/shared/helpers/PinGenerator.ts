@@ -1,5 +1,5 @@
-import {AppConfig} from "@/shared/config/AppConfig";
 import crypto from "crypto";
+import { AppConfig } from "@/shared/config/AppConfig";
 
 export class PinGenerator {
   /**
@@ -12,7 +12,7 @@ export class PinGenerator {
       .createHmac("sha256", secret)
       .update(`${quizId}:${attemptId}`)
       .digest("hex");
-    
+
     // Ambil 6 karakter pertama hex, ubah ke integer, dan limit 6 digit
     const num = parseInt(hash.substring(0, 6), 16);
     const pin = (num % 1000000).toString().padStart(6, "0");

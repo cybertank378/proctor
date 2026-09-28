@@ -1,12 +1,12 @@
 //Files: src/core/domain/error/__tests__/DomainErrors.test.ts
-import {describe, expect, it} from "vitest";
-import {AppError} from "../AppError";
-import {ConflictError} from "../ConflictError";
-import {ForbiddenError} from "../ForbiddenError";
-import {InternalError} from "../InternalError";
-import {NotFoundError} from "../NotFoundError";
-import {UnauthorizedError} from "../UnauthorizedError";
-import {ValidationError} from "../ValidationError";
+import { describe, expect, it } from "vitest";
+import { AppError } from "../AppError";
+import { ConflictError } from "../ConflictError";
+import { ForbiddenError } from "../ForbiddenError";
+import { InternalError } from "../InternalError";
+import { NotFoundError } from "../NotFoundError";
+import { UnauthorizedError } from "../UnauthorizedError";
+import { ValidationError } from "../ValidationError";
 
 describe("Domain Errors Suite", () => {
   it("harus membuat instance AppError sebagai root class dengan statusCode dan message yang sesuai (AAA Pattern)", () => {

@@ -1,7 +1,7 @@
 // Files: src/modules/exam-monitoring/domain/contract/ExamMonitoringRepositoryContract.ts
 
-import type {MoodleActiveAttemptItem} from "@/shared/contract/MoodleRpcClientContract";
-import type {ExamAttemptEntity} from "../entity/ExamAttemptEntity";
+import type { MoodleActiveAttemptItem } from "@/shared/contract/MoodleRpcClientContract";
+import type { ExamAttemptEntity } from "../entity/ExamAttemptEntity";
 
 export interface ExamMonitoringRepositoryContract {
   findByAttemptId(attemptId: number): Promise<ExamAttemptEntity | null>;

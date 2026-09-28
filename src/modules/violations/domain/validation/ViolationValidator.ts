@@ -1,6 +1,6 @@
 // Files: src/modules/violations/domain/validation/ViolationValidator.ts
-import {AppError} from "@/core/domain/error/AppError";
-import type {ViolationType} from "@/generated/prisma/enums";
+import { AppError } from "@/core/domain/error/AppError";
+import type { ViolationType } from "@/generated/prisma/enums";
 
 const VALID_VIOLATION_TYPES: readonly ViolationType[] = [
   "TAB_SWITCH",

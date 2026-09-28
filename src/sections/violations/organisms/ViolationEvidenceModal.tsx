@@ -2,10 +2,10 @@
 "use client";
 
 import type React from "react";
-import {useEffect} from "react";
-import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
-import {Modal} from "@/shared-ui/component/Modal";
-import {EvidenceCard} from "../molecules/EvidenceCard";
+import { useEffect } from "react";
+import { useViolationsApi } from "@/modules/violations/presentations/hook/useViolationsApi";
+import { Modal } from "@/shared-ui/component/Modal";
+import { EvidenceCard } from "../molecules/EvidenceCard";
 
 interface ViolationEvidenceModalProps {
   readonly isOpen: boolean;

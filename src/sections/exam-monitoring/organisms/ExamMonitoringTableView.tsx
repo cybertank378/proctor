@@ -1,16 +1,23 @@
 // Files: src/sections/exam-monitoring/organisms/ExamMonitoringTableView.tsx
 "use client";
 
-import {DoorOpen, Hash, Search} from "lucide-react";
+import { DoorOpen, Hash, Search } from "lucide-react";
 import type React from "react";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {useExamMonitoringApi} from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useExamMonitoringApi } from "@/modules/exam-monitoring/presentations/hook/useExamMonitoringApi";
 import Button from "@/shared-ui/component/Button";
 import Pagination from "@/shared-ui/component/Pagination";
-import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@/shared-ui/component/Table";
 import TextField from "@/shared-ui/component/TextField";
-import {StatusBadge} from "../atoms/StatusBadge";
-import {MetricCard} from "../molecules/MetricCard";
+import { StatusBadge } from "../atoms/StatusBadge";
+import { MetricCard } from "../molecules/MetricCard";
 
 const ITEMS_PER_PAGE = 10;
 

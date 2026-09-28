@@ -1,39 +1,41 @@
 //Files: src/shared-ui/component/TabLayout/TabPanel.tsx
 // Files: src/shared-ui/component/TabLayout/TabPanel.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import {forwardRef} from "react"
+import clsx from "clsx";
+import { forwardRef } from "react";
 
-import {useTabContext} from "./TabContext"
+import { useTabContext } from "./TabContext";
 
-import type {TabPanelProps} from "./types"
+import type { TabPanelProps } from "./types";
 
-export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(function TabPanel({ value, children, className, ...props }, ref) {
-  const { value: activeValue, keepMounted } = useTabContext()
+export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
+  function TabPanel({ value, children, className, ...props }, ref) {
+    const { value: activeValue, keepMounted } = useTabContext();
 
-  const active = activeValue === value
+    const active = activeValue === value;
 
-  if (!keepMounted && !active) {
-    return null
-  }
+    if (!keepMounted && !active) {
+      return null;
+    }
 
-  return (
-    <div
-      {...props}
-      ref={ref}
-      id={`panel-${value}`}
-      role="tabpanel"
-      aria-labelledby={`tab-${value}`}
-      hidden={!active}
-      className={clsx("w-full", !active && "hidden", className)}
-    >
-      {children}
-    </div>
-  )
-})
+    return (
+      <div
+        {...props}
+        ref={ref}
+        id={`panel-${value}`}
+        role="tabpanel"
+        aria-labelledby={`tab-${value}`}
+        hidden={!active}
+        className={clsx("w-full", !active && "hidden", className)}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
-TabPanel.displayName = "TabPanel"
+TabPanel.displayName = "TabPanel";
 
-export default TabPanel
+export default TabPanel;

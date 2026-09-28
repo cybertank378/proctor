@@ -1,8 +1,8 @@
 // Files: src/modules/exam-session/domain/contract/ExamSessionRepositoryContract.ts
 
-import type {RecordViolationRequestDto} from "../dto/ExamSessionRequestDto";
-import type {RecordViolationResultDto} from "../dto/ExamSessionResponseDto";
-import type {ExamSessionEntity} from "../entity/ExamSessionEntity";
+import type { RecordViolationRequestDto } from "../dto/ExamSessionRequestDto";
+import type { RecordViolationResultDto } from "../dto/ExamSessionResponseDto";
+import type { ExamSessionEntity } from "../entity/ExamSessionEntity";
 
 export interface ExamSessionRepositoryContract {
   findSessionByAttempt(

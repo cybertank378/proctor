@@ -1,55 +1,55 @@
 //Files: src/shared-ui/component/DatePicker.tsx
 
-"use client"
+"use client";
 
-import "react-datepicker/dist/react-datepicker.css"
+import "react-datepicker/dist/react-datepicker.css";
 
-import clsx from "clsx"
-import {format} from "date-fns"
-import {id} from "date-fns/locale"
-import {CalendarIcon, ChevronLeft, ChevronRight} from "lucide-react"
-import {forwardRef} from "react"
+import clsx from "clsx";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { forwardRef } from "react";
 
-import BaseDatePicker from "react-datepicker"
+import BaseDatePicker from "react-datepicker";
 
 //////////////////////////////////////////////////////////////
 // TYPES
 //////////////////////////////////////////////////////////////
 
-type Variant = "outlined" | "filled"
+type Variant = "outlined" | "filled";
 
-type Size = "sm" | "md" | "lg"
+type Size = "sm" | "md" | "lg";
 
 //////////////////////////////////////////////////////////////
 // PROPS
 //////////////////////////////////////////////////////////////
 
 export interface DatePickerProps {
-  label?: string
+  label?: string;
 
-  placeholder?: string
+  placeholder?: string;
 
-  value?: Date | null
+  value?: Date | null;
 
-  onChange?: (value: Date | null) => void
+  onChange?: (value: Date | null) => void;
 
-  error?: string
+  error?: string;
 
-  helperText?: string
+  helperText?: string;
 
-  required?: boolean
+  required?: boolean;
 
-  disabled?: boolean
+  disabled?: boolean;
 
-  className?: string
+  className?: string;
 
-  variant?: Variant
+  variant?: Variant;
 
-  size?: Size
+  size?: Size;
 
-  minDate?: Date
+  minDate?: Date;
 
-  maxDate?: Date
+  maxDate?: Date;
 }
 
 //////////////////////////////////////////////////////////////
@@ -62,24 +62,24 @@ const SIZE = {
   md: "h-11 px-4 text-sm",
 
   lg: "h-12 px-5 text-base",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // INPUT
 //////////////////////////////////////////////////////////////
 
 interface InputProps {
-  value?: string
+  value?: string;
 
-  placeholder?: string
+  placeholder?: string;
 
-  onClick?: () => void
+  onClick?: () => void;
 
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 const CustomInput = forwardRef<HTMLInputElement, InputProps>(
-  ({value, placeholder, onClick, disabled}, ref) => {
+  ({ value, placeholder, onClick, disabled }, ref) => {
     return (
       <button
         ref={ref as never}
@@ -91,39 +91,39 @@ const CustomInput = forwardRef<HTMLInputElement, InputProps>(
         <span
           className={clsx(
             "truncate",
-            value ? "text-slate-900" : "text-slate-400"
+            value ? "text-slate-900" : "text-slate-400",
           )}
         >
           {value || placeholder}
         </span>
 
-        <CalendarIcon className="h-4 w-4 text-slate-500"/>
+        <CalendarIcon className="h-4 w-4 text-slate-500" />
       </button>
-    )
-  }
-)
+    );
+  },
+);
 
-CustomInput.displayName = "CustomInput"
+CustomInput.displayName = "CustomInput";
 
 //////////////////////////////////////////////////////////////
 // COMPONENT
 //////////////////////////////////////////////////////////////
 
 export default function DatePicker({
-                                     label,
-                                     placeholder = "Pilih tanggal",
-                                     value,
-                                     onChange,
-                                     error,
-                                     helperText,
-                                     required,
-                                     disabled,
-                                     className,
-                                     variant = "outlined",
-                                     size = "md",
-                                     minDate,
-                                     maxDate,
-                                   }: DatePickerProps) {
+  label,
+  placeholder = "Pilih tanggal",
+  value,
+  onChange,
+  error,
+  helperText,
+  required,
+  disabled,
+  className,
+  variant = "outlined",
+  size = "md",
+  minDate,
+  maxDate,
+}: DatePickerProps) {
   //////////////////////////////////////////////////////////////
   // RENDER
   //////////////////////////////////////////////////////////////
@@ -151,18 +151,15 @@ export default function DatePicker({
         fixedHeight
         calendarStartDay={1}
         customInput={
-          <CustomInput
-            placeholder={placeholder}
-            disabled={disabled}
-          />
+          <CustomInput placeholder={placeholder} disabled={disabled} />
         }
         renderCustomHeader={({
-                               date,
-                               decreaseMonth,
-                               increaseMonth,
-                               prevMonthButtonDisabled,
-                               nextMonthButtonDisabled,
-                             }) => (
+          date,
+          decreaseMonth,
+          increaseMonth,
+          prevMonthButtonDisabled,
+          nextMonthButtonDisabled,
+        }) => (
           <div className="flex items-center justify-between border-b border-slate-200 px-3 py-3">
             <button
               type="button"
@@ -170,7 +167,7 @@ export default function DatePicker({
               disabled={prevMonthButtonDisabled}
               className="rounded-lg p-2 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <ChevronLeft className="h-4 w-4"/>
+              <ChevronLeft className="h-4 w-4" />
             </button>
 
             <span className="font-semibold text-slate-800">
@@ -185,7 +182,7 @@ export default function DatePicker({
               disabled={nextMonthButtonDisabled}
               className="rounded-lg p-2 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <ChevronRight className="h-4 w-4"/>
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -193,15 +190,15 @@ export default function DatePicker({
           clsx(
             "rounded-lg transition-colors",
             value &&
-            date.toDateString() === value.toDateString() &&
-            "bg-sky-600 text-white hover:bg-sky-700"
+              date.toDateString() === value.toDateString() &&
+              "bg-sky-600 text-white hover:bg-sky-700",
           )
         }
         wrapperClassName="w-full"
         popperClassName="z-50"
         calendarClassName={clsx(
           "overflow-hidden rounded-2xl border border-slate-200 shadow-xl",
-          variant === "filled" ? "bg-slate-50" : "bg-white"
+          variant === "filled" ? "bg-slate-50" : "bg-white",
         )}
       />
 
@@ -211,5 +208,5 @@ export default function DatePicker({
 
       {error && <p className="text-xs font-medium text-red-600">{error}</p>}
     </div>
-  )
+  );
 }

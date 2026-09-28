@@ -1,6 +1,6 @@
 //Files: src/core/infrastructure/http/HttpResponse.ts
-import {NextResponse} from "next/server";
-import type {PaginatedMetaContract} from "@/core/domain/contract/PaginatedResultContract";
+import { NextResponse } from "next/server";
+import type { PaginatedMetaContract } from "@/core/domain/contract/PaginatedResultContract";
 
 export interface StandardApiResponse<T> {
   readonly success: boolean;

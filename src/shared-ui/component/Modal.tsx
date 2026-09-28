@@ -1,45 +1,57 @@
 // Files: src/shared-ui/component/Modal.tsx
-"use client"
+"use client";
 
-import clsx from "clsx"
-import type {FC, KeyboardEvent, MouseEvent, ReactNode} from "react"
-import {useEffect} from "react"
-import Button from "@/shared-ui/component/Button"
+import clsx from "clsx";
+import type { FC, KeyboardEvent, MouseEvent, ReactNode } from "react";
+import { useEffect } from "react";
+import Button from "@/shared-ui/component/Button";
 
 interface ModalProps {
-  title?: string
+  title?: string;
 
-  subtitle?: string
+  subtitle?: string;
 
-  open: boolean
+  open: boolean;
 
-  onClose: () => void
+  onClose: () => void;
 
-  onSubmit?: () => void
+  onSubmit?: () => void;
 
-  submitText?: string
+  submitText?: string;
 
-  cancelText?: string
+  cancelText?: string;
 
-  children: ReactNode
+  children: ReactNode;
 
-  className?: string
+  className?: string;
 
-  titleClassName?: string
+  titleClassName?: string;
 
-  submitButtonClassName?: string
+  submitButtonClassName?: string;
 
-  cancelButtonClassName?: string
+  cancelButtonClassName?: string;
 
-  size?: "sm" | "md" | "lg" | "xl"
+  size?: "sm" | "md" | "lg" | "xl";
 
-  submitColor?: "primary" | "secondary" | "error" | "warning" | "info" | "success"
+  submitColor?:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "warning"
+    | "info"
+    | "success";
 
-  cancelColor?: "primary" | "secondary" | "error" | "warning" | "info" | "success"
+  cancelColor?:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "warning"
+    | "info"
+    | "success";
 
-  submitDisabled?: boolean
+  submitDisabled?: boolean;
 
-  submitLoading?: boolean
+  submitLoading?: boolean;
 }
 
 const sizeMap: Record<NonNullable<ModalProps["size"]>, string> = {
@@ -50,7 +62,7 @@ const sizeMap: Record<NonNullable<ModalProps["size"]>, string> = {
   lg: "max-w-3xl",
 
   xl: "max-w-5xl",
-}
+};
 
 export const Modal: FC<ModalProps> = ({
   title,
@@ -73,43 +85,43 @@ export const Modal: FC<ModalProps> = ({
 }) => {
   useEffect(() => {
     if (!open) {
-      return
+      return;
     }
 
-    const originalOverflow = document.body.style.overflow
+    const originalOverflow = document.body.style.overflow;
 
-    document.body.style.overflow = "hidden"
+    document.body.style.overflow = "hidden";
 
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose()
+        onClose();
       }
-    }
+    };
 
-    document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = originalOverflow
+      document.body.style.overflow = originalOverflow;
 
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [open, onClose])
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
 
   if (!open) {
-    return null
+    return null;
   }
 
   const handleOverlayClick = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   const handleOverlayKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   return (
     <div
@@ -125,14 +137,23 @@ export const Modal: FC<ModalProps> = ({
           "w-full rounded-2xl border border-gray-100 bg-white p-8 shadow-2xl",
           "max-h-[90vh] overflow-y-auto scrollbar-modern",
           sizeMap[size],
-          className
+          className,
         )}
       >
         {title && (
           <div className="mb-6 text-center">
-            <h2 className={clsx("text-xl font-semibold text-gray-900", titleClassName)}>{title}</h2>
+            <h2
+              className={clsx(
+                "text-xl font-semibold text-gray-900",
+                titleClassName,
+              )}
+            >
+              {title}
+            </h2>
 
-            {subtitle && <p className="mt-2 text-sm text-gray-500">{subtitle}</p>}
+            {subtitle && (
+              <p className="mt-2 text-sm text-gray-500">{subtitle}</p>
+            )}
           </div>
         )}
 
@@ -164,5 +185,5 @@ export const Modal: FC<ModalProps> = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};

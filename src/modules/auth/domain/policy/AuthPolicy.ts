@@ -1,5 +1,5 @@
 //Files: src/modules/auth/domain/policy/AuthPolicy.ts
-import type {ProctorUserEntity} from "../entity/ProctorUserEntity";
+import type { ProctorUserEntity } from "../entity/ProctorUserEntity";
 
 export const AuthPolicy = {
   canAuthenticate(user: ProctorUserEntity | null): boolean {

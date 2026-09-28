@@ -1,6 +1,6 @@
 //Files: src/core/contract/__tests__/SystemLoggerContract.test.ts
-import {describe, expect, it} from "vitest";
-import type {LogContext, SystemLoggerContract} from "../SystemLoggerContract";
+import { describe, expect, it } from "vitest";
+import type { LogContext, SystemLoggerContract } from "../SystemLoggerContract";
 
 class InMemorySystemLogger implements SystemLoggerContract {
   public readonly infoLogs: Array<{ message: string; context?: LogContext }> =

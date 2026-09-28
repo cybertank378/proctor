@@ -1,12 +1,12 @@
 // Files: src/modules/exam-session/application/usecase/VerifyAttemptSessionUseCase.ts
-import {BaseUseCase} from "@/core/application/base/BaseUseCase";
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
-import type {ExamSessionRepositoryContract} from "../../domain/contract/ExamSessionRepositoryContract";
-import type {MoodleQuizAdapterContract} from "../../domain/contract/MoodleQuizAdapterContract";
-import type {VerifyAttemptRequestDto} from "../../domain/dto/ExamSessionRequestDto";
-import type {ExamSessionStatusDto} from "../../domain/dto/ExamSessionResponseDto";
-import {ExamSessionValidator} from "../../domain/validation/ExamSessionValidator";
+import { BaseUseCase } from "@/core/application/base/BaseUseCase";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
+import type { ExamSessionRepositoryContract } from "../../domain/contract/ExamSessionRepositoryContract";
+import type { MoodleQuizAdapterContract } from "../../domain/contract/MoodleQuizAdapterContract";
+import type { VerifyAttemptRequestDto } from "../../domain/dto/ExamSessionRequestDto";
+import type { ExamSessionStatusDto } from "../../domain/dto/ExamSessionResponseDto";
+import { ExamSessionValidator } from "../../domain/validation/ExamSessionValidator";
 
 export class VerifyAttemptSessionUseCase extends BaseUseCase<
   VerifyAttemptRequestDto,

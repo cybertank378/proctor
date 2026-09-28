@@ -1,17 +1,17 @@
 // Files: src/modules/exam-monitoring/application/usecase/GetActiveAttemptsUseCase.ts
 
-import {BaseUseCase} from "@/core/application/base/BaseUseCase";
-import type {AppResult} from "@/core/application/result/AppResult";
-import {AppResultFactory} from "@/core/application/result/AppResultFactory";
-import type {PaginatedResultContract} from "@/core/domain/contract/PaginatedResultContract";
-import type {ProctorUserEntity} from "@/modules/auth/domain/entity/ProctorUserEntity";
-import type {MoodleRpcClientContract} from "@/shared/contract/MoodleRpcClientContract";
-import {RoomScopeHelper} from "@/shared/helpers/RoomScopeHelper";
-import type {ExamMonitoringRepositoryContract} from "../../domain/contract/ExamMonitoringRepositoryContract";
-import type {GetAttemptsFilterDto} from "../../domain/dto/MonitoringRequestDto";
-import type {ExamAttemptSummaryDto} from "../../domain/dto/MonitoringResponseDto";
-import {MonitoringValidator} from "../../domain/validation/MonitoringValidator";
-import {MonitoringPresentationMapper} from "../../presentations/mapper/MonitoringPresentationMapper";
+import { BaseUseCase } from "@/core/application/base/BaseUseCase";
+import type { AppResult } from "@/core/application/result/AppResult";
+import { AppResultFactory } from "@/core/application/result/AppResultFactory";
+import type { PaginatedResultContract } from "@/core/domain/contract/PaginatedResultContract";
+import type { ProctorUserEntity } from "@/modules/auth/domain/entity/ProctorUserEntity";
+import type { MoodleRpcClientContract } from "@/shared/contract/MoodleRpcClientContract";
+import { RoomScopeHelper } from "@/shared/helpers/RoomScopeHelper";
+import type { ExamMonitoringRepositoryContract } from "../../domain/contract/ExamMonitoringRepositoryContract";
+import type { GetAttemptsFilterDto } from "../../domain/dto/MonitoringRequestDto";
+import type { ExamAttemptSummaryDto } from "../../domain/dto/MonitoringResponseDto";
+import { MonitoringValidator } from "../../domain/validation/MonitoringValidator";
+import { MonitoringPresentationMapper } from "../../presentations/mapper/MonitoringPresentationMapper";
 
 export interface GetAttemptsContext {
   readonly filter: GetAttemptsFilterDto;
@@ -51,15 +51,25 @@ export class GetActiveAttemptsUseCase extends BaseUseCase<
 
     if (input.filter.quizId && input.filter.quizId > 0) {
       try {
+        console.info(
+          `[GET ACTIVE ATTEMPTS] 🔄 Menghubungkan ke Moodle RPC untuk Quiz #${input.filter.quizId}...`
+        );
         const liveMoodleAttempts = await this.moodleRpcClient.getActiveAttempts(
           input.filter.quizId,
         );
 
+        console.info(
+          `[GET ACTIVE ATTEMPTS] Menerima ${liveMoodleAttempts.length} data attempts dari Moodle. Menyinkronkan ke DB lokal...`
+        );
+
         if (liveMoodleAttempts.length > 0) {
           await this.repository.syncMoodleAttempts(liveMoodleAttempts);
+          console.info(
+            `[GET ACTIVE ATTEMPTS] ✅ Sinkronisasi ${liveMoodleAttempts.length} data siswa dari Moodle ke DB selesai.`
+          );
         }
       } catch (err) {
-        console.warn("[RPC MOODLE WARN] Gagal sinkronisasi siswa aktif:", err);
+        console.warn("[RPC MOODLE WARN] Gagal sinkronisasi siswa aktif dari Moodle:", err);
       }
     }
 

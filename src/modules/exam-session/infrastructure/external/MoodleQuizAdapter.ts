@@ -1,6 +1,6 @@
 // Files: src/modules/exam-session/infrastructure/external/MoodleQuizAdapter.ts
 
-import type {MoodleQuizAdapterContract} from "../../domain/contract/MoodleQuizAdapterContract";
+import type { MoodleQuizAdapterContract } from "../../domain/contract/MoodleQuizAdapterContract";
 
 export class MoodleQuizAdapter implements MoodleQuizAdapterContract {
   private readonly baseUrl: string;

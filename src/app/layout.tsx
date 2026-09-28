@@ -1,10 +1,10 @@
 // src/app/layout.tsx
-import type {Metadata} from "next";
-import {Inter} from "next/font/google";
-import {headers} from "next/headers";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import "@/styles/globals.css";
 import type React from "react";
-import {AppUiProvider} from "@/shared-ui/provider/AppUiProvider";
+import { AppUiProvider } from "@/shared-ui/provider/AppUiProvider";
 
 const inter = Inter({
   subsets: ["latin"],

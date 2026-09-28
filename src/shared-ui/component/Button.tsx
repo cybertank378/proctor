@@ -1,58 +1,64 @@
 // Files: src/shared-ui/component/Button.tsx
 
-"use client"
+"use client";
 
-import {Slot} from "@radix-ui/react-slot"
+import { Slot } from "@radix-ui/react-slot";
 
-import clsx from "clsx"
-import type {LucideIcon} from "lucide-react"
-import type {ButtonHTMLAttributes, ReactNode} from "react"
+import clsx from "clsx";
+import type { LucideIcon } from "lucide-react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 //////////////////////////////////////////////////////////////
 // TYPES
 //////////////////////////////////////////////////////////////
 
-type Variant = "filled" | "label" | "outline" | "text" | "ghost" | "destructive"
+type Variant =
+  | "filled"
+  | "label"
+  | "outline"
+  | "text"
+  | "ghost"
+  | "destructive";
 
-type Size = "lg" | "md" | "sm"
+type Size = "lg" | "md" | "sm";
 
-type Shape = "rounded" | "circle"
+type Shape = "rounded" | "circle";
 
-type Color = "primary" | "secondary" | "error" | "warning" | "info" | "success"
+type Color = "primary" | "secondary" | "error" | "warning" | "info" | "success";
 
 //////////////////////////////////////////////////////////////
 // PROPS
 //////////////////////////////////////////////////////////////
 
 export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children?: ReactNode
+  children?: ReactNode;
 
-  variant?: Variant
+  variant?: Variant;
 
-  size?: Size
+  size?: Size;
 
-  color?: Color
+  color?: Color;
 
-  leftIcon?: LucideIcon
+  leftIcon?: LucideIcon;
 
-  rightIcon?: LucideIcon
+  rightIcon?: LucideIcon;
 
-  loading?: boolean
+  loading?: boolean;
 
-  iconOnly?: boolean
+  iconOnly?: boolean;
 
-  shape?: Shape
+  shape?: Shape;
 
-  fullWidth?: boolean
+  fullWidth?: boolean;
 
-  asChild?: boolean
+  asChild?: boolean;
 }
 
 //////////////////////////////////////////////////////////////
 // BASE STYLES
 //////////////////////////////////////////////////////////////
 const baseStyles =
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
 //////////////////////////////////////////////////////////////
 // SIZE STYLES
 //////////////////////////////////////////////////////////////
@@ -63,7 +69,7 @@ const sizeStyles: Record<Size, string> = {
   md: "px-4 py-2 text-sm",
 
   sm: "px-3 py-1.5 text-xs",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // ICON ONLY SIZE
@@ -75,7 +81,7 @@ const iconOnlySizeStyles: Record<Size, string> = {
   md: "h-10 w-10 p-0",
 
   sm: "h-9 w-9 p-0",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // ICON SIZE
@@ -87,7 +93,7 @@ const iconSizeMap: Record<Size, number> = {
   md: 16,
 
   sm: 14,
-}
+};
 
 //////////////////////////////////////////////////////////////
 // SHAPE
@@ -97,7 +103,7 @@ const shapeStyles: Record<Shape, string> = {
   rounded: "rounded-lg",
 
   circle: "rounded-full aspect-square",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // COLOR MAP
@@ -105,95 +111,110 @@ const shapeStyles: Record<Shape, string> = {
 
 const colorMap: Record<Color, Record<Variant, string>> = {
   primary: {
-    filled: "bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700 focus:ring-indigo-400",
+    filled:
+      "bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700 focus:ring-indigo-400",
 
-    label: "bg-indigo-100 text-indigo-600 hover:bg-indigo-200 active:bg-indigo-300",
+    label:
+      "bg-indigo-100 text-indigo-600 hover:bg-indigo-200 active:bg-indigo-300",
 
-    outline: "border border-indigo-500 text-indigo-500 hover:bg-indigo-50 active:bg-indigo-100",
+    outline:
+      "border border-indigo-500 text-indigo-500 hover:bg-indigo-50 active:bg-indigo-100",
 
     text: "text-indigo-500 hover:bg-indigo-50 active:bg-indigo-100",
 
     ghost: "text-indigo-500 hover:bg-indigo-50 active:bg-indigo-100",
 
-    destructive: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500",
+    destructive:
+      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500",
   },
 
   secondary: {
-    filled: "bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 focus:ring-gray-400",
+    filled:
+      "bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 focus:ring-gray-400",
 
     label: "bg-gray-200 text-gray-700 hover:bg-gray-300 active:bg-gray-400",
 
-    outline: "border border-gray-500 text-gray-600 hover:bg-gray-100 active:bg-gray-200",
+    outline:
+      "border border-gray-500 text-gray-600 hover:bg-gray-100 active:bg-gray-200",
 
     text: "text-gray-600 hover:bg-gray-100 active:bg-gray-200",
 
     ghost: "text-gray-600 hover:bg-gray-100 active:bg-gray-200",
 
-    destructive: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500",
+    destructive:
+      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500",
   },
 
   error: {
-    filled: "bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:ring-red-400",
+    filled:
+      "bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:ring-red-400",
 
     label: "bg-red-100 text-red-600 hover:bg-red-200 active:bg-red-300",
 
-    outline: "border border-red-500 text-red-500 hover:bg-red-50 active:bg-red-100",
+    outline:
+      "border border-red-500 text-red-500 hover:bg-red-50 active:bg-red-100",
 
     text: "text-red-500 hover:bg-red-50 active:bg-red-100",
 
     ghost: "text-red-500 hover:bg-red-50 active:bg-red-100",
 
-    destructive: "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
+    destructive:
+      "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
   },
 
   warning: {
-    filled: "bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700 focus:ring-yellow-400",
+    filled:
+      "bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700 focus:ring-yellow-400",
 
-    label: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 active:bg-yellow-300",
+    label:
+      "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 active:bg-yellow-300",
 
-    outline: "border border-yellow-500 text-yellow-600 hover:bg-yellow-50 active:bg-yellow-100",
+    outline:
+      "border border-yellow-500 text-yellow-600 hover:bg-yellow-50 active:bg-yellow-100",
 
     text: "text-yellow-600 hover:bg-yellow-50 active:bg-yellow-100",
 
     ghost: "text-yellow-600 hover:bg-yellow-50 active:bg-yellow-100",
 
-    destructive: "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
+    destructive:
+      "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
   },
 
   info: {
-    filled: "bg-cyan-500 text-white hover:bg-cyan-600 active:bg-cyan-700 focus:ring-cyan-400",
+    filled:
+      "bg-cyan-500 text-white hover:bg-cyan-600 active:bg-cyan-700 focus:ring-cyan-400",
 
     label: "bg-cyan-100 text-cyan-600 hover:bg-cyan-200 active:bg-cyan-300",
 
-    outline: "border border-cyan-500 text-cyan-500 hover:bg-cyan-50 active:bg-cyan-100",
+    outline:
+      "border border-cyan-500 text-cyan-500 hover:bg-cyan-50 active:bg-cyan-100",
 
     text: "text-cyan-500 hover:bg-cyan-50 active:bg-cyan-100",
 
     ghost: "text-cyan-500 hover:bg-cyan-50 active:bg-cyan-100",
 
-    destructive: "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
+    destructive:
+      "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
   },
 
   success: {
     filled:
-        "bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 focus:ring-emerald-400",
+      "bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 focus:ring-emerald-400",
 
     label:
-        "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 active:bg-emerald-300",
+      "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 active:bg-emerald-300",
 
     outline:
-        "border border-emerald-600 text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100",
+      "border border-emerald-600 text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100",
 
-    text:
-        "text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100",
+    text: "text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100",
 
-    ghost:
-        "text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100",
+    ghost: "text-emerald-600 hover:bg-emerald-50 active:bg-emerald-100",
 
     destructive:
-        "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
+      "bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus:ring-red-500",
   },
-}
+};
 
 //////////////////////////////////////////////////////////////
 // COMPONENT
@@ -234,19 +255,19 @@ export default function Button({
   // COMPONENT
   //////////////////////////////////////////////////////////////
 
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : "button";
 
   //////////////////////////////////////////////////////////////
   // ICON ONLY
   //////////////////////////////////////////////////////////////
 
-  const isIconOnly = iconOnly || (!children && (LeftIcon || RightIcon))
+  const isIconOnly = iconOnly || (!children && (LeftIcon || RightIcon));
 
   //////////////////////////////////////////////////////////////
   // ICON SIZE
   //////////////////////////////////////////////////////////////
 
-  const iconSize = iconSizeMap[size]
+  const iconSize = iconSizeMap[size];
 
   //////////////////////////////////////////////////////////////
   // RENDER
@@ -270,7 +291,7 @@ export default function Button({
 
         fullWidth && "w-full",
 
-        className
+        className,
       )}
       {...props}
     >
@@ -286,5 +307,5 @@ export default function Button({
         </span>
       )}
     </Comp>
-  )
+  );
 }

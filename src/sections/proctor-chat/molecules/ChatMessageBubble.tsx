@@ -2,10 +2,10 @@
 "use client";
 
 import clsx from "clsx";
-import {Radio} from "lucide-react";
+import { Radio } from "lucide-react";
 import type React from "react";
-import type {ChatMessageDto} from "@/modules/proctor-chat/domain/dto/ChatResponseDto";
-import {RoleBadge} from "../atoms/RoleBadge";
+import type { ChatMessageDto } from "@/modules/proctor-chat/domain/dto/ChatResponseDto";
+import { RoleBadge } from "../atoms/RoleBadge";
 
 export interface ChatMessageBubbleProps {
   readonly message: ChatMessageDto;

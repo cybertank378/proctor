@@ -1,28 +1,42 @@
 // Files: src/shared-ui/component/TabLayout/Tab.tsx
 
-"use client"
+"use client";
 
-import clsx from "clsx"
-import {forwardRef} from "react"
+import clsx from "clsx";
+import { forwardRef } from "react";
 
-import {useTabContext} from "./TabContext"
+import { useTabContext } from "./TabContext";
 
-import type {TabProps} from "./types"
+import type { TabProps } from "./types";
 
 const SIZE_CLASS = {
   sm: "h-9 px-3 text-sm",
   md: "h-11 px-4 text-sm",
   lg: "h-12 px-5 text-base",
-} as const
+} as const;
 
-const ACTIVE_CLASS = ["border-b-2", "border-blue-600", "text-blue-600", "font-semibold"].join(" ")
+const ACTIVE_CLASS = [
+  "border-b-2",
+  "border-blue-600",
+  "text-blue-600",
+  "font-semibold",
+].join(" ");
 
-const INACTIVE_CLASS = ["border-b-2", "border-transparent", "text-slate-500", "hover:text-blue-600", "hover:border-blue-200"].join(" ")
+const INACTIVE_CLASS = [
+  "border-b-2",
+  "border-transparent",
+  "text-slate-500",
+  "hover:text-blue-600",
+  "hover:border-blue-200",
+].join(" ");
 
-export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab({ value, disabled = false, children, className, onClick, ...props }, ref) {
-  const { value: currentValue, size, fullWidth, setValue } = useTabContext()
+export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab(
+  { value, disabled = false, children, className, onClick, ...props },
+  ref,
+) {
+  const { value: currentValue, size, fullWidth, setValue } = useTabContext();
 
-  const active = currentValue === value
+  const active = currentValue === value;
 
   return (
     <button
@@ -37,12 +51,12 @@ export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab({ value,
       disabled={disabled}
       onClick={(event) => {
         if (disabled) {
-          return
+          return;
         }
 
-        setValue(value)
+        setValue(value);
 
-        onClick?.(event)
+        onClick?.(event);
       }}
       className={clsx(
         "inline-flex",
@@ -53,14 +67,14 @@ export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab({ value,
         "text-sm",
         "transition-colors",
         active ? ACTIVE_CLASS : INACTIVE_CLASS,
-        className
+        className,
       )}
     >
       {children}
     </button>
-  )
-})
+  );
+});
 
-Tab.displayName = "Tab"
+Tab.displayName = "Tab";
 
-export default Tab
+export default Tab;

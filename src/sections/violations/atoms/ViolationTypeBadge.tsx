@@ -2,8 +2,8 @@
 "use client";
 
 import type React from "react";
-import type {ViolationType} from "@/generated/prisma/enums";
-import Badge, {type BadgeColor} from "@/shared-ui/component/Badge";
+import type { ViolationType } from "@/generated/prisma/enums";
+import Badge, { type BadgeColor } from "@/shared-ui/component/Badge";
 
 interface ViolationTypeBadgeProps {
   readonly type: ViolationType;

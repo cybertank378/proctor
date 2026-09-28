@@ -1,6 +1,6 @@
 //Files: src/modules/violations/domain/dto/ViolationResponseDto.ts
 
-import type {ViolationType} from "@/generated/prisma/enums";
+import type { ViolationType } from "@/generated/prisma/enums";
 
 export interface ViolationSummaryDto {
   readonly id: string;

@@ -1,15 +1,22 @@
 // Files: src/sections/violations/organisms/ViolationListTableView.tsx
 "use client";
 
-import {ExternalLink, Filter, Search, ShieldCheck} from "lucide-react";
+import { ExternalLink, Filter, Search, ShieldCheck } from "lucide-react";
 import type React from "react";
-import {useState} from "react";
-import {useViolationsApi} from "@/modules/violations/presentations/hook/useViolationsApi";
+import { useState } from "react";
+import { useViolationsApi } from "@/modules/violations/presentations/hook/useViolationsApi";
 import Button from "@/shared-ui/component/Button";
-import {Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow,} from "@/shared-ui/component/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@/shared-ui/component/Table";
 import TextField from "@/shared-ui/component/TextField";
-import {ViolationTypeBadge} from "../atoms/ViolationTypeBadge";
-import {ViolationEvidenceModal} from "./ViolationEvidenceModal";
+import { ViolationTypeBadge } from "../atoms/ViolationTypeBadge";
+import { ViolationEvidenceModal } from "./ViolationEvidenceModal";
 
 export const ViolationListTableView: React.FC = () => {
   const { loading, violations, fetchViolations, verifyIntegrity } =

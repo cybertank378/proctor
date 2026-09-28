@@ -1,7 +1,7 @@
 //Files: src/core/application/__tests__/BaseService.test.ts
-import {describe, expect, it} from "vitest";
-import {BaseService} from "@/core/application/base/BaseService";
-import type {AppResult} from "@/core/application/result/AppResult";
+import { describe, expect, it } from "vitest";
+import { BaseService } from "@/core/application/base/BaseService";
+import type { AppResult } from "@/core/application/result/AppResult";
 
 class TestProctorAuditService extends BaseService {
   public async performAuditedOperation(

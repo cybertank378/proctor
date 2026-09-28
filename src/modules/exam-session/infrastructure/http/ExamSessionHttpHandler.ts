@@ -1,9 +1,9 @@
 // Files: src/modules/exam-session/infrastructure/http/ExamSessionHttpHandler.ts
-import {BaseHttpHandler} from "@/core/infrastructure/http/BaseHttpHandler";
-import type {HttpRequest} from "@/core/infrastructure/http/HttpRequest";
-import {HttpResponse} from "@/core/infrastructure/http/HttpResponse";
-import type {ExamSessionService} from "../../application/service/ExamSessionService";
-import type {RecordViolationRequestDto} from "../../domain/dto/ExamSessionRequestDto";
+import { BaseHttpHandler } from "@/core/infrastructure/http/BaseHttpHandler";
+import type { HttpRequest } from "@/core/infrastructure/http/HttpRequest";
+import { HttpResponse } from "@/core/infrastructure/http/HttpResponse";
+import type { ExamSessionService } from "../../application/service/ExamSessionService";
+import type { RecordViolationRequestDto } from "../../domain/dto/ExamSessionRequestDto";
 
 export class ExamSessionHttpHandler extends BaseHttpHandler {
   constructor(private readonly sessionService: ExamSessionService) {
@@ -20,9 +20,16 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
         url.pathname.includes("/violations/record"))
     ) {
       const body = req.body as RecordViolationRequestDto;
+      console.info(
+        `[HTTP /api/violations/record] 📥 Menerima laporan pelanggaran: Quiz #${body?.quizId}, Attempt #${body?.attemptId}, Type: ${body?.violationType}`
+      );
       const result = await this.sessionService.recordViolation(body);
 
       if (result.isFailure) {
+        console.error(
+          `[HTTP /api/violations/record] ❌ Gagal memproses pelanggaran:`,
+          result.error
+        );
         return HttpResponse.success(
           { error: result.error, success: false },
           result.error,
@@ -30,6 +37,9 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
         );
       }
 
+      console.info(
+        `[HTTP /api/violations/record] ✅ Berhasil dicatat: AttemptRecord #${result.data?.incidentId}, isLocked: ${result.data?.isLocked}, count: ${result.data?.currentViolations}`
+      );
       return HttpResponse.success(result.data, result.message, 201);
     }
 

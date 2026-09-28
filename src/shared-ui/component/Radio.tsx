@@ -2,8 +2,8 @@
 
 "use client";
 
-import { forwardRef, type InputHTMLAttributes } from "react";
 import clsx from "clsx";
+import { forwardRef, type InputHTMLAttributes } from "react";
 
 interface Props extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
   label?: string;

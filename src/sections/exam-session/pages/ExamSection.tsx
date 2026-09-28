@@ -2,13 +2,13 @@
 "use client";
 
 import type React from "react";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import type Webcam from "react-webcam";
-import {useAntiCheatEngine} from "@/modules/exam-session/presentations/hook/useAntiCheatEngine";
-import {useExamSessionApi} from "@/modules/exam-session/presentations/hook/useExamSessionApi";
-import {ExamGateView} from "@/sections/exam-session/molecules/ExamGateView";
-import {showErrorToast, showWarningToast} from "@/shared-ui/component/Toast";
-import {ExamView} from "../organisms/ExamView";
+import { useAntiCheatEngine } from "@/modules/exam-session/presentations/hook/useAntiCheatEngine";
+import { useExamSessionApi } from "@/modules/exam-session/presentations/hook/useExamSessionApi";
+import { ExamGateView } from "@/sections/exam-session/molecules/ExamGateView";
+import { showErrorToast, showWarningToast } from "@/shared-ui/component/Toast";
+import { ExamView } from "../organisms/ExamView";
 
 interface ExamSectionProps {
   readonly quizId: number;
@@ -16,9 +16,15 @@ interface ExamSectionProps {
   readonly attemptId?: number;
 }
 
-export const ExamSection: React.FC<ExamSectionProps> = ({ quizId, userId, attemptId: initialAttemptId }) => {
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean>(false);
-  const [hasScreenPermission, setHasScreenPermission] = useState<boolean>(false);
+export const ExamSection: React.FC<ExamSectionProps> = ({
+  quizId,
+  userId,
+  attemptId: initialAttemptId,
+}) => {
+  const [hasCameraPermission, setHasCameraPermission] =
+    useState<boolean>(false);
+  const [hasScreenPermission, setHasScreenPermission] =
+    useState<boolean>(false);
   const [isExamStarted, setIsExamStarted] = useState<boolean>(false);
 
   // Instansiasi tunggal react-webcam ref
@@ -66,18 +72,22 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId, userId, attemp
         audio: false,
       });
       screenStreamRef.current = stream;
-      
+
       // Jika stream dihentikan oleh user (misal klik 'Stop sharing')
       stream.getVideoTracks()[0].addEventListener("ended", () => {
         setHasScreenPermission(false);
         setIsExamStarted(false);
-        showWarningToast("Sesi ujian dihentikan sementara karena Anda menghentikan pembagian layar. Silakan izinkan kembali untuk melanjutkan.");
+        showWarningToast(
+          "Sesi ujian dihentikan sementara karena Anda menghentikan pembagian layar. Silakan izinkan kembali untuk melanjutkan.",
+        );
       });
 
       setHasScreenPermission(true);
     } catch (err) {
       console.warn("User menolak izin berbagi layar:", err);
-      showErrorToast("Akses perekaman layar ditolak. Anda wajib membagikan layar untuk dapat memulai atau melanjutkan ujian.");
+      showErrorToast(
+        "Akses perekaman layar ditolak. Anda wajib membagikan layar untuk dapat memulai atau melanjutkan ujian.",
+      );
     }
   };
 
@@ -95,8 +105,10 @@ export const ExamSection: React.FC<ExamSectionProps> = ({ quizId, userId, attemp
   }
 
   const fallbackEmbedUrl = `https://ujian.smpn29jkt.sch.id/mod/quiz/view.php?id=${quizId}&guard_runner=1`;
-  const embedUrl = sessionData?.moodleEmbedUrl 
-    ? (sessionData.moodleEmbedUrl.includes('?') ? `${sessionData.moodleEmbedUrl}&guard_runner=1` : `${sessionData.moodleEmbedUrl}?guard_runner=1`)
+  const embedUrl = sessionData?.moodleEmbedUrl
+    ? sessionData.moodleEmbedUrl.includes("?")
+      ? `${sessionData.moodleEmbedUrl}&guard_runner=1`
+      : `${sessionData.moodleEmbedUrl}?guard_runner=1`
     : fallbackEmbedUrl;
 
   return (

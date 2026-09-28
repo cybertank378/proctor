@@ -2,12 +2,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import {AttemptStatus, ViolationType} from "@/generated/prisma/enums";
+import { AttemptStatus, ViolationType } from "@/generated/prisma/enums";
 import prisma from "@/lib/prisma";
-import type {ExamSessionRepositoryContract} from "../../domain/contract/ExamSessionRepositoryContract";
-import type {RecordViolationRequestDto} from "../../domain/dto/ExamSessionRequestDto";
-import type {RecordViolationResultDto} from "../../domain/dto/ExamSessionResponseDto";
-import {ExamSessionEntity} from "../../domain/entity/ExamSessionEntity";
+import type { ExamSessionRepositoryContract } from "../../domain/contract/ExamSessionRepositoryContract";
+import type { RecordViolationRequestDto } from "../../domain/dto/ExamSessionRequestDto";
+import type { RecordViolationResultDto } from "../../domain/dto/ExamSessionResponseDto";
+import { ExamSessionEntity } from "../../domain/entity/ExamSessionEntity";
 
 export function resolveViolationType(
   type: ViolationType | string,

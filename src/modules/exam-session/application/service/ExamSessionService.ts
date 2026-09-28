@@ -1,14 +1,17 @@
 // Files: src/modules/exam-session/application/service/ExamSessionService.ts
-import type {AppResult} from "@/core/application/result/AppResult";
+import type { AppResult } from "@/core/application/result/AppResult";
 import type {
-    LockAttemptRequestDto,
-    RecordViolationRequestDto,
-    VerifyAttemptRequestDto,
+  LockAttemptRequestDto,
+  RecordViolationRequestDto,
+  VerifyAttemptRequestDto,
 } from "../../domain/dto/ExamSessionRequestDto";
-import type {ExamSessionStatusDto, RecordViolationResultDto,} from "../../domain/dto/ExamSessionResponseDto";
-import type {LockAttemptSessionUseCase} from "../usecase/LockAttemptSessionUseCase";
-import type {RecordViolationUseCase} from "../usecase/RecordViolationUseCase";
-import type {VerifyAttemptSessionUseCase} from "../usecase/VerifyAttemptSessionUseCase";
+import type {
+  ExamSessionStatusDto,
+  RecordViolationResultDto,
+} from "../../domain/dto/ExamSessionResponseDto";
+import type { LockAttemptSessionUseCase } from "../usecase/LockAttemptSessionUseCase";
+import type { RecordViolationUseCase } from "../usecase/RecordViolationUseCase";
+import type { VerifyAttemptSessionUseCase } from "../usecase/VerifyAttemptSessionUseCase";
 
 export class ExamSessionService {
   constructor(

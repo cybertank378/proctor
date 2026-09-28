@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import type {FC} from "react"
+import Image from "next/image";
+import type { FC } from "react";
 
 //////////////////////////////////////////////////////////////
 // TYPES
 //////////////////////////////////////////////////////////////
 
-type AvatarSize = "sm" | "md" | "lg" | "xl" | "2xl"
+type AvatarSize = "sm" | "md" | "lg" | "xl" | "2xl";
 
 interface AvatarProps {
-  readonly name?: string | null
+  readonly name?: string | null;
 
-  readonly image?: string | null
+  readonly image?: string | null;
 
-  readonly size?: AvatarSize
+  readonly size?: AvatarSize;
 
-  readonly className?: string
+  readonly className?: string;
 }
 
 //////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ const sizeClasses: Record<AvatarSize, string> = {
   xl: "h-20 w-20 text-2xl",
 
   "2xl": "h-28 w-28 text-4xl",
-}
+};
 
 //////////////////////////////////////////////////////////////
 // HELPERS
@@ -40,26 +40,26 @@ const sizeClasses: Record<AvatarSize, string> = {
 
 function getInitials(name?: string | null): string {
   if (!name?.trim()) {
-    return "?"
+    return "?";
   }
 
   const words = name
     .trim()
     .split(/\s+/)
-    .filter((word): word is string => word.length > 0)
+    .filter((word): word is string => word.length > 0);
 
-  const first = words.at(0)
-  const last = words.at(-1)
+  const first = words.at(0);
+  const last = words.at(-1);
 
   if (!first) {
-    return "?"
+    return "?";
   }
 
   if (!last || first === last) {
-    return first.charAt(0).toUpperCase()
+    return first.charAt(0).toUpperCase();
   }
 
-  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase()
+  return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
 }
 
 //////////////////////////////////////////////////////////////
@@ -79,9 +79,9 @@ const Avatar: FC<AvatarProps> = ({
   // STATE
   //////////////////////////////////////////////////////////
 
-  const initials = getInitials(name)
+  const initials = getInitials(name);
 
-  const hasImage = Boolean(image?.trim())
+  const hasImage = Boolean(image?.trim());
 
   //////////////////////////////////////////////////////////
   // RENDER
@@ -107,7 +107,7 @@ const Avatar: FC<AvatarProps> = ({
         <span className="uppercase">{initials}</span>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Avatar
+export default Avatar;

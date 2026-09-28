@@ -1,11 +1,11 @@
 // File: src/shared-ui/component/Card.tsx
 
-import type React from "react"
+import type React from "react";
 
 interface Props {
-  children: React.ReactNode
+  children: React.ReactNode;
 
-  className?: string
+  className?: string;
 }
 
 export default function Card({ children, className }: Props) {
@@ -20,5 +20,5 @@ export default function Card({ children, className }: Props) {
     >
       {children}
     </div>
-  )
+  );
 }

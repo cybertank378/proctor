@@ -1,7 +1,7 @@
 // Files: src/sections/exam-session/atoms/CameraFeed.tsx
 "use client";
 
-import {Camera} from "lucide-react";
+import { Camera } from "lucide-react";
 import type React from "react";
 import Webcam from "react-webcam";
 

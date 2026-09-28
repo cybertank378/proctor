@@ -1,17 +1,22 @@
 //Files: src/shared-ui/component/Form/FormLayout.tsx
-"use client"
+"use client";
 
-import clsx from "clsx"
-import type React from "react"
+import clsx from "clsx";
+import type React from "react";
 
 type Props = {
-  title?: string
-  subtitle?: string
-  children: React.ReactNode
-  className?: string
-}
+  title?: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  className?: string;
+};
 
-const FormLayout: React.FC<Props> = ({ title, subtitle, children, className }) => {
+const FormLayout: React.FC<Props> = ({
+  title,
+  subtitle,
+  children,
+  className,
+}) => {
   return (
     <div className={clsx("w-full bg-transparent p-10 shadow-lg", className)}>
       {/* HEADER */}
@@ -25,7 +30,7 @@ const FormLayout: React.FC<Props> = ({ title, subtitle, children, className }) =
       {/* CONTENT */}
       <div className="space-y-6">{children}</div>
     </div>
-  )
-}
+  );
+};
 
-export default FormLayout
+export default FormLayout;

@@ -1,7 +1,7 @@
 // Files: src/modules/exam-session/presentations/mapper/ExamSessionPresentationMapper.ts
 
-import type {ExamSessionStatusDto} from "../../domain/dto/ExamSessionResponseDto";
-import type {ExamSessionEntity} from "../../domain/entity/ExamSessionEntity";
+import type { ExamSessionStatusDto } from "../../domain/dto/ExamSessionResponseDto";
+import type { ExamSessionEntity } from "../../domain/entity/ExamSessionEntity";
 
 export const ExamSessionPresentationMapper = {
   toDto(entity: ExamSessionEntity, embedUrl: string): ExamSessionStatusDto {

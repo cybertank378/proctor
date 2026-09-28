@@ -1,9 +1,9 @@
 // src/app/page.tsx
 "use client";
 
-import {useRouter} from "next/navigation";
-import {useEffect} from "react";
-import {ThinkingOrb} from "thinking-orbs";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { ThinkingOrb } from "thinking-orbs";
 
 export default function RootPage() {
   const router = useRouter();

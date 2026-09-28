@@ -1,14 +1,14 @@
 // Files: src/modules/exam-monitoring/infrastructure/factory/ExamMonitoringFactory.ts
 
-import {AuthFactory} from "@/modules/auth/infrastructure/factory/AuthFactory";
-import {ExamMonitoringService} from "../../application/service/ExamMonitoringService";
-import {GetActiveAttemptsUseCase} from "../../application/usecase/GetActiveAttemptsUseCase";
-import {GetActiveQuizUseCase} from "../../application/usecase/GetActiveQuizUseCase";
-import {ListActiveQuizzesUseCase} from "../../application/usecase/ListActiveQuizzesUseCase";
-import {UnlockExamAttemptUseCase} from "../../application/usecase/UnlockExamAttemptUseCase";
-import {ExamMonitoringHttpHandler} from "../http/ExamMonitoringHttpHandler";
-import {PrismaExamMonitoringRepository} from "../repository/PrismaExamMonitoringRepository";
-import {MoodleGuardRpcClient} from "../rpc/MoodleGuardRpcClient";
+import { AuthFactory } from "@/modules/auth/infrastructure/factory/AuthFactory";
+import { ExamMonitoringService } from "../../application/service/ExamMonitoringService";
+import { GetActiveAttemptsUseCase } from "../../application/usecase/GetActiveAttemptsUseCase";
+import { GetActiveQuizUseCase } from "../../application/usecase/GetActiveQuizUseCase";
+import { ListActiveQuizzesUseCase } from "../../application/usecase/ListActiveQuizzesUseCase";
+import { UnlockExamAttemptUseCase } from "../../application/usecase/UnlockExamAttemptUseCase";
+import { ExamMonitoringHttpHandler } from "../http/ExamMonitoringHttpHandler";
+import { PrismaExamMonitoringRepository } from "../repository/PrismaExamMonitoringRepository";
+import { MoodleGuardRpcClient } from "../rpc/MoodleGuardRpcClient";
 
 let httpHandlerInstance: ExamMonitoringHttpHandler | null = null;
 

@@ -1,11 +1,14 @@
 // Files: src/modules/exam-monitoring/infrastructure/repository/PrismaExamMonitoringRepository.ts
 
-import type {ExamAttemptRecord, Prisma} from "@/generated/prisma/client";
+import type { ExamAttemptRecord, Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
-import type {MoodleActiveAttemptItem} from "@/shared/contract/MoodleRpcClientContract";
-import type {ExamMonitoringRepositoryContract} from "../../domain/contract/ExamMonitoringRepositoryContract";
-import {type AttemptStatus, ExamAttemptEntity,} from "../../domain/entity/ExamAttemptEntity";
-import {ExamMonitoringQueryBuilder} from "../builder/ExamMonitoringQueryBuilder";
+import type { MoodleActiveAttemptItem } from "@/shared/contract/MoodleRpcClientContract";
+import type { ExamMonitoringRepositoryContract } from "../../domain/contract/ExamMonitoringRepositoryContract";
+import {
+  type AttemptStatus,
+  ExamAttemptEntity,
+} from "../../domain/entity/ExamAttemptEntity";
+import { ExamMonitoringQueryBuilder } from "../builder/ExamMonitoringQueryBuilder";
 
 export class PrismaExamMonitoringRepository
   implements ExamMonitoringRepositoryContract
@@ -35,21 +38,34 @@ export class PrismaExamMonitoringRepository
     try {
       const where = ExamMonitoringQueryBuilder.buildFilter(filter);
 
-      console.log("[DEBUG MONITORING QUERY WHERE]:", JSON.stringify(where));
+      // Ambil attemptId terbaru per siswa (userId) agar setiap siswa hanya muncul satu kali
+      const latestAttemptsGroup = await prisma.examAttemptRecord.groupBy({
+        by: ["userId"],
+        where,
+        _max: {
+          attemptId: true,
+        },
+      });
 
-      const [records, total] = await Promise.all([
-        prisma.examAttemptRecord.findMany({
-          where,
-          skip: filter.skip,
-          take: filter.take,
-          orderBy: { updatedAt: "desc" },
-        }),
-        prisma.examAttemptRecord.count({ where }),
-      ]);
+      const latestAttemptIds = latestAttemptsGroup
+        .map((g) => g._max.attemptId)
+        .filter((id): id is number => id !== null && id !== undefined);
 
-      console.log(
-        `[DEBUG MONITORING FOUND]: ${records.length} baris dari total ${total}`,
-      );
+      if (latestAttemptIds.length === 0) {
+        return { items: [], total: 0 };
+      }
+
+      const total = latestAttemptIds.length;
+
+      const records = await prisma.examAttemptRecord.findMany({
+        where: {
+          ...where,
+          attemptId: { in: latestAttemptIds },
+        },
+        skip: filter.skip,
+        take: filter.take,
+        orderBy: { updatedAt: "desc" },
+      });
 
       return {
         items: records.map((r) => this.toEntity(r)),
@@ -149,6 +165,21 @@ export class PrismaExamMonitoringRepository
           });
         }),
       );
+
+      // Tandai attempt lama milik siswa yang sama pada kuis ini sebagai COMPLETED
+      for (const item of moodleAttempts) {
+        await prisma.examAttemptRecord.updateMany({
+          where: {
+            quizId: item.quizId,
+            userId: item.userId,
+            attemptId: { not: item.attemptId },
+            status: "IN_PROGRESS",
+          },
+          data: {
+            status: "COMPLETED",
+          },
+        });
+      }
     } catch (error: unknown) {
       console.error("[ERROR syncMoodleAttempts]:", error);
     }

@@ -1,9 +1,9 @@
 //Files: src/sections/dashboard/pages/UnifiedProctorDashboardSection.tsx
 "use client";
 
-import {ShieldCheck} from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import type React from "react";
-import {UnifiedProctorCockpit} from "../organisms/UnifiedProctorCockpit";
+import { UnifiedProctorCockpit } from "../organisms/UnifiedProctorCockpit";
 
 export default function UnifiedProctorDashboardSection(): React.JSX.Element {
   return (

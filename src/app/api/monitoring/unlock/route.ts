@@ -1,6 +1,6 @@
 // Files: src/app/api/monitoring/unlock/route.ts
-import type {NextRequest} from "next/server";
-import {ExamMonitoringFactory} from "@/modules/exam-monitoring/infrastructure/factory/ExamMonitoringFactory";
+import type { NextRequest } from "next/server";
+import { ExamMonitoringFactory } from "@/modules/exam-monitoring/infrastructure/factory/ExamMonitoringFactory";
 
 export async function POST(req: NextRequest): Promise<Response> {
   const handler = ExamMonitoringFactory.createHttpHandler();

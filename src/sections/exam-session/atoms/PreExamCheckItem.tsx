@@ -1,7 +1,7 @@
 //Files: src/sections/exam-session/atoms/PreExamCheckItem.tsx
 "use client";
 
-import type {LucideIcon} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type React from "react";
 
 interface PreExamCheckItemProps {
