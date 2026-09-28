@@ -61,6 +61,7 @@ export const ExamView: React.FC<ExamViewProps> = ({
       {/* Overlay Layar Kunci saat Melanggar */}
       {isLocked && (
         <ExamLockedOverlay
+          attemptId={attemptId}
           violationCount={violationCount}
           maxAllowedViolations={maxViolations}
           isChecking={isCheckingStatus}

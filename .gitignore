@@ -45,3 +45,7 @@ next-env.d.ts
 # uploaded evidences
 /public/assets/images/evidences/*
 !/public/assets/images/evidences/.gitkeep
+
+# uploaded live streams
+/public/assets/images/streams/*
+!/public/assets/images/streams/.gitkeep

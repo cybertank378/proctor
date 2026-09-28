@@ -34,41 +34,53 @@ export async function POST(request: Request) {
       attemptRecord.quizId,
     );
 
-    if (pin !== expectedPin) {
+    console.info(
+      `[UNLOCK-WITH-PIN] Request Buka Kunci: Attempt #${attemptId}, Input PIN: "${pin}", Expected PIN: "${expectedPin}"`
+    );
+
+    if (String(pin).trim() !== String(expectedPin).trim()) {
+      console.warn(
+        `[UNLOCK-WITH-PIN] ❌ PIN tidak cocok: Input "${pin}" !== Expected "${expectedPin}"`
+      );
       return NextResponse.json(
         { success: false, message: "PIN tidak valid." },
         { status: 403 },
       );
     }
 
-    // Buka kunci di Moodle RPC (menggunakan ID pengawas sistem '0' atau bypass)
-    const rpcClient = new MoodleGuardRpcClient();
-    const rpcResult = await rpcClient.unlockStudentAttempt({
-      quizId: attemptRecord.quizId,
-      userId: attemptRecord.userId,
-      attemptId: Number(attemptId),
-      unlockedByProctorMoodleId: 0, // 0 = sistem/PIN
-    });
+    // Buka kunci di Moodle RPC secara defensif (non-blocking)
+    try {
+      const rpcClient = new MoodleGuardRpcClient();
+      const rpcResult = await rpcClient.unlockStudentAttempt({
+        quizId: attemptRecord.quizId,
+        userId: attemptRecord.userId,
+        attemptId: Number(attemptId),
+        unlockedByProctorMoodleId: 0, // 0 = sistem/PIN
+      });
 
-    if (!rpcResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Gagal membuka kunci di Moodle: " + rpcResult.message,
-        },
-        { status: 500 },
-      );
+      if (!rpcResult.success) {
+        console.warn(
+          `[UNLOCK-WITH-PIN] Peringatan Moodle RPC (dilewati): ${rpcResult.message}`
+        );
+      }
+    } catch (rpcErr) {
+      console.warn("[UNLOCK-WITH-PIN] Gagal sync ke Moodle RPC:", rpcErr);
     }
 
-    // Buka kunci di lokal
+    // Buka kunci di database lokal dan reset pelanggaran
     await prisma.examAttemptRecord.updateMany({
       where: { attemptId: Number(attemptId) },
       data: {
         isLockedByProctor: false,
         status: AttemptStatus.IN_PROGRESS,
+        violationCount: 0,
         unlockedByProctorId: "PIN-UNLOCK",
       },
     });
+
+    console.info(
+      `[UNLOCK-WITH-PIN] ✅ Sesi Attempt #${attemptId} berhasil dibuka dengan PIN!`
+    );
 
     return NextResponse.json({
       success: true,

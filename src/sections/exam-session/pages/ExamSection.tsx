@@ -41,6 +41,7 @@ export const ExamSection: React.FC<ExamSectionProps> = ({
     violationCount,
     isLocked: engineLocked,
     lastWarning,
+    resetLock,
   } = useAntiCheatEngine({
     quizId,
     attemptId: sessionData?.attemptId ?? initialAttemptId,
@@ -59,8 +60,19 @@ export const ExamSection: React.FC<ExamSectionProps> = ({
     }
   }, [quizId, fetchSessionStatus]);
 
-  const handleRefreshStatus = () => {
-    void fetchSessionStatus(quizId, sessionData?.attemptId);
+  // Ketika server mengonfirmasi status ujian tidak lagi terkunci, buka kunci engine lokal
+  useEffect(() => {
+    if (sessionData && !sessionData.isLocked && engineLocked) {
+      console.info("[EXAM-SECTION] Sesi ujian telah dibuka! Mereset kunci lokal...");
+      resetLock();
+    }
+  }, [sessionData?.isLocked, engineLocked, resetLock]);
+
+  const handleRefreshStatus = async () => {
+    const data = await fetchSessionStatus(quizId, sessionData?.attemptId);
+    if (data && !data.isLocked) {
+      resetLock();
+    }
   };
 
   const handleRequestScreen = async () => {

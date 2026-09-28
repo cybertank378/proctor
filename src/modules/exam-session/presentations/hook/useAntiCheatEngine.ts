@@ -382,10 +382,18 @@ export function useAntiCheatEngine({
     };
   }, [isExamActive, isLocked, triggerViolation]);
 
+  const resetLock = useCallback(() => {
+    console.info("[ANTI-CHEAT] 🔓 Sesi dibuka kembali. Mengatur ulang hitungan pelanggaran dan status kunci.");
+    setIsLocked(false);
+    setViolationCount(0);
+    setLastWarning(null);
+  }, []);
+
   return {
     violationCount,
     isLocked,
     lastWarning,
     triggerViolation,
+    resetLock,
   };
 }
