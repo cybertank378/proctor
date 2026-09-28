@@ -14,6 +14,7 @@ export interface RecordViolationRequestDto {
 export interface VerifyAttemptRequestDto {
   readonly quizId: number;
   readonly attemptId?: number;
+  readonly cmid?: number;
 }
 
 export interface StartExamSessionRequestDto {

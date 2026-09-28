@@ -43,10 +43,10 @@ export default async function proxy(
         default-src 'self';
         script-src ${scriptDirectives};
         style-src 'self' 'unsafe-inline';
-        img-src 'self' data: blob: https:;
+        img-src 'self' data: blob: https: http:;
         font-src 'self' data:;
-        connect-src 'self' https: wss:;
-        frame-src 'self' https:;
+        connect-src 'self' https: http: wss: ws:;
+        frame-src 'self' https: http:;
         frame-ancestors 'self';
         base-uri 'self';
         form-action 'self';

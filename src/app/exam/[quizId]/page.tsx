@@ -17,10 +17,16 @@ export default async function ExamPage({
   const sp = await searchParams;
 
   const uid = typeof sp.uid === "string" ? Number(sp.uid) : undefined;
+  const cmid = typeof sp.cmid === "string" ? Number(sp.cmid) : undefined;
   const attemptId =
     typeof sp.attemptId === "string" ? Number(sp.attemptId) : undefined;
 
   return (
-    <ExamSection quizId={Number(quizId)} userId={uid} attemptId={attemptId} />
+    <ExamSection
+      quizId={Number(quizId)}
+      cmid={cmid}
+      userId={uid}
+      attemptId={attemptId}
+    />
   );
 }

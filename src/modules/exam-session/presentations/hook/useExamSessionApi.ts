@@ -26,6 +26,7 @@ export function useExamSessionApi() {
     async (
       quizId: number,
       attemptId?: number,
+      cmid?: number,
     ): Promise<ExamSessionStatusDto | null> => {
       setLoading(true);
       try {
@@ -33,6 +34,9 @@ export function useExamSessionApi() {
         url.searchParams.set("quizId", String(quizId));
         if (attemptId) {
           url.searchParams.set("attemptId", String(attemptId));
+        }
+        if (cmid) {
+          url.searchParams.set("cmid", String(cmid));
         }
 
         const res = await fetch(url.toString());

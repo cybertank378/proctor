@@ -10,14 +10,17 @@ export class MoodleQuizAdapter implements MoodleQuizAdapterContract {
       process.env.NEXT_PUBLIC_MOODLE_URL ?? "https://ujian.smpn29jkt.sch.id";
   }
 
-  public getQuizEmbedUrl(quizId: number): string {
-    return `${this.baseUrl}/mod/quiz/view.php?id=${quizId}`;
+  public getQuizEmbedUrl(quizId: number, cmid?: number): string {
+    if (cmid && cmid > 0) {
+      return `${this.baseUrl}/mod/quiz/view.php?id=${cmid}`;
+    }
+    return `${this.baseUrl}/mod/quiz/view.php?q=${quizId}`;
   }
 
   public async validateQuizAvailability(quizId: number): Promise<boolean> {
     try {
       const res = await fetch(
-        `${this.baseUrl}/mod/quiz/view.php?id=${quizId}`,
+        `${this.baseUrl}/mod/quiz/view.php?q=${quizId}`,
         {
           method: "HEAD",
           cache: "no-store",

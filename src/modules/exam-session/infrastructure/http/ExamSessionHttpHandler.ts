@@ -96,6 +96,7 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
     if (req.method === "GET") {
       const quizIdParam = url.searchParams.get("quizId");
       const attemptIdParam = url.searchParams.get("attemptId");
+      const cmidParam = url.searchParams.get("cmid");
 
       if (!quizIdParam) {
         return HttpResponse.success(
@@ -107,6 +108,10 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
 
       const result = await this.sessionService.verifySession({
         quizId: Number(quizIdParam),
+        cmid:
+          cmidParam && !Number.isNaN(Number(cmidParam))
+            ? Number(cmidParam)
+            : undefined,
         attemptId:
           attemptIdParam && !Number.isNaN(Number(attemptIdParam))
             ? Number(attemptIdParam)

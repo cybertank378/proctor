@@ -25,9 +25,16 @@ export class VerifyAttemptSessionUseCase extends BaseUseCase<
     try {
       const safeQuizId = ExamSessionValidator.validateQuizId(input.quizId);
 
-      let embedUrl = `https://ujian.smpn29jkt.sch.id/mod/quiz/view.php?id=${safeQuizId}`;
+      const moodleBase =
+        process.env.NEXT_PUBLIC_MOODLE_URL ?? "https://ujian.smpn29jkt.sch.id";
+      let embedUrl = input.cmid
+        ? `${moodleBase}/mod/quiz/view.php?id=${input.cmid}`
+        : `${moodleBase}/mod/quiz/view.php?q=${safeQuizId}`;
       try {
-        const generatedUrl = this.moodleAdapter.getQuizEmbedUrl(safeQuizId);
+        const generatedUrl = this.moodleAdapter.getQuizEmbedUrl(
+          safeQuizId,
+          input.cmid,
+        );
         if (generatedUrl) embedUrl = generatedUrl;
       } catch {
         // Fallback jika adapter Moodle offline
