@@ -1,7 +1,8 @@
-// Files: src/modules/exam-session/infrastructure/factory/ExamSessionFactory.ts
+import { MoodleGuardRpcClient } from "@/modules/exam-monitoring/infrastructure/rpc/MoodleGuardRpcClient";
 import { ExamSessionService } from "../../application/service/ExamSessionService";
 import { LockAttemptSessionUseCase } from "../../application/usecase/LockAttemptSessionUseCase";
 import { RecordViolationUseCase } from "../../application/usecase/RecordViolationUseCase";
+import { UnlockAttemptWithPinUseCase } from "../../application/usecase/UnlockAttemptWithPinUseCase";
 import { VerifyAttemptSessionUseCase } from "../../application/usecase/VerifyAttemptSessionUseCase";
 import { MoodleQuizAdapter } from "../external/MoodleQuizAdapter";
 import { ExamSessionHttpHandler } from "../http/ExamSessionHttpHandler";
@@ -16,6 +17,10 @@ export const ExamSessionFactory = {
 
   createMoodleAdapter(): MoodleQuizAdapter {
     return new MoodleQuizAdapter();
+  },
+
+  createMoodleRpcClient(): MoodleGuardRpcClient {
+    return new MoodleGuardRpcClient();
   },
 
   createVerifySessionUseCase(): VerifyAttemptSessionUseCase {
@@ -33,21 +38,24 @@ export const ExamSessionFactory = {
     return new LockAttemptSessionUseCase(ExamSessionFactory.createRepository());
   },
 
+  createUnlockAttemptWithPinUseCase(): UnlockAttemptWithPinUseCase {
+    return new UnlockAttemptWithPinUseCase(
+      ExamSessionFactory.createRepository(),
+      ExamSessionFactory.createMoodleRpcClient(),
+    );
+  },
+
   createService(): ExamSessionService {
     return new ExamSessionService(
       ExamSessionFactory.createVerifySessionUseCase(),
       ExamSessionFactory.createRecordViolationUseCase(),
       ExamSessionFactory.createLockAttemptUseCase(),
+      ExamSessionFactory.createUnlockAttemptWithPinUseCase(),
     );
   },
 
   createHttpHandler(): ExamSessionHttpHandler {
-    if (!httpHandlerInstance) {
-      httpHandlerInstance = new ExamSessionHttpHandler(
-        ExamSessionFactory.createService(),
-      );
-    }
-    return httpHandlerInstance;
+    return new ExamSessionHttpHandler(ExamSessionFactory.createService());
   },
 
   reset(): void {

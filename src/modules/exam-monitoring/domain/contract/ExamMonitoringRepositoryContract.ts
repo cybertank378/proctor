@@ -14,7 +14,7 @@ export interface ExamMonitoringRepositoryContract {
   }): Promise<{ readonly items: ExamAttemptEntity[]; readonly total: number }>;
   unlockAttempt(
     attemptId: number,
-    proctorId: string,
+    proctorId?: string | null,
   ): Promise<ExamAttemptEntity>;
   findActiveQuizByRoom(roomNumber?: string | null): Promise<number | null>;
   findLatestQuizId(): Promise<number | null>;

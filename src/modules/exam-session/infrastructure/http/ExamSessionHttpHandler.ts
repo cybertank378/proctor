@@ -44,7 +44,11 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
     }
 
     // 2. Kunci Sesi Ujian (POST /api/exam/session/lock)
-    if (req.method === "POST" && url.pathname.includes("/lock")) {
+    if (
+      req.method === "POST" &&
+      url.pathname.includes("/lock") &&
+      !url.pathname.includes("/unlock")
+    ) {
       const body = req.body as { attemptId: number; reason?: string };
       const result = await this.sessionService.lockSession(body);
 
@@ -57,6 +61,35 @@ export class ExamSessionHttpHandler extends BaseHttpHandler {
       }
 
       return HttpResponse.success(result.data, result.message, 200);
+    }
+
+    // 2.5. Buka Kunci Sesi Siswa dengan PIN (POST /api/exam-session/unlock-with-pin)
+    if (
+      req.method === "POST" &&
+      (url.pathname.endsWith("/unlock-with-pin") ||
+        url.pathname.includes("/unlock-with-pin"))
+    ) {
+      const body = req.body as { attemptId?: number; pin?: string };
+      const result = await this.sessionService.unlockWithPin(body);
+
+      if (result.isFailure) {
+        return Response.json(
+          {
+            success: false,
+            message: result.error,
+          },
+          { status: result.statusCode ?? 400 },
+        );
+      }
+
+      return Response.json(
+        {
+          success: true,
+          message: result.message ?? "Kunci ujian berhasil dibuka dengan PIN.",
+          data: result.data,
+        },
+        { status: 200 },
+      );
     }
 
     // 3. Verifikasi Status Sesi Siswa (GET /api/exam/session)

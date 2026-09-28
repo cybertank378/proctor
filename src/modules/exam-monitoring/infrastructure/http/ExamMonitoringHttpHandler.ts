@@ -1,4 +1,3 @@
-// src/modules/exam-monitoring/infrastructure/http/ExamMonitoringHttpHandler.ts
 import { BaseHttpHandler } from "@/core/infrastructure/http/BaseHttpHandler";
 import type { HttpRequest } from "@/core/infrastructure/http/HttpRequest";
 import { HttpResponse } from "@/core/infrastructure/http/HttpResponse";
@@ -19,6 +18,7 @@ export class ExamMonitoringHttpHandler extends BaseHttpHandler {
   }
 
   protected async process(req: HttpRequest): Promise<Response> {
+    const url = new URL(req.url);
     const authContext = this.getAuthenticatedProctor(req);
     const proctor = await this.proctorResolver(authContext.token);
 
@@ -31,7 +31,6 @@ export class ExamMonitoringHttpHandler extends BaseHttpHandler {
     }
 
     if (req.method === "GET") {
-      const url = new URL(req.url);
 
       // 1. Rute Deteksi Kuis Aktif
       if (url.pathname.includes("/active-quiz")) {

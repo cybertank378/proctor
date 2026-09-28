@@ -11,6 +11,7 @@ import type {
 } from "../../domain/dto/ExamSessionResponseDto";
 import type { LockAttemptSessionUseCase } from "../usecase/LockAttemptSessionUseCase";
 import type { RecordViolationUseCase } from "../usecase/RecordViolationUseCase";
+import type { UnlockAttemptWithPinUseCase } from "../usecase/UnlockAttemptWithPinUseCase";
 import type { VerifyAttemptSessionUseCase } from "../usecase/VerifyAttemptSessionUseCase";
 
 export class ExamSessionService {
@@ -18,6 +19,7 @@ export class ExamSessionService {
     private readonly verifyAttemptSessionUseCase: VerifyAttemptSessionUseCase,
     private readonly recordViolationUseCase: RecordViolationUseCase,
     private readonly lockAttemptSessionUseCase: LockAttemptSessionUseCase,
+    private readonly unlockAttemptWithPinUseCase: UnlockAttemptWithPinUseCase,
   ) {}
 
   public async verifySession(
@@ -36,5 +38,14 @@ export class ExamSessionService {
     dto: LockAttemptRequestDto,
   ): Promise<AppResult<boolean>> {
     return this.lockAttemptSessionUseCase.execute(dto);
+  }
+
+  public async unlockWithPin(dto: {
+    attemptId?: number;
+    pin?: string;
+  }): Promise<
+    AppResult<{ readonly attemptId: number; readonly isUnlocked: boolean }>
+  > {
+    return this.unlockAttemptWithPinUseCase.execute(dto);
   }
 }

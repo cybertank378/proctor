@@ -7,6 +7,8 @@ const PUBLIC_PATHS = [
   "/api/auth/login",
   "/api/violations/record",
   "/api/exam/session",
+  "/api/exam-session/unlock-with-pin",
+  "/api/proctoring/upload",
   "/exam",
 ];
 

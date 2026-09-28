@@ -79,14 +79,18 @@ export class PrismaExamMonitoringRepository
 
   public async unlockAttempt(
     attemptId: number,
-    proctorId: string,
+    proctorId?: string | null,
   ): Promise<ExamAttemptEntity> {
+    const validProctorId =
+      proctorId && proctorId !== "PIN-UNLOCK" ? proctorId : null;
+
     const updated = await prisma.examAttemptRecord.update({
       where: { attemptId },
       data: {
         status: "IN_PROGRESS",
         isLockedByProctor: false,
-        unlockedByProctorId: proctorId,
+        violationCount: 0,
+        unlockedByProctorId: validProctorId,
         updatedAt: new Date(),
       },
     });

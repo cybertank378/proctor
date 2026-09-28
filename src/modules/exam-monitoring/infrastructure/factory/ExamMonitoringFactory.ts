@@ -57,19 +57,16 @@ export const ExamMonitoringFactory = {
   },
 
   createHttpHandler(): ExamMonitoringHttpHandler {
-    if (!httpHandlerInstance) {
-      httpHandlerInstance = new ExamMonitoringHttpHandler(
-        ExamMonitoringFactory.createService(),
-        ExamMonitoringFactory.createUnlockExamAttemptUseCase(),
-        async (token: string) => {
-          const sessionUseCase = AuthFactory.createGetCurrentSessionUseCase();
-          const sessionResult = await sessionUseCase.execute(token);
-          if (sessionResult.isFailure || !sessionResult?.data) return null;
-          return AuthFactory.createRepository().findById(sessionResult.data.id);
-        },
-      );
-    }
-    return httpHandlerInstance;
+    return new ExamMonitoringHttpHandler(
+      ExamMonitoringFactory.createService(),
+      ExamMonitoringFactory.createUnlockExamAttemptUseCase(),
+      async (token: string) => {
+        const sessionUseCase = AuthFactory.createGetCurrentSessionUseCase();
+        const sessionResult = await sessionUseCase.execute(token);
+        if (sessionResult.isFailure || !sessionResult?.data) return null;
+        return AuthFactory.createRepository().findById(sessionResult.data.id);
+      },
+    );
   },
 
   reset(): void {

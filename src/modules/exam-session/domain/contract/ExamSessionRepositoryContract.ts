@@ -9,8 +9,10 @@ export interface ExamSessionRepositoryContract {
     quizId: number,
     attemptId?: number,
   ): Promise<ExamSessionEntity | null>;
+  findByAttemptId(attemptId: number): Promise<ExamSessionEntity | null>;
   saveViolationRecord(
     dto: RecordViolationRequestDto,
   ): Promise<RecordViolationResultDto>;
   lockAttempt(attemptId: number, reason?: string): Promise<boolean>;
+  unlockAttempt(attemptId: number): Promise<boolean>;
 }

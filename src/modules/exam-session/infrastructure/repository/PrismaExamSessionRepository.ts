@@ -181,6 +181,31 @@ export class PrismaExamSessionRepository
     });
   }
 
+  public async findByAttemptId(
+    attemptId: number,
+  ): Promise<ExamSessionEntity | null> {
+    const record = await prisma.examAttemptRecord.findUnique({
+      where: { attemptId },
+    });
+
+    if (!record) return null;
+
+    const isLocked =
+      record.isLockedByProctor || record.status === AttemptStatus.LOCKED;
+
+    return new ExamSessionEntity({
+      id: record.id,
+      attemptId: record.attemptId,
+      quizId: record.quizId,
+      studentIdentifier: String(record.userId),
+      violationCount: record.violationCount,
+      maxAllowedViolations: record.maxAllowedViolations,
+      isLocked,
+      status: isLocked ? "LOCKED" : "IN_PROGRESS",
+      createdAt: record.createdAt,
+    });
+  }
+
   public async lockAttempt(
     attemptId: number,
     reason?: string,
@@ -191,6 +216,21 @@ export class PrismaExamSessionRepository
         isLockedByProctor: true,
         status: AttemptStatus.LOCKED,
         ...(reason ? { disqualificationReason: reason } : {}),
+      },
+    });
+
+    return result.count > 0;
+  }
+
+  public async unlockAttempt(attemptId: number): Promise<boolean> {
+    const result = await prisma.examAttemptRecord.updateMany({
+      where: { attemptId },
+      data: {
+        isLockedByProctor: false,
+        status: AttemptStatus.IN_PROGRESS,
+        violationCount: 0,
+        unlockedByProctorId: null,
+        updatedAt: new Date(),
       },
     });
 
