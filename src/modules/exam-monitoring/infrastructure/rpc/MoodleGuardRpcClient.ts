@@ -127,6 +127,10 @@ export class MoodleGuardRpcClient implements MoodleRpcClientContract {
       );
       url.searchParams.set("moodlewsrestformat", "json");
 
+      console.info(
+        `[MOODLE RPC] ⏳ Menghubungkan ke Moodle WebService: ${url.origin} (wsfunction: quizaccess_guard_get_active_attempts, quizId: ${quizId}). Harap menunggu respon Moodle...`
+      );
+
       const response = await fetch(url.toString(), {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -137,13 +141,36 @@ export class MoodleGuardRpcClient implements MoodleRpcClientContract {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `[MOODLE RPC ERROR] Server Moodle merespons HTTP ${response.status}:`,
+          errorText
+        );
         return [];
       }
 
       const result = await response.json();
-      if (!Array.isArray(result)) {
+
+      // Cek apakah Moodle mengembalikan pesan exception
+      if (result && !Array.isArray(result) && (result.exception || result.message)) {
+        console.error(
+          `[MOODLE RPC EXCEPTION] Moodle WebService mengembalikan exception error:`,
+          result
+        );
         return [];
       }
+
+      if (!Array.isArray(result)) {
+        console.warn(
+          `[MOODLE RPC WARN] Format data dari Moodle bukan array:`,
+          result
+        );
+        return [];
+      }
+
+      console.info(
+        `[MOODLE RPC SUCCESS] ✅ Menerima ${result.length} data pengerjaan aktif dari Moodle untuk Quiz ID ${quizId}.`
+      );
 
       return result.map((item: Record<string, unknown>) => {
         const fullName =
@@ -180,7 +207,7 @@ export class MoodleGuardRpcClient implements MoodleRpcClientContract {
         };
       });
     } catch (error) {
-      console.error("[MOODLE RPC ERROR] Gagal mengambil siswa aktif:", error);
+      console.error("[MOODLE RPC ERROR] Gagal mengambil siswa aktif dari Moodle:", error);
       return [];
     }
   }
